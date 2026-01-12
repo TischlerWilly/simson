@@ -9,7 +9,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Funktionen/myfunktion.cpp \
+    Funktionen/text.cpp \
     Funktionen/umwandeln.cpp \
+    Klassen/formel.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
     Klassen/geo/geo_text.cpp \
@@ -20,11 +23,21 @@ SOURCES += \
     Klassen/geo/strecke.cpp \
     Klassen/geo/vorschau.cpp \
     Klassen/text_zw.cpp \
+    Klassen/wenndannsonst.cpp \
+    Klassen/wst/bohrraster.cpp \
+    Klassen/wst/bohrung.cpp \
+    Klassen/wst/fraeseraufruf.cpp \
+    Klassen/wst/fraeserbogen.cpp \
+    Klassen/wst/fraesergerade.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    Defines/def_bearbeitungen.h \
+    Funktionen/myfunktion.h \
+    Funktionen/text.h \
     Funktionen/umwandeln.h \
+    Klassen/formel.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
     Klassen/geo/defines_geometrie.h \
@@ -36,6 +49,12 @@ HEADERS += \
     Klassen/geo/strecke.h \
     Klassen/geo/vorschau.h \
     Klassen/text_zw.h \
+    Klassen/wenndannsonst.h \
+    Klassen/wst/bohrraster.h \
+    Klassen/wst/bohrung.h \
+    Klassen/wst/fraeseraufruf.h \
+    Klassen/wst/fraeserbogen.h \
+    Klassen/wst/fraesergerade.h \
     mainwindow.h
 
 FORMS += \

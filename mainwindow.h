@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
 #include "Klassen/geo/vorschau.h"
 
 QT_BEGIN_NAMESPACE
@@ -26,5 +27,8 @@ private:
 
 private slots:
     void resizeEvent(QResizeEvent *event);
+    void getMausPosXY(QPoint p);
+    void on_btn_import_clicked();
+    void on_action_oeffnen_triggered();
 };
 #endif // MAINWINDOW_H
