@@ -12,6 +12,15 @@
 #include "rechteck.h"
 #include "defines_geometrie.h"
 #include "geofunktionen.h"
+#include "Klassen/wkz/wkz_magazin.h"
+#include "Defines/def_bearbeitungen.h"
+#include "Klassen/wst/bohrung.h"
+#include "Klassen/wst/bohrraster.h"
+#include "Klassen/wst/nut.h"
+#include "Klassen/wst/rechtecktasche.h"
+#include "Klassen/wst/fraeseraufruf.h"
+#include "Klassen/wst/fraesergerade.h"
+#include "Klassen/wst/fraeserbogen.h"
 
 class geo_text
 {
@@ -49,5 +58,10 @@ private:
     bool                    Zeivor;//Zeilenvorschub
 
 };
+
+//Funktionen außerhalb der Klasse:
+
+geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, wkz_magazin wkzm);
+
 
 #endif // GEO_TEXT_H

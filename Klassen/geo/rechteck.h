@@ -16,6 +16,23 @@ public:
     void set_text(QString geotext);
     void set_mipu(double x, double y, double z);
     void set_mipu(punkt3d p);
+    void set_obli(double x, double y, double z);
+    void set_obli(punkt3d p);
+    void set_obre(double x, double y, double z);
+    void set_obre(punkt3d p);
+    void set_unli(double x, double y, double z);
+    void set_unli(punkt3d p);
+    void set_unre(double x, double y, double z);
+    void set_unre(punkt3d p);
+    void set_li(double x, double y, double z);
+    void set_li(punkt3d p);
+    void set_re(double x, double y, double z);
+    void set_re(punkt3d p);
+    void set_ob(double x, double y, double z);
+    void set_ob(punkt3d p);
+    void set_un(double x, double y, double z);
+    void set_un(punkt3d p);
+
     void set_laenge(double neue_laenge);
     void set_breite(double neue_breite);
     void set_rad(double neuer_radius);
@@ -40,10 +57,10 @@ public:
 
     //--------------------------------------------------get_xy:
     punkt3d mipu();
-    punkt3d obl();
-    punkt3d obr();
-    punkt3d unl();
-    punkt3d unr();
+    punkt3d obli();
+    punkt3d obre();
+    punkt3d unli();
+    punkt3d unre();
 
     inline  double  l()
     {
