@@ -46,14 +46,21 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     vorschaufenster.slot_aktualisieren();
 
     //rechter Bereich
-    ui->btn_import->move(vorschaufenster.pos().rx()+vorschaufenster.width()+5, 5);
+    int x = vorschaufenster.pos().rx()+vorschaufenster.width()+5;
+    ui->btn_import->move(x, 5);
 
-    ui->listWidget_dateien->move(ui->btn_import->pos().x(), ui->btn_import->pos().y()+ui->btn_import->height()+5);
-    ui->listWidget_dateien->setFixedHeight(this->height()-ui->listWidget_dateien->pos().y()-60);
-    ui->listWidget_dateien->setFixedWidth(this->width()-ui->listWidget_dateien->pos().x()-5);
+    int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 5;
+    int b = this->width() - x - 5;
+    ui->listWidget_dateien->move(x, ui->btn_import->pos().y()+ui->btn_import->height()+5);
+    ui->listWidget_dateien->setFixedHeight(h);
+    ui->listWidget_dateien->setFixedWidth(b);
 
-    ui->label_mauspos->move(ui->btn_import->pos().x(), ui->listWidget_dateien->pos().y()+ui->listWidget_dateien->height()+2);
-    ui->label_mauspos->setFixedWidth(ui->listWidget_dateien->width());
+    ui->listWidget_bearb->move(x, ui->listWidget_dateien->pos().y()+ h + 5);
+    ui->listWidget_bearb->setFixedHeight(h);
+    ui->listWidget_bearb->setFixedWidth(b);
+
+    ui->label_mauspos->move(x, ui->listWidget_bearb->pos().y() + h + 2);
+    ui->label_mauspos->setFixedWidth(b);
     ui->label_mauspos->setFixedHeight(20);
 }
 

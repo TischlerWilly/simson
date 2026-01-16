@@ -175,7 +175,7 @@ QString werkstueck::cad_fehler(bool kurz)
 }
 geo_text werkstueck::geo(wkz_magazin wkzm)
 {
-    return geo_ermitteln(Bearb, Laenge, Breite, Dicke, wkzm);
+    return geo_ermitteln(Bearb, Laenge, Breite, Dicke, Versatz_x, Versatz_y, wkzm);
 }
 
 //--------------------------------------------------Manipulationen:

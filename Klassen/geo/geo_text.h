@@ -61,7 +61,8 @@ private:
 
 //Funktionen außerhalb der Klasse:
 
-geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, wkz_magazin wkzm);
+geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, double versatz_x, double versatz_y, \
+                       wkz_magazin wkzm);
 
 
 #endif // GEO_TEXT_H

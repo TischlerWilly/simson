@@ -1036,16 +1036,13 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
         }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
         {
             fraeserbogen fb(zeile.text());
-            bogen b;
-            b.set_startpunkt(fb.stapu());
-            b.set_endpunkt(fb.endpu());
+            bogen b = fb.bog();
             if(fb.bezug() == WST_BEZUG_OBSEI)
             {
-                b.set_rad(fb.rad(), fb.uzs());
                 b.set_farbe(FARBE_BLAU);
             }else
             {
-                b.set_rad(fb.rad(), !fb.uzs());
+                b.wenden();
                 b.set_farbe(farbe_unterseite);
                 b.set_stil(STIL_GESTRICHELT);
             }

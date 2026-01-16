@@ -36,7 +36,7 @@
       <x>540</x>
       <y>40</y>
       <width>256</width>
-      <height>481</height>
+      <height>261</height>
      </rect>
     </property>
    </widget>
@@ -54,6 +54,16 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignmentFlag::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget_bearb">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>310</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
     </property>
    </widget>
   </widget>
