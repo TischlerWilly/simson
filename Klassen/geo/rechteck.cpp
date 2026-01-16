@@ -42,6 +42,102 @@ void rechteck::set_mipu(punkt3d p)
 {
     MiPu = p;
 }
+void rechteck::set_obli(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x + l()/2 );
+    MiPu.set_y( y - b()/2 );
+    MiPu.set_z( z );
+}
+void rechteck::set_obli(punkt3d p)
+{
+    set_obli(p.x(), p.y(), p.z());
+}
+void rechteck::set_obre(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x - l()/2 );
+    MiPu.set_y( y - b()/2 );
+    MiPu.set_z( z );
+}
+void rechteck::set_obre(punkt3d p)
+{
+    set_obre(p.x(), p.y(), p.z());
+}
+void rechteck::set_unli(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x + l()/2 );
+    MiPu.set_y( y + b()/2 );
+    MiPu.set_z( z );
+}
+void rechteck::set_unli(punkt3d p)
+{
+    set_unli(p.x(), p.y(), p.z());
+}
+void rechteck::set_unre(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x - l()/2 );
+    MiPu.set_y( y + b()/2 );
+    MiPu.set_z( z );
+}
+void rechteck::set_unre(punkt3d p)
+{
+    set_unre(p.x(), p.y(), p.z());
+}
+void rechteck::set_li(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x + l()/2 );
+    MiPu.set_y( y );
+    MiPu.set_z( z );
+}
+void rechteck::set_li(punkt3d p)
+{
+    set_li(p.x(), p.y(), p.z());
+}
+void rechteck::set_re(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x - l()/2 );
+    MiPu.set_y( y );
+    MiPu.set_z( z );
+}
+void rechteck::set_re(punkt3d p)
+{
+    set_re(p.x(), p.y(), p.z());
+}
+void rechteck::set_ob(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x );
+    MiPu.set_y( y - b()/2 );
+    MiPu.set_z( z );
+}
+void rechteck::set_ob(punkt3d p)
+{
+    set_ob(p.x(), p.y(), p.z());
+}
+void rechteck::set_un(double x, double y, double z)
+{
+    //Die Funktion beachtet den Drehwinkel nicht.
+    //Die Funktion setzt voraus, dass Länge und Breite bereits bekannt sind
+    MiPu.set_x( x );
+    MiPu.set_y( y + b()/2 );
+    MiPu.set_z( z );
+}
+void rechteck::set_un(punkt3d p)
+{
+    set_un(p.x(), p.y(), p.z());
+}
 void rechteck::set_laenge(double neue_laenge)
 {
     Laenge = neue_laenge;
@@ -64,28 +160,28 @@ punkt3d rechteck::mipu()
 {
     return MiPu;
 }
-punkt3d rechteck::obl()
+punkt3d rechteck::obli()
 {
     punkt3d p = MiPu;
     p.verschieben_um( -l()/2 , b()/2);
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
-punkt3d rechteck::obr()
+punkt3d rechteck::obre()
 {
     punkt3d p = MiPu;
     p.verschieben_um( l()/2 , b()/2);
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
-punkt3d rechteck::unl()
+punkt3d rechteck::unli()
 {
     punkt3d p = MiPu;
     p.verschieben_um( -l()/2 , -b()/2);
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
-punkt3d rechteck::unr()
+punkt3d rechteck::unre()
 {
     punkt3d p = MiPu;
     p.verschieben_um( l()/2 , -b()/2);
@@ -96,10 +192,10 @@ double rechteck::abst(punkt3d p)
 {
     punkt3d pol, por, pul, pur;
 
-    pol = obl();
-    por = obr();
-    pul = unl();
-    pur = unr();
+    pol = obli();
+    por = obre();
+    pul = unli();
+    pur = unre();
 
     strecke sli, sre, sob, sun;
     sli.set_stapu(pul);
@@ -145,10 +241,10 @@ double rechteck::abst(punkt3d p)
         r_innen.set_breite(b()-rad()*2);
 
         bogen bobre, bobli, bunli, bunre;
-        bobre.set_mipu(r_innen.obr());
-        bobli.set_mipu(r_innen.obl());
-        bunli.set_mipu(r_innen.unl());
-        bunre.set_mipu(r_innen.unr());
+        bobre.set_mipu(r_innen.obre());
+        bobli.set_mipu(r_innen.obli());
+        bunli.set_mipu(r_innen.unli());
+        bunre.set_mipu(r_innen.unre());
         bobre.set_rad(rad());
         bobli.set_rad(rad());
         bunli.set_rad(rad());

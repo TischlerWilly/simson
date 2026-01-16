@@ -72,6 +72,7 @@ public:
 
     void    verschieben_um(double xversatz, double yversatz);
     void    drehen(punkt3d zentrum, double drewi);
+    void    spiegeln(punkt3d sp_achse, punkt3d ep_achse);
 
 private:
     double  X_param, Y_param, Z_param;

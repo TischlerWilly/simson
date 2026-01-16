@@ -208,14 +208,14 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
         {
             //Rechteck mit eckigen Ecken:
             QPainterPath pp;
-            pp.moveTo(r.unl().x(),\
-                      r.unl().y());
-            pp.lineTo(r.unr().x(),\
-                      r.unr().y());
-            pp.lineTo(r.obr().x(),\
-                      r.obr().y());
-            pp.lineTo(r.obl().x(),\
-                      r.obl().y());
+            pp.moveTo(r.unli().x(),\
+                      r.unli().y());
+            pp.lineTo(r.unre().x(),\
+                      r.unre().y());
+            pp.lineTo(r.obre().x(),\
+                      r.obre().y());
+            pp.lineTo(r.obli().x(),\
+                      r.obli().y());
             pp.closeSubpath();
             painter.drawPath(pp);
 
@@ -241,8 +241,8 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             unli_1.drehen(mitpu, r.drewi());
             pp.moveTo(unli_1.x(), unli_1.y());
             //Rundung links unten:
-            r_ecke.set_mipu(r_innen.obl());
-            pp.arcTo(r_ecke.unl().x(), r_ecke.unl().y(), r_ecke.l(), r_ecke.b(), \
+            r_ecke.set_mipu(r_innen.obli());
+            pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
                      qRadiansToDegrees(r.drewi())+180, 90);
             //Linie nach rechts unten:            
             punkt3d unre_1;
@@ -251,8 +251,8 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             unre_1.drehen(mitpu, r.drewi());
             pp.lineTo(unre_1.x(), unre_1.y());
             //Rundung rechts unten:
-            r_ecke.set_mipu(r_innen.obr());
-            pp.arcTo(r_ecke.unl().x(), r_ecke.unl().y(), r_ecke.l(), r_ecke.b(), \
+            r_ecke.set_mipu(r_innen.obre());
+            pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
                      qRadiansToDegrees(r.drewi())+270, 90);
             //Linie nach rechts oben:
             punkt3d obre_1;
@@ -261,8 +261,8 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             obre_1.drehen(mitpu, r.drewi());
             pp.lineTo(obre_1.x(), obre_1.y());
             //Rundung rechts oben
-            r_ecke.set_mipu(r_innen.unr());
-            pp.arcTo(r_ecke.unl().x(), r_ecke.unl().y(), r_ecke.l(), r_ecke.b(), \
+            r_ecke.set_mipu(r_innen.unre());
+            pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
                      qRadiansToDegrees(r.drewi())+0, 90);
             //Linie nach links oben:
             punkt3d obli_1;
@@ -271,8 +271,8 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             obli_1.drehen(mitpu, r.drewi());
             pp.lineTo(obli_1.x(), obli_1.y());
             //Rundung links oben
-            r_ecke.set_mipu(r_innen.unl());
-            pp.arcTo(r_ecke.unl().x(), r_ecke.unl().y(), r_ecke.l(), r_ecke.b(), \
+            r_ecke.set_mipu(r_innen.unli());
+            pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
                      qRadiansToDegrees(r.drewi())+90, 90);
             //Kontur schließen:
             pp.closeSubpath();

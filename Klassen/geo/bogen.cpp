@@ -175,7 +175,20 @@ void bogen::richtung_unkehren()
     set_swi(ewi());
     set_ewi(tmp);
 }
+void bogen::verschieben_um(double xversatz, double yversatz)
+{
+    Mipu.verschieben_um(xversatz, yversatz);
+}
+void bogen::wenden()
+{
+    // Mittelpunkt an der Sehne spiegeln
+    Mipu.spiegeln(spu(), epu());
 
+    // Start- und Endwinkel tauschen
+    double tmp = swi();
+    Swi = ewi();
+    Ewi = tmp;
+}
 
 
 

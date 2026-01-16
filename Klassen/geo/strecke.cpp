@@ -206,6 +206,20 @@ bool strecke::auf_strecke(punkt3d p)
     }
     return ergebnis;
 }
+double strecke::wink()
+{
+    // Berechnet den Winkel (in Radiant) zwischen der Horizontalen
+    // und der Linie vom Zentrumspunkt (cx, cy) zum Schenkelpunkt (px, py).
+    //double cx = stapu().x();
+    //double cy = stapu().y();
+    //double px = endpu().x();
+    //double py = endpu().y();
+
+    double dx = endpu().x() - stapu().x();//px - cx
+    double dy = endpu().y() - stapu().y();//py - cy
+
+    return std::atan2(dy, dx);  // Ergebnis in Radiant
+}
 QString strecke::text()
 {
     QString msg = STRECKE;
@@ -237,6 +251,45 @@ void strecke::richtung_unkehren()
     punkt3d tmp = Stapu;
     Stapu = Endpu;
     Endpu = tmp;
+}
+void strecke::drenen_um_stapu_2d(double drehwi)
+{
+    punkt3d sp(Stapu);
+    punkt3d ep(Endpu);
+    ep = drehen(sp, ep, drehwi);
+    punkt3d tmp;
+    tmp.set_x(ep.x());
+    tmp.set_y(ep.y());
+    tmp.set_z(Endpu.z());
+    set_endpu(tmp);
+}
+void strecke::drenen_um_endpu_2d(double drehwi)
+{
+    punkt3d sp(Stapu);
+    punkt3d ep(Endpu);
+    sp = drehen(ep, sp, drehwi);
+    punkt3d tmp;
+    tmp.set_x(sp.x());
+    tmp.set_y(sp.y());
+    tmp.set_z(Stapu.z());
+    set_stapu(tmp);
+}
+void strecke::drenen_um_mipu_2d(double drehwi)
+{
+    punkt3d sp(Stapu);
+    punkt3d ep(Endpu);
+    punkt3d mp = mipu();
+    sp = drehen(mp, sp, drehwi);
+    ep = drehen(mp, ep, drehwi);
+    punkt3d tmp;
+    tmp.set_x(sp.x());
+    tmp.set_y(sp.y());
+    tmp.set_z(Stapu.z());
+    set_stapu(tmp);
+    tmp.set_x(ep.x());
+    tmp.set_y(ep.y());
+    tmp.set_z(Endpu.z());
+    set_endpu(tmp);
 }
 void strecke::verschieben_um(double xversatz, double yversatz)
 {

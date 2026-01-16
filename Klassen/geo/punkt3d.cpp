@@ -43,6 +43,33 @@ void punkt3d::drehen(punkt3d zentrum, double drewi)
     Y_param = rotatedY + zentrum.y();
 }
 
+void punkt3d::spiegeln(punkt3d sp_achse, punkt3d ep_achse)
+{
+    //sp_achse und ep_achse definieren die Achse über die der Punkt gespiegelt wird
+
+    // Richtungsvektor der Sehne
+    double d_x = ep_achse.x() - sp_achse.x();
+    double d_y = ep_achse.y() - sp_achse.y();
+
+    // Normalenvektor (senkrecht zu d)
+    double n_x = -d_y;
+    double n_y = d_x;
+
+    // Normieren
+    double len = std::sqrt(n_x*n_x + n_y*n_y);
+    n_x /= len;
+    n_y /= len;
+
+    // Abstand des Punkts zur Geraden in Normalenrichtung
+    double C_x = x();
+    double C_y = y();
+    double dist = (C_x - sp_achse.x()) * n_x + (C_y - sp_achse.y()) * n_y;
+
+    // Spiegelung
+    X_param = C_x - 2 * dist * n_x;
+    Y_param = C_y - 2 * dist * n_y;
+}
+
 //-------------------Funktionen nicht innerhalb der Klasse:
 punkt3d operator +(punkt3d p1, punkt3d p2)
 {

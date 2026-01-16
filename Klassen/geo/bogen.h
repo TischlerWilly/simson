@@ -35,6 +35,8 @@ public:
 
     //Manipulationen:
     void    richtung_unkehren();
+    void    verschieben_um(double xversatz, double yversatz);
+    void    wenden();
 
 private:
     punkt3d Mipu;
