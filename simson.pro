@@ -37,6 +37,7 @@ SOURCES += \
     Klassen/wst/nut.cpp \
     Klassen/wst/rechtecktasche.cpp \
     Klassen/wst/werkstueck.cpp \
+    Klassen/wst/werkstuecke.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -73,6 +74,7 @@ HEADERS += \
     Klassen/wst/nut.h \
     Klassen/wst/rechtecktasche.h \
     Klassen/wst/werkstueck.h \
+    Klassen/wst/werkstuecke.h \
     mainwindow.h
 
 FORMS += \

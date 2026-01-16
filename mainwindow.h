@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include "Klassen/geo/vorschau.h"
+#include "Klassen/wst/werkstuecke.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,6 +25,7 @@ private:
 
     //Variablen:
     vorschau vorschaufenster;
+    werkstuecke Wste;
 
 private slots:
     void resizeEvent(QResizeEvent *event);
