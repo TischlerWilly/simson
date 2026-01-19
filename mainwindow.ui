@@ -81,6 +81,7 @@
      <string>Datei</string>
     </property>
     <addaction name="action_oeffnen"/>
+    <addaction name="actionNeu"/>
    </widget>
    <addaction name="menuDatei"/>
   </widget>
@@ -91,6 +92,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionNeu">
+   <property name="text">
+    <string>Neu</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

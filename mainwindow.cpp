@@ -17,8 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     s.set_stapu(-50,0,0);
     s.set_endpu(50,0,0);
     gt.add_strecke(s);
-    s.set_stapu(0,-50,0);
-    s.set_endpu(0,50,0);
+    s.drenen_um_mipu_2d(degToRad(90));
     gt.add_strecke(s);
     gt.zeilenvorschub();
 
@@ -29,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&vorschaufenster, SIGNAL(sende_maus_pos(QPoint)),\
             this, SLOT(getMausPosXY(QPoint)));
+    connect(&vorschaufenster, SIGNAL(sende_zeilennummer(uint, bool)),\
+            this, SLOT(get_zeilennummer_bearb(uint, bool)));
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +75,37 @@ void MainWindow::getMausPosXY(QPoint p)
     msg += " / Y: ";
     msg += y;
     ui->label_mauspos->setText(msg);
+}
+void MainWindow::get_zeilennummer_bearb(uint nr, bool bearbeiten)
+{
+    if(nr <= ui->listWidget_bearb->count())
+    {
+        ui->listWidget_bearb->setCurrentRow(nr);
+    }
+}
+void MainWindow::on_actionNeu_triggered()
+{
+    QString name = "Unbekannt";
+
+    werkstueck w;
+    w.set_name(name);
+    w.set_laenge(500);
+    w.set_breite(300);
+    w.set_dicke(19);
+    bohrung bo;
+    bo.set_dm(25);
+    bo.set_x(100);
+    bo.set_y(50);
+    bo.set_z(19);
+    bo.set_tiefe(10);
+    bo.set_bezug(WST_BEZUG_OBSEI);
+    text_zw bearb;
+    bearb.add_hi(bo.text());
+    w.set_bearb(bearb);
+
+    Wste.neu(w);
+
+    ui->listWidget_dateien->addItem(name);
 }
 void MainWindow::on_btn_import_clicked()
 {
@@ -138,5 +170,120 @@ void MainWindow::on_action_oeffnen_triggered()
     update_listwidget_wste();
     emit signal_exporte(wste.namen_tz());
     */
+}
+
+void MainWindow::update_listwidget_bearb(werkstueck *w)
+{
+    int currentRow = ui->listWidget_bearb->currentRow();
+    ui->listWidget_bearb->clear();
+    //Programmkopf als erste Zeile einfügen:
+    text_zw pkopf;
+    pkopf.set_trenz(TRENNZ_BEARB_PARAM);
+    QString param;
+    param  = "L=";
+    param += w->laenge_qstring();
+    pkopf.add_hi(param);
+    param  = "B=";
+    param += w->breite_qstring();
+    pkopf.add_hi(param);
+    param  = "D=";
+    param += w->dicke_qstring();
+    pkopf.add_hi(param);
+    ui->listWidget_bearb->addItem(pkopf.text());
+    //Bearbeitungen ab 2. Zeile einfügen:
+    text_zw *tmp_bearb = w->bearb_ptr();
+    for(uint i=0; i<tmp_bearb->count() ;i++)
+    {
+        QString bearb = tmp_bearb->at(i);
+        text_zw zeile;
+        zeile.set_text(bearb,TRENNZ_BEARB_PARAM);
+        QColor farbe;
+        farbe.setRgb(255,255,255);
+        int deckkraft = 160;
+        QString bezug = zeile.at(1);
+        if(zeile.at(0) == BEARBART_BOHR)
+        {
+            bearb = bohr_zu_prgzei(zeile.text());
+            if(bezug == WST_BEZUG_OBSEI)
+            {
+                farbe.setRgb(0,240,240,deckkraft); //Hellblau
+            }else if(bezug == WST_BEZUG_UNSEI)
+            {
+                farbe.setRgb(255,0,128,deckkraft);//Rose
+            }else
+            {
+                farbe.setRgb(185,122,87,deckkraft);//braun
+            }
+        }else if(zeile.at(0) == BEARBART_BOHRRASTER)
+        {
+            bearb = bohrRaster_zu_prgzei(zeile.text());
+        }else if(zeile.at(0) == BEARBART_NUT)
+        {
+            bearb = nut_zu_prgzei(zeile.text());
+            farbe.setRgb(145,145,255,deckkraft);//helles lila
+        }else if(zeile.at(0) == BEARBART_RTA)
+        {
+            bearb = rta_zu_prgzei(zeile.text());
+            if(bezug == WST_BEZUG_OBSEI || bezug == WST_BEZUG_UNSEI)
+            {
+                farbe = Qt::darkGray;
+                farbe.setAlpha(deckkraft);
+            }else
+            {
+                farbe = Qt::green;
+                farbe.setAlpha(deckkraft);
+            }
+        }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+        {
+            bearb = fauf_zu_prgzei(zeile.text());
+            farbe.setRgb(255,128,0,deckkraft);//orange
+        }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
+        {
+            bearb = fgerade_zu_prgzei(zeile.text());
+            farbe.setRgb(255,155,106,deckkraft);//helles orange
+        }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            bearb = fbogen_zu_prgzei(zeile.text());
+            farbe.setRgb(255,155,106,deckkraft);//helles orange
+        }
+        ui->listWidget_bearb->addItem(bearb);
+        ui->listWidget_bearb->item(i+1)->setBackground(farbe);
+    }
+    ui->listWidget_bearb->addItem("...");
+    if(currentRow < ui->listWidget_bearb->count())
+    {
+        ui->listWidget_bearb->setCurrentRow(currentRow);
+    }
+}
+
+void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
+{
+    uint row = currentRow;
+    if(Wste.wst(row))
+    {
+        werkstueck *w = Wste.wst(row);
+
+        wkz_magazin wkz;
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), 0);
+
+        update_listwidget_bearb(w);
+    }else
+    {
+        QString msg;
+        msg = "currentRow = ";
+        msg += int_to_qstring(currentRow);
+        msg += "\n row = ";
+        msg += int_to_qstring(row);
+        msg += "\nAnz wst = ";
+        msg += int_to_qstring(Wste.anzahl());
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Fehler in Funktion MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)");
+        mb.exec();
+    }
+}
+void MainWindow::on_listWidget_bearb_currentRowChanged(int currentRow)
+{
+    vorschaufenster.slot_aktives_Element_einfaerben(currentRow);
 }
 

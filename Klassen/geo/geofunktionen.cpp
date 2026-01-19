@@ -43,6 +43,8 @@ double winkel(double endpunkt1_x, double endpunkt1_y,\
 
 punkt3d drehen(punkt3d punkt, punkt3d zentrum, double drewi)
 {
+    //drewi muss in Radiant angegeben werden!!
+
     // Schritt 1: Punkt relativ zum Zentrum verschieben
     double dx = punkt.x() - zentrum.x();
     double dy = punkt.y() - zentrum.y();

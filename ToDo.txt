@@ -1,3 +1,26 @@
 ToDo:
 
+-> Werkstücke umbenennen
+
+-> Programmeinstellungen
+    > ini-Datei
+        > Benutzerordner
+            > Ein Unterordner für jede Maschine
+
+-> CNC-Maschinen verwalten
+    > Maschine erzeugen
+        > Werkzeugmagazin
+            > Werkzeugmagazin bearbeiten
+        > Maximale Werkstückgröße
+    > Maschine entfernen
+    > Maschinentisch darstellen
+
+-> Bearbeitungen editieren
+    > Bohrungen
+    > KTA
+    > RTA
+    > Nut
+    > fkon
+
+
 

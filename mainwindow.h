@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include "Klassen/geo/vorschau.h"
 #include "Klassen/wst/werkstuecke.h"
+#include "Funktionen/funktionen_prgtext.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,6 +22,8 @@ public:
     ~MainWindow();
 
 private:
+    void update_listwidget_bearb(werkstueck *w);
+
     Ui::MainWindow *ui;
 
     //Variablen:
@@ -30,7 +33,12 @@ private:
 private slots:
     void resizeEvent(QResizeEvent *event);
     void getMausPosXY(QPoint p);
+    void get_zeilennummer_bearb(uint nr, bool bearbeiten);
+    void on_actionNeu_triggered();
     void on_btn_import_clicked();
     void on_action_oeffnen_triggered();
+
+    void on_listWidget_dateien_currentRowChanged(int currentRow);
+    void on_listWidget_bearb_currentRowChanged(int currentRow);
 };
 #endif // MAINWINDOW_H
