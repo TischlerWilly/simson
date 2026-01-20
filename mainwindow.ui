@@ -45,7 +45,7 @@
      <rect>
       <x>540</x>
       <y>530</y>
-      <width>251</width>
+      <width>131</width>
       <height>16</height>
      </rect>
     </property>
@@ -63,6 +63,16 @@
       <y>310</y>
       <width>256</width>
       <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_maschinen">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>530</y>
+      <width>111</width>
+      <height>23</height>
      </rect>
     </property>
    </widget>
@@ -89,6 +99,7 @@
      <string>Einstellungen</string>
     </property>
     <addaction name="actionPfade"/>
+    <addaction name="actionCNC_Maschinen"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuEinstellungen"/>
@@ -121,6 +132,11 @@
   <action name="actionPfade">
    <property name="text">
     <string>Pfade</string>
+   </property>
+  </action>
+  <action name="actionCNC_Maschinen">
+   <property name="text">
+    <string>CNC-Maschinen</string>
    </property>
   </action>
  </widget>

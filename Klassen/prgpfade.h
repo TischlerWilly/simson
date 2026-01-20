@@ -16,8 +16,11 @@ public:
     QString path_inifile();
 
     QString name_inifile();
+    QString path_wkz_dir();
     QString path_wkz_dir(QString maschine);
-    QString path_wkz_ini(QString maschine);
+    QString path_wkz_mag(QString maschine);
+    QString path_masch_dir(QString maschine);
+    QString path_masch_ini(QString maschine);
 
 private:
     //Ordner:
@@ -27,6 +30,7 @@ private:
 
     //WKZ-Dateien:
     QString Wkz;
+    QString Masch_ini;
 
 };
 

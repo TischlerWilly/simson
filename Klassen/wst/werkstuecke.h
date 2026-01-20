@@ -13,15 +13,15 @@ public:
 
     //--------------------------------------------------set_xy:
     bool neu(werkstueck w);
-    bool entf(QString Werkstueckname);
+    bool entf(QString werkstueckname);
 
     inline void set_name(uint zeilennummer,  QString neuer_name)
     {
         Namen.edit(zeilennummer, neuer_name);
     }
     //--------------------------------------------------get_xy:
-    bool        ist_bekannt(QString Werkstueckname);
-    int        get_index(QString Werkstueckname);
+    bool        ist_bekannt(QString werkstueckname);
+    int        get_index(QString werkstueckname);
     werkstueck* wst(uint index);
     QString     name(uint index);
     QString     cad_fehler();
@@ -56,7 +56,7 @@ private:
     //--------------------------------------------------set_xy:
 
     //--------------------------------------------------get_xy:
-    int    index(QString Werkstueckname);
+    int    index(QString werkstueckname);
 
     //--------------------------------------------------Manipulationen:
 

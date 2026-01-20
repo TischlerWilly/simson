@@ -4,6 +4,8 @@ prgpfade::prgpfade()
 {
     Inifile             = "einstellungen.ini";
     Wkz                 = "wkz_magazin.csv";
+    Masch_ini           = "maschine.ini";
+
 }
 
 void prgpfade::ordner_erstellen()
@@ -17,6 +19,11 @@ void prgpfade::ordner_erstellen()
     if(!dir_user.exists())
     {
         dir_user.mkdir(path_user());
+    }
+    QDir dir_wkz(path_wkz_dir());
+    if(!dir_wkz.exists())
+    {
+        dir_wkz.mkdir(path_wkz_dir());
     }
 }
 void prgpfade::ordner_erstellen_wkz(QString maschine)
@@ -89,21 +96,39 @@ QString prgpfade::path_inifile()
     return tmp;
 }
 
-QString prgpfade::path_wkz_dir(QString maschine)
+QString prgpfade::path_wkz_dir()
 {
     QString tmp;
     tmp = path_user();
     tmp += QDir::separator();
     tmp += "Maschinen";
+    return tmp;
+}
+QString prgpfade::path_wkz_dir(QString maschine)
+{
+    QString tmp;
+    tmp = path_wkz_dir();
     tmp += QDir::separator();
     tmp += maschine;
     return tmp;
 }
-QString prgpfade::path_wkz_ini(QString maschine)
+QString prgpfade::path_wkz_mag(QString maschine)
 {
     QString tmp;
     tmp = path_wkz_dir(maschine);
     tmp += QDir::separator();
     tmp += Wkz;
+    return tmp;
+}
+QString prgpfade::path_masch_dir(QString maschine)
+{
+    return path_wkz_dir(maschine);
+}
+QString prgpfade::path_masch_ini(QString maschine)
+{
+    QString tmp;
+    tmp = path_masch_dir(maschine);
+    tmp += QDir::separator();
+    tmp += Masch_ini;
     return tmp;
 }

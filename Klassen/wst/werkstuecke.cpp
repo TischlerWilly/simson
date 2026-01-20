@@ -21,9 +21,9 @@ bool werkstuecke::neu(werkstueck w)
     }
     return false;
 }
-bool werkstuecke::entf(QString Werkstueckname)
+bool werkstuecke::entf(QString werkstueckname)
 {
-    int wst_index = get_index(Werkstueckname);
+    int wst_index = get_index(werkstueckname);
     if(wst_index >= 0)
     {
         Namen.entf(wst_index, 1);
@@ -36,22 +36,22 @@ bool werkstuecke::entf(QString Werkstueckname)
 }
 
 //--------------------------------------------------get_xy:
-bool werkstuecke::ist_bekannt(QString Werkstueckname)
+bool werkstuecke::ist_bekannt(QString werkstueckname)
 {
     for(uint i=0; i<Namen.count() ;i++)
     {
-        if(Werkstueckname == Namen.at(i))
+        if(werkstueckname == Namen.at(i))
         {
             return true;
         }
     }
     return false;
 }
-int werkstuecke::get_index(QString Werkstueckname)
+int werkstuecke::get_index(QString werkstueckname)
 {
     for(uint i=0; i<Namen.count() ;i++)
     {
-        if(Werkstueckname == Namen.at(i))
+        if(werkstueckname == Namen.at(i))
         {
             return i;
         }
@@ -360,11 +360,11 @@ void werkstuecke::sortieren()
 //--------------------------------------------------set_xy:
 
 //--------------------------------------------------get_xy:
-int werkstuecke::index(QString Werkstueckname)
+int werkstuecke::index(QString werkstueckname)
 {
     for(uint i=0; i<Namen.count() ;i++)
     {
-        if(Namen.at(i)==Werkstueckname)
+        if(Namen.at(i)==werkstueckname)
         {
             return i;
         }

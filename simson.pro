@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     Dialoge/dialog_einstellung_pfade.cpp \
+    Dialoge/dialog_maschinen.cpp \
     Funktionen/funktionen_prgtext.cpp \
     Funktionen/myfunktion.cpp \
     Funktionen/runden.cpp \
@@ -29,6 +30,8 @@ SOURCES += \
     Klassen/prgpfade.cpp \
     Klassen/text_zw.cpp \
     Klassen/wenndannsonst.cpp \
+    Klassen/wkz/maschine.cpp \
+    Klassen/wkz/maschinen.cpp \
     Klassen/wkz/wkz_bohrer.cpp \
     Klassen/wkz/wkz_fraeser.cpp \
     Klassen/wkz/wkz_magazin.cpp \
@@ -50,6 +53,7 @@ HEADERS += \
     Defines/def_bearbeitungen.h \
     Defines/werkzeug.h \
     Dialoge/dialog_einstellung_pfade.h \
+    Dialoge/dialog_maschinen.h \
     Funktionen/funktionen_prgtext.h \
     Funktionen/myfunktion.h \
     Funktionen/runden.h \
@@ -70,6 +74,8 @@ HEADERS += \
     Klassen/prgpfade.h \
     Klassen/text_zw.h \
     Klassen/wenndannsonst.h \
+    Klassen/wkz/maschine.h \
+    Klassen/wkz/maschinen.h \
     Klassen/wkz/wkz_bohrer.h \
     Klassen/wkz/wkz_fraeser.h \
     Klassen/wkz/wkz_magazin.h \
@@ -87,6 +93,7 @@ HEADERS += \
 
 FORMS += \
     Dialoge/dialog_einstellung_pfade.ui \
+    Dialoge/dialog_maschinen.ui \
     mainwindow.ui
 
 # Default rules for deployment.

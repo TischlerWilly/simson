@@ -32,10 +32,16 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(getMausPosXY(QPoint)));
     connect(&vorschaufenster, SIGNAL(sende_zeilennummer(uint, bool)),\
             this, SLOT(get_zeilennummer_bearb(uint, bool)));
+
     connect(this, SIGNAL(sendEinstellungPfade(einstellung)),\
             &dlg_Einstellung_pfade, SLOT(slot_einstellungen(einstellung)));
     connect(&dlg_Einstellung_pfade, SIGNAL(send_einstellungen(einstellung)),\
             this, SLOT(getEinstellung(einstellung)));
+
+    connect(this, SIGNAL(sendMaschinen(maschinen)),\
+            &dlg_Einstellung_maschinen, SLOT(slot_maschinen(maschinen)));
+    connect(&dlg_Einstellung_maschinen, SIGNAL(send_maschinen(maschinen)),\
+            this, SLOT(getMaschinen(maschinen)));
 }
 
 MainWindow::~MainWindow()
@@ -94,7 +100,7 @@ void MainWindow::setup()
     }
 
     //Werkzeug einlesen:
-    //--------------------------> muss noch programmiert werden
+    maschinen_einlesen();
 }
 void MainWindow::schreibe_ini()
 {
@@ -104,7 +110,7 @@ void MainWindow::schreibe_ini()
         QString tmp = "Fehler beim Dateizugriff!\n";
         tmp += PrgPfade.path_inifile();
         tmp += "\n";
-        tmp += "in der Funktioschreibe_ini";
+        tmp += "in der Funktion schreibe_ini";
         QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
     }else
     {
@@ -112,7 +118,78 @@ void MainWindow::schreibe_ini()
     }
     file.close();
 }
+void MainWindow::maschinen_einlesen()
+{
+    QDir dir(PrgPfade.path_wkz_dir());
 
+    // Nur Verzeichnisse, keine "." und ".."
+    QStringList subdirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot,\
+                                        QDir::Name );
+
+    Maschinen.clear();
+    ui->comboBox_maschinen->clear();
+
+    for (int i = 0; i < subdirs.size(); ++i)
+    {
+        QString name = subdirs.at(i);
+        ui->comboBox_maschinen->addItem(name);
+
+        maschine m;
+        m.set_name(name);
+        QFile file(PrgPfade.path_masch_ini(name));
+        if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            m.set_text(file.readAll());
+        }
+        //-------------------------------<<<<<<<<<<<<<<<Noch wkz einlesen
+        Maschinen.neu(m);
+    }
+}
+void MainWindow::schreibe_maschinen()
+{
+    //Maschinenordner erstellen:
+    for(uint i=0; i<Maschinen.namen_tz().count();i++)
+    {
+        QDir dir(PrgPfade.path_masch_dir(Maschinen.namen_tz().at(i)));
+        dir.mkpath(dir.path());
+    }
+    //Maschineneinstellung speichern:
+    for(uint i=0; i<Maschinen.namen_tz().count();i++)
+    {
+        QFile file(PrgPfade.path_masch_ini(Maschinen.namen_tz().at(i)));
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_masch_ini(Maschinen.namen_tz().at(i));
+            tmp += "\n";
+            tmp += "in der Funktion schreibe_maschinen-Einstellung";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Maschinen.masch(i)->text().toLatin1());
+        }
+        file.close();
+    }
+    //Werkzeug dieser Maschine speichern:
+    for(uint i=0; i<Maschinen.namen_tz().count();i++)
+    {
+        QFile file(PrgPfade.path_wkz_mag(Maschinen.namen_tz().at(i)));
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_wkz_mag(Maschinen.namen_tz().at(i));
+            tmp += "\n";
+            tmp += "in der Funktion schreibe_maschinen";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Maschinen.masch(i)->wkzmag().text().toLatin1());
+        }
+        file.close();
+    }
+}
+//------------------------------------------------------
+//Grafik und UI:
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     //---Vorschaufenster:
@@ -136,11 +213,16 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     ui->listWidget_bearb->setFixedHeight(h);
     ui->listWidget_bearb->setFixedWidth(b);
 
-    ui->label_mauspos->move(x, ui->listWidget_bearb->pos().y() + h + 2);
+    int y = ui->listWidget_bearb->pos().y() + h + 2;
+    ui->label_mauspos->move(x, y);
+    b = b/2-5;
     ui->label_mauspos->setFixedWidth(b);
     ui->label_mauspos->setFixedHeight(20);
-}
 
+    ui->comboBox_maschinen->move(x+b+10, y);
+    ui->comboBox_maschinen->setFixedWidth(b);
+    ui->comboBox_maschinen->setFixedHeight(20);
+}
 void MainWindow::getMausPosXY(QPoint p)
 {
     QString x = int_to_qstring(p.x());
@@ -159,6 +241,118 @@ void MainWindow::get_zeilennummer_bearb(uint nr, bool bearbeiten)
         ui->listWidget_bearb->setCurrentRow(nr);
     }
 }
+void MainWindow::update_listwidget_bearb(werkstueck *w)
+{
+    int currentRow = ui->listWidget_bearb->currentRow();
+    ui->listWidget_bearb->clear();
+    //Programmkopf als erste Zeile einfügen:
+    text_zw pkopf;
+    pkopf.set_trenz(TRENNZ_BEARB_PARAM);
+    QString param;
+    param  = "L=";
+    param += w->laenge_qstring();
+    pkopf.add_hi(param);
+    param  = "B=";
+    param += w->breite_qstring();
+    pkopf.add_hi(param);
+    param  = "D=";
+    param += w->dicke_qstring();
+    pkopf.add_hi(param);
+    ui->listWidget_bearb->addItem(pkopf.text());
+    //Bearbeitungen ab 2. Zeile einfügen:
+    text_zw *tmp_bearb = w->bearb_ptr();
+    for(uint i=0; i<tmp_bearb->count() ;i++)
+    {
+        QString bearb = tmp_bearb->at(i);
+        text_zw zeile;
+        zeile.set_text(bearb,TRENNZ_BEARB_PARAM);
+        QColor farbe;
+        farbe.setRgb(255,255,255);
+        int deckkraft = 160;
+        QString bezug = zeile.at(1);
+        if(zeile.at(0) == BEARBART_BOHR)
+        {
+            bearb = bohr_zu_prgzei(zeile.text());
+            if(bezug == WST_BEZUG_OBSEI)
+            {
+                farbe.setRgb(0,240,240,deckkraft); //Hellblau
+            }else if(bezug == WST_BEZUG_UNSEI)
+            {
+                farbe.setRgb(255,0,128,deckkraft);//Rose
+            }else
+            {
+                farbe.setRgb(185,122,87,deckkraft);//braun
+            }
+        }else if(zeile.at(0) == BEARBART_BOHRRASTER)
+        {
+            bearb = bohrRaster_zu_prgzei(zeile.text());
+        }else if(zeile.at(0) == BEARBART_NUT)
+        {
+            bearb = nut_zu_prgzei(zeile.text());
+            farbe.setRgb(145,145,255,deckkraft);//helles lila
+        }else if(zeile.at(0) == BEARBART_RTA)
+        {
+            bearb = rta_zu_prgzei(zeile.text());
+            if(bezug == WST_BEZUG_OBSEI || bezug == WST_BEZUG_UNSEI)
+            {
+                farbe = Qt::darkGray;
+                farbe.setAlpha(deckkraft);
+            }else
+            {
+                farbe = Qt::green;
+                farbe.setAlpha(deckkraft);
+            }
+        }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+        {
+            bearb = fauf_zu_prgzei(zeile.text());
+            farbe.setRgb(255,128,0,deckkraft);//orange
+        }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
+        {
+            bearb = fgerade_zu_prgzei(zeile.text());
+            farbe.setRgb(255,155,106,deckkraft);//helles orange
+        }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            bearb = fbogen_zu_prgzei(zeile.text());
+            farbe.setRgb(255,155,106,deckkraft);//helles orange
+        }
+        ui->listWidget_bearb->addItem(bearb);
+        ui->listWidget_bearb->item(i+1)->setBackground(farbe);
+    }
+    ui->listWidget_bearb->addItem("...");
+    if(currentRow < ui->listWidget_bearb->count())
+    {
+        ui->listWidget_bearb->setCurrentRow(currentRow);
+    }
+}
+
+//------------------------------------------------------
+//Einstellungen:
+void MainWindow::getEinstellung(einstellung e)
+{
+    Einstellung = e;
+    schreibe_ini();
+}
+void MainWindow::getMaschinen(maschinen m)
+{
+    Maschinen = m;
+    schreibe_maschinen();
+
+    ui->comboBox_maschinen->clear();
+    for(uint i=0; i<Maschinen.anzahl() ;i++)
+    {
+        ui->comboBox_maschinen->addItem(Maschinen.masch(i)->name());
+    }
+}
+void MainWindow::on_actionPfade_triggered()
+{
+    emit sendEinstellungPfade(Einstellung);
+}
+void MainWindow::on_actionCNC_Maschinen_triggered()
+{
+    emit sendMaschinen(Maschinen);
+}
+//------------------------------------------------------
+//Dateien/Werkstücke:
 void MainWindow::on_actionNeu_triggered()
 {
     QString name = "Unbekannt";
@@ -260,89 +454,6 @@ void MainWindow::on_action_oeffnen_triggered()
     emit signal_exporte(wste.namen_tz());
     */
 }
-void MainWindow::update_listwidget_bearb(werkstueck *w)
-{
-    int currentRow = ui->listWidget_bearb->currentRow();
-    ui->listWidget_bearb->clear();
-    //Programmkopf als erste Zeile einfügen:
-    text_zw pkopf;
-    pkopf.set_trenz(TRENNZ_BEARB_PARAM);
-    QString param;
-    param  = "L=";
-    param += w->laenge_qstring();
-    pkopf.add_hi(param);
-    param  = "B=";
-    param += w->breite_qstring();
-    pkopf.add_hi(param);
-    param  = "D=";
-    param += w->dicke_qstring();
-    pkopf.add_hi(param);
-    ui->listWidget_bearb->addItem(pkopf.text());
-    //Bearbeitungen ab 2. Zeile einfügen:
-    text_zw *tmp_bearb = w->bearb_ptr();
-    for(uint i=0; i<tmp_bearb->count() ;i++)
-    {
-        QString bearb = tmp_bearb->at(i);
-        text_zw zeile;
-        zeile.set_text(bearb,TRENNZ_BEARB_PARAM);
-        QColor farbe;
-        farbe.setRgb(255,255,255);
-        int deckkraft = 160;
-        QString bezug = zeile.at(1);
-        if(zeile.at(0) == BEARBART_BOHR)
-        {
-            bearb = bohr_zu_prgzei(zeile.text());
-            if(bezug == WST_BEZUG_OBSEI)
-            {
-                farbe.setRgb(0,240,240,deckkraft); //Hellblau
-            }else if(bezug == WST_BEZUG_UNSEI)
-            {
-                farbe.setRgb(255,0,128,deckkraft);//Rose
-            }else
-            {
-                farbe.setRgb(185,122,87,deckkraft);//braun
-            }
-        }else if(zeile.at(0) == BEARBART_BOHRRASTER)
-        {
-            bearb = bohrRaster_zu_prgzei(zeile.text());
-        }else if(zeile.at(0) == BEARBART_NUT)
-        {
-            bearb = nut_zu_prgzei(zeile.text());
-            farbe.setRgb(145,145,255,deckkraft);//helles lila
-        }else if(zeile.at(0) == BEARBART_RTA)
-        {
-            bearb = rta_zu_prgzei(zeile.text());
-            if(bezug == WST_BEZUG_OBSEI || bezug == WST_BEZUG_UNSEI)
-            {
-                farbe = Qt::darkGray;
-                farbe.setAlpha(deckkraft);
-            }else
-            {
-                farbe = Qt::green;
-                farbe.setAlpha(deckkraft);
-            }
-        }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
-        {
-            bearb = fauf_zu_prgzei(zeile.text());
-            farbe.setRgb(255,128,0,deckkraft);//orange
-        }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
-        {
-            bearb = fgerade_zu_prgzei(zeile.text());
-            farbe.setRgb(255,155,106,deckkraft);//helles orange
-        }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
-        {
-            bearb = fbogen_zu_prgzei(zeile.text());
-            farbe.setRgb(255,155,106,deckkraft);//helles orange
-        }
-        ui->listWidget_bearb->addItem(bearb);
-        ui->listWidget_bearb->item(i+1)->setBackground(farbe);
-    }
-    ui->listWidget_bearb->addItem("...");
-    if(currentRow < ui->listWidget_bearb->count())
-    {
-        ui->listWidget_bearb->setCurrentRow(currentRow);
-    }
-}
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 {
     uint row = currentRow;
@@ -429,13 +540,7 @@ void MainWindow::on_actionUmbenennen_triggered()
     }
 }
 
+//------------------------------------------------------
 
-void MainWindow::on_actionPfade_triggered()
-{
-    emit sendEinstellungPfade(Einstellung);
-}
-void MainWindow::getEinstellung(einstellung e)
-{
-    Einstellung = e;
-    schreibe_ini();
-}
+
+
