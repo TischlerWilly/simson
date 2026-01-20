@@ -82,6 +82,7 @@
     </property>
     <addaction name="action_oeffnen"/>
     <addaction name="actionNeu"/>
+    <addaction name="actionUmbenennen"/>
    </widget>
    <addaction name="menuDatei"/>
   </widget>
@@ -100,6 +101,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionUmbenennen">
+   <property name="text">
+    <string>Umbenennen</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
    </property>
   </action>
  </widget>

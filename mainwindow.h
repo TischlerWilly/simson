@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QInputDialog>
 #include "Klassen/geo/vorschau.h"
 #include "Klassen/wst/werkstuecke.h"
 #include "Funktionen/funktionen_prgtext.h"
@@ -37,8 +38,8 @@ private slots:
     void on_actionNeu_triggered();
     void on_btn_import_clicked();
     void on_action_oeffnen_triggered();
-
     void on_listWidget_dateien_currentRowChanged(int currentRow);
     void on_listWidget_bearb_currentRowChanged(int currentRow);
+    void on_actionUmbenennen_triggered();
 };
 #endif // MAINWINDOW_H

@@ -1,7 +1,5 @@
 ToDo:
 
--> Werkstücke umbenennen
-
 -> Programmeinstellungen
     > ini-Datei
         > Benutzerordner

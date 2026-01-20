@@ -86,26 +86,39 @@ void MainWindow::get_zeilennummer_bearb(uint nr, bool bearbeiten)
 void MainWindow::on_actionNeu_triggered()
 {
     QString name = "Unbekannt";
+    if(!Wste.ist_bekannt(name))
+    {
+        werkstueck w;
+        w.set_name(name);
+        w.set_laenge(500);
+        w.set_breite(300);
+        w.set_dicke(19);
+        bohrung bo;
+        bo.set_dm(25);
+        bo.set_x(100);
+        bo.set_y(50);
+        bo.set_z(19);
+        bo.set_tiefe(10);
+        bo.set_bezug(WST_BEZUG_OBSEI);
+        text_zw bearb;
+        bearb.add_hi(bo.text());
+        w.set_bearb(bearb);
 
-    werkstueck w;
-    w.set_name(name);
-    w.set_laenge(500);
-    w.set_breite(300);
-    w.set_dicke(19);
-    bohrung bo;
-    bo.set_dm(25);
-    bo.set_x(100);
-    bo.set_y(50);
-    bo.set_z(19);
-    bo.set_tiefe(10);
-    bo.set_bezug(WST_BEZUG_OBSEI);
-    text_zw bearb;
-    bearb.add_hi(bo.text());
-    w.set_bearb(bearb);
+        Wste.neu(w);
 
-    Wste.neu(w);
-
-    ui->listWidget_dateien->addItem(name);
+        ui->listWidget_dateien->addItem(name);
+    }else
+    {
+        QString msg;
+        msg += "Bitte benenne zuerst das Werkstück \"";
+        msg += name;
+        msg += "\" um. \n";
+        msg += "Danach kannst du ein neues Werkstück erstellen.";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Neue Datei/neues Werkstück erstellen");
+        mb.exec();
+    }
 }
 void MainWindow::on_btn_import_clicked()
 {
@@ -171,7 +184,6 @@ void MainWindow::on_action_oeffnen_triggered()
     emit signal_exporte(wste.namen_tz());
     */
 }
-
 void MainWindow::update_listwidget_bearb(werkstueck *w)
 {
     int currentRow = ui->listWidget_bearb->currentRow();
@@ -255,7 +267,6 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
         ui->listWidget_bearb->setCurrentRow(currentRow);
     }
 }
-
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 {
     uint row = currentRow;
@@ -285,5 +296,60 @@ void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 void MainWindow::on_listWidget_bearb_currentRowChanged(int currentRow)
 {
     vorschaufenster.slot_aktives_Element_einfaerben(currentRow);
+}
+void MainWindow::on_actionUmbenennen_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        QString name = ui->listWidget_dateien->currentItem()->text();
+        if(!name.isEmpty())
+        {
+            bool ok;
+            QString fenstertitel = "umbenennen";
+            QString hinweistext  = "Neuer Name:";
+            QString vorgebewert  = name;
+            QString neuer_name = QInputDialog::getText(this, fenstertitel,
+                                                       hinweistext, QLineEdit::Normal,
+                                                       name, &ok);
+            if (ok && !neuer_name.isEmpty())
+            {
+                if(Wste.ist_bekannt(neuer_name))
+                {
+                    QString msg;
+                    msg  = "Das Bauteil kann nicht umbenannt werden.";
+                    msg += "\n";
+                    msg += "Es gibt bereits ein Bauteil mit diesem Namen ";
+                    msg += neuer_name;
+                    msg += ".";
+                    QMessageBox mb;
+                    mb.setText(msg);
+                    mb.exec();
+                }else
+                {
+                    int row = ui->listWidget_dateien->currentRow();
+                    ui->listWidget_dateien->item(row)->setText(neuer_name);
+                    Wste.set_name(row, neuer_name);//Namensliste in wste
+                    Wste.wst(row)->set_name(neuer_name);//name des konkreten wst
+                    on_listWidget_dateien_currentRowChanged(ui->listWidget_dateien->currentRow());
+                }
+            }
+        }else
+        {
+            QString msg;
+            msg = "Bauteil hat keinen Namen!";
+            QMessageBox mb;
+            mb.setText(msg);
+            mb.setWindowTitle("Werkstück umbenennen");
+            mb.exec();
+        }
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Werkstück umbenennen");
+        mb.exec();
+    }
 }
 
