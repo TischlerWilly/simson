@@ -84,7 +84,14 @@
     <addaction name="actionNeu"/>
     <addaction name="actionUmbenennen"/>
    </widget>
+   <widget class="QMenu" name="menuEinstellungen">
+    <property name="title">
+     <string>Einstellungen</string>
+    </property>
+    <addaction name="actionPfade"/>
+   </widget>
    <addaction name="menuDatei"/>
+   <addaction name="menuEinstellungen"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_oeffnen">
@@ -109,6 +116,11 @@
    </property>
    <property name="shortcut">
     <string>F2</string>
+   </property>
+  </action>
+  <action name="actionPfade">
+   <property name="text">
+    <string>Pfade</string>
    </property>
   </action>
  </widget>

@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("Simson 2026.01.12");
+    PrgPfade.ordner_erstellen();
+    setup();
 
     geo_text gt;
     kreis k;
@@ -30,11 +32,85 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(getMausPosXY(QPoint)));
     connect(&vorschaufenster, SIGNAL(sende_zeilennummer(uint, bool)),\
             this, SLOT(get_zeilennummer_bearb(uint, bool)));
+    connect(this, SIGNAL(sendEinstellungPfade(einstellung)),\
+            &dlg_Einstellung_pfade, SLOT(slot_einstellungen(einstellung)));
+    connect(&dlg_Einstellung_pfade, SIGNAL(send_einstellungen(einstellung)),\
+            this, SLOT(getEinstellung(einstellung)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setup()
+{
+    //Schauen ob alle Konfigurationsdateien vorhanden sind:
+    bool inifile_gefunden           = false;    //user-Ordner
+
+    QDir user_ordner(PrgPfade.path_user());
+    QStringList ordnerinhalt;
+    ordnerinhalt = user_ordner.entryList(QDir::Files);
+    for(QStringList::iterator it = ordnerinhalt.begin() ; it!=ordnerinhalt.end() ; ++it)
+    {
+        QString name = *it;
+        if(name.contains(PrgPfade.name_inifile()))
+        {
+            inifile_gefunden = true;
+        }
+    }
+
+    //Einstellungen aus Konfigurationsdateien übernehmen wo möglich:
+    if(inifile_gefunden == false)
+    {
+        QFile file(PrgPfade.path_inifile());
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_inifile();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Einstellung.text().toLatin1());
+        }
+        file.close();
+    }else
+    {
+        QFile file(PrgPfade.path_inifile());
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_inifile();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            Einstellung.set_text(file.readAll());
+        }
+        file.close();
+    }
+
+    //Werkzeug einlesen:
+    //--------------------------> muss noch programmiert werden
+}
+void MainWindow::schreibe_ini()
+{
+    QFile file(PrgPfade.path_inifile());
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QString tmp = "Fehler beim Dateizugriff!\n";
+        tmp += PrgPfade.path_inifile();
+        tmp += "\n";
+        tmp += "in der Funktioschreibe_ini";
+        QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+    }else
+    {
+        file.write(Einstellung.text().toLatin1());
+    }
+    file.close();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -353,3 +429,13 @@ void MainWindow::on_actionUmbenennen_triggered()
     }
 }
 
+
+void MainWindow::on_actionPfade_triggered()
+{
+    emit sendEinstellungPfade(Einstellung);
+}
+void MainWindow::getEinstellung(einstellung e)
+{
+    Einstellung = e;
+    schreibe_ini();
+}

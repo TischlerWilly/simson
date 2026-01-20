@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Dialoge/dialog_einstellung_pfade.cpp \
     Funktionen/funktionen_prgtext.cpp \
     Funktionen/myfunktion.cpp \
     Funktionen/runden.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     Defines/dateinamen.h \
     Defines/def_bearbeitungen.h \
     Defines/werkzeug.h \
+    Dialoge/dialog_einstellung_pfade.h \
     Funktionen/funktionen_prgtext.h \
     Funktionen/myfunktion.h \
     Funktionen/runden.h \
@@ -84,6 +86,7 @@ HEADERS += \
     mainwindow.h
 
 FORMS += \
+    Dialoge/dialog_einstellung_pfade.ui \
     mainwindow.ui
 
 # Default rules for deployment.
