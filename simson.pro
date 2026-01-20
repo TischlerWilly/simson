@@ -14,6 +14,7 @@ SOURCES += \
     Funktionen/runden.cpp \
     Funktionen/text.cpp \
     Funktionen/umwandeln.cpp \
+    Klassen/einstellung.cpp \
     Klassen/formel.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     Klassen/geo/rechteck.cpp \
     Klassen/geo/strecke.cpp \
     Klassen/geo/vorschau.cpp \
+    Klassen/prgpfade.cpp \
     Klassen/text_zw.cpp \
     Klassen/wenndannsonst.cpp \
     Klassen/wkz/wkz_bohrer.cpp \
@@ -51,6 +53,7 @@ HEADERS += \
     Funktionen/runden.h \
     Funktionen/text.h \
     Funktionen/umwandeln.h \
+    Klassen/einstellung.h \
     Klassen/formel.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
@@ -62,6 +65,7 @@ HEADERS += \
     Klassen/geo/rechteck.h \
     Klassen/geo/strecke.h \
     Klassen/geo/vorschau.h \
+    Klassen/prgpfade.h \
     Klassen/text_zw.h \
     Klassen/wenndannsonst.h \
     Klassen/wkz/wkz_bohrer.h \
