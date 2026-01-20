@@ -9,10 +9,14 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Dialoge/dialog_einstellung_pfade.cpp \
+    Dialoge/dialog_maschinen.cpp \
+    Funktionen/funktionen_prgtext.cpp \
     Funktionen/myfunktion.cpp \
     Funktionen/runden.cpp \
     Funktionen/text.cpp \
     Funktionen/umwandeln.cpp \
+    Klassen/einstellung.cpp \
     Klassen/formel.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
@@ -23,8 +27,11 @@ SOURCES += \
     Klassen/geo/rechteck.cpp \
     Klassen/geo/strecke.cpp \
     Klassen/geo/vorschau.cpp \
+    Klassen/prgpfade.cpp \
     Klassen/text_zw.cpp \
     Klassen/wenndannsonst.cpp \
+    Klassen/wkz/maschine.cpp \
+    Klassen/wkz/maschinen.cpp \
     Klassen/wkz/wkz_bohrer.cpp \
     Klassen/wkz/wkz_fraeser.cpp \
     Klassen/wkz/wkz_magazin.cpp \
@@ -37,6 +44,7 @@ SOURCES += \
     Klassen/wst/nut.cpp \
     Klassen/wst/rechtecktasche.cpp \
     Klassen/wst/werkstueck.cpp \
+    Klassen/wst/werkstuecke.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -44,10 +52,14 @@ HEADERS += \
     Defines/dateinamen.h \
     Defines/def_bearbeitungen.h \
     Defines/werkzeug.h \
+    Dialoge/dialog_einstellung_pfade.h \
+    Dialoge/dialog_maschinen.h \
+    Funktionen/funktionen_prgtext.h \
     Funktionen/myfunktion.h \
     Funktionen/runden.h \
     Funktionen/text.h \
     Funktionen/umwandeln.h \
+    Klassen/einstellung.h \
     Klassen/formel.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
@@ -59,8 +71,11 @@ HEADERS += \
     Klassen/geo/rechteck.h \
     Klassen/geo/strecke.h \
     Klassen/geo/vorschau.h \
+    Klassen/prgpfade.h \
     Klassen/text_zw.h \
     Klassen/wenndannsonst.h \
+    Klassen/wkz/maschine.h \
+    Klassen/wkz/maschinen.h \
     Klassen/wkz/wkz_bohrer.h \
     Klassen/wkz/wkz_fraeser.h \
     Klassen/wkz/wkz_magazin.h \
@@ -73,9 +88,12 @@ HEADERS += \
     Klassen/wst/nut.h \
     Klassen/wst/rechtecktasche.h \
     Klassen/wst/werkstueck.h \
+    Klassen/wst/werkstuecke.h \
     mainwindow.h
 
 FORMS += \
+    Dialoge/dialog_einstellung_pfade.ui \
+    Dialoge/dialog_maschinen.ui \
     mainwindow.ui
 
 # Default rules for deployment.

@@ -42,6 +42,54 @@ bogen fraeserbogen::bog()
 {
     return Bogen;
 }
+double fraeserbogen::xs()
+{
+    return Bogen.spu().x();
+}
+QString fraeserbogen::xs_qstring()
+{
+    return Bogen.spu().x_QString();
+}
+double fraeserbogen::xe()
+{
+    return Bogen.epu().x();
+}
+QString fraeserbogen::xe_qstring()
+{
+    return Bogen.epu().x_QString();
+}
+double fraeserbogen::ys()
+{
+    return Bogen.spu().y();
+}
+QString fraeserbogen::ys_qstring()
+{
+    return Bogen.spu().y_QString();
+}
+double fraeserbogen::ye()
+{
+    return Bogen.epu().y();
+}
+QString fraeserbogen::ye_qstring()
+{
+    return Bogen.epu().y_QString();
+}
+double fraeserbogen::zs()
+{
+    return Bogen.spu().z();
+}
+QString fraeserbogen::zs_qstring()
+{
+    return Bogen.spu().z_QString();
+}
+double fraeserbogen::ze()
+{
+    return Bogen.epu().z();
+}
+QString fraeserbogen::ze_qstring()
+{
+    return Bogen.epu().z_QString();
+}
 punkt3d fraeserbogen::sp()
 {
     return bog().spu();
@@ -82,6 +130,7 @@ QString fraeserbogen::tiEnd_qstring()
 {
     return double_to_qstring(TiEnde);
 }
+
 
 QString fraeserbogen::text()
 {

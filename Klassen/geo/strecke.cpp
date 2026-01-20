@@ -279,17 +279,10 @@ void strecke::drenen_um_mipu_2d(double drehwi)
     punkt3d sp(Stapu);
     punkt3d ep(Endpu);
     punkt3d mp = mipu();
-    sp = drehen(mp, sp, drehwi);
-    ep = drehen(mp, ep, drehwi);
-    punkt3d tmp;
-    tmp.set_x(sp.x());
-    tmp.set_y(sp.y());
-    tmp.set_z(Stapu.z());
-    set_stapu(tmp);
-    tmp.set_x(ep.x());
-    tmp.set_y(ep.y());
-    tmp.set_z(Endpu.z());
-    set_endpu(tmp);
+    sp = drehen(sp, mp, drehwi);
+    ep = drehen(ep, mp,drehwi);
+    set_stapu(sp);
+    set_endpu(ep);
 }
 void strecke::verschieben_um(double xversatz, double yversatz)
 {

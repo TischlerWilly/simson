@@ -45,7 +45,7 @@
      <rect>
       <x>540</x>
       <y>530</y>
-      <width>251</width>
+      <width>131</width>
       <height>16</height>
      </rect>
     </property>
@@ -66,6 +66,16 @@
      </rect>
     </property>
    </widget>
+   <widget class="QComboBox" name="comboBox_maschinen">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>530</y>
+      <width>111</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -81,8 +91,18 @@
      <string>Datei</string>
     </property>
     <addaction name="action_oeffnen"/>
+    <addaction name="actionNeu"/>
+    <addaction name="actionUmbenennen"/>
+   </widget>
+   <widget class="QMenu" name="menuEinstellungen">
+    <property name="title">
+     <string>Einstellungen</string>
+    </property>
+    <addaction name="actionPfade"/>
+    <addaction name="actionCNC_Maschinen"/>
    </widget>
    <addaction name="menuDatei"/>
+   <addaction name="menuEinstellungen"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_oeffnen">
@@ -91,6 +111,32 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionNeu">
+   <property name="text">
+    <string>Neu</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionUmbenennen">
+   <property name="text">
+    <string>Umbenennen</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+  <action name="actionPfade">
+   <property name="text">
+    <string>Pfade</string>
+   </property>
+  </action>
+  <action name="actionCNC_Maschinen">
+   <property name="text">
+    <string>CNC-Maschinen</string>
    </property>
   </action>
  </widget>
