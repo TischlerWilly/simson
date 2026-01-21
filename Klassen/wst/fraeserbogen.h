@@ -41,6 +41,7 @@ public:
     double  rad();
     QString rad_qstring();
     bogen   bog();
+    bogen   *bog_ptr();
     double tiSta();
     QString tiSta_qstring();
     double tiEnd();

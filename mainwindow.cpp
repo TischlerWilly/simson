@@ -360,8 +360,9 @@ void MainWindow::on_actionCNC_Maschinen_triggered()
 {
     emit sendMaschinen(Maschinen);
 }
+
 //------------------------------------------------------
-//Dateien/Werkstücke:
+//Dateien/Werkstücke/Bearbeitungen:
 void MainWindow::on_actionNeu_triggered()
 {
     QString name = "Unbekannt";
@@ -548,8 +549,611 @@ void MainWindow::on_actionUmbenennen_triggered()
         mb.exec();
     }
 }
+void MainWindow::on_listWidget_bearb_itemDoubleClicked(QListWidgetItem *item)
+{
+    int index = ui->listWidget_bearb->currentRow();
+    zeile_bearb_bearbeiten(index);
+}
+void MainWindow::zeile_bearb_bearbeiten(int zeile)
+{
+    if(ui->listWidget_dateien->currentRow() < 0)
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein Werkstück ausgewählt!");
+        mb.setWindowTitle("Bearbeitung editieren");
+        mb.exec();
+        return;
+    }
 
+    int index_wst = ui->listWidget_dateien->currentRow();
+    wkz_magazin wkz;
+    if(ui->comboBox_maschinen->currentIndex() >= 0)
+    {
+        QString masch_bez = ui->comboBox_maschinen->currentText();
+        int index = Maschinen.get_index(masch_bez);
+        wkz = Maschinen.masch(index)->wkzmag();
+    }
+
+    if(zeile == 0)
+    {
+        double letzte_wst_l = Wste.wst(index_wst)->laenge();
+        double letzte_wst_b = Wste.wst(index_wst)->breite();
+        Dialog_bearb_pkopf dlg;
+        dlg.setModal(true);
+        dlg.set_data(Wste.wst(index_wst));
+        dlg.exec();
+        text_zw bearb_alt = Wste.wst(index_wst)->bearb();
+        text_zw bearb_neu;
+        for (uint i = 0; i<bearb_alt.count() ; i++)
+        {
+            if(i==0)
+            {
+                double ax = 0, ay = 0, az = 0; //0,0,0 verschiebt die bearb auf die Wst-kanten
+                double l_alt = letzte_wst_l;
+                double l_neu = Wste.wst(index_wst)->laenge();
+                double b_alt = letzte_wst_b;
+                double b_neu = Wste.wst(index_wst)->breite();
+                QString bearb = verschiebe_bearb_einen(bearb_alt.at(i), \
+                                                       ax, ay, az, \
+                                                       l_alt, l_neu, b_alt, b_neu);
+                bearb_neu.set_text(bearb, bearb_alt.trennz());
+            }else
+            {
+                double ax = 0, ay = 0, az = 0; //0,0,0 verschiebt die bearb auf die Wst-kanten
+                double l_alt = letzte_wst_l;
+                double l_neu = Wste.wst(index_wst)->laenge();
+                double b_alt = letzte_wst_b;
+                double b_neu = Wste.wst(index_wst)->breite();
+                QString bearb = verschiebe_bearb_einen(bearb_alt.at(i), \
+                                                       ax, ay, az, \
+                                                       l_alt, l_neu, b_alt, b_neu);
+                bearb_neu.add_hi(bearb);
+                //0,0,0 verschiebt die bearb auf die Wst-kanten
+            }
+        }
+        Wste.wst(index_wst)->set_bearb(bearb_neu);
+        Wste.wst(index_wst)->unredo_neu();
+        update_listwidget_bearb(Wste.wst(index_wst));
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), index_wst);
+        return;
+    }
+
+    //Zeile Auslesen:
+    text_zw bearb;
+    bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile-1),TRENNZ_BEARB_PARAM);
+    //Dialogfenster aufrufen:
+    if(bearb.at(0) == BEARBART_RTA)
+    {
+        Dialog_bearb_rta dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_rta(rechtecktasche)), this, SLOT(slot_rta(rechtecktasche)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst), wkz.magazin());
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_BOHR)
+    {
+        Dialog_bearb_bohrung dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_bo(bohrung)), this, SLOT(slot_bo(bohrung)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst), wkz.magazin());
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_NUT)
+    {
+        Dialog_bearb_nut dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_nut(nut)), this, SLOT(slot_nut(nut)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst));
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_FRAESERAUFRUF)
+    {
+        Dialog_bearb_faufruf dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_faufruf(fraeseraufruf)), this, SLOT(slot_faufruf(fraeseraufruf)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst), wkz.magazin());
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_FRAESERGERADE)
+    {
+        Dialog_bearb_fgerade dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_fgerade(fraesergerade)), this, SLOT(slot_fgerade(fraesergerade)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst));
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_FRAESERBOGEN)
+    {
+        Dialog_bearb_fbogen dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_fbogen(fraeserbogen)), this, SLOT(slot_fbogen(fraeserbogen)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst));
+        dlg.exec();
+    }
+}
+QString MainWindow::verschiebe_bearb_einen(QString bearb, double ax, double ay, double az,\
+                                           double wst_l_alt, double wst_l_neu,\
+                                           double wst_b_alt, double wst_b_neu  )
+{
+    //bei ay == 0 und ay == 0 und az == 0 sorgt
+    //diese Funktion dafür dass die Bearbeitungen die sich z.B. auf der Hirnkante
+    //des Werkstückes befinden mitwandern wenn das Werkstück in der Größe geändert wird.
+    text_zw tz;
+    tz.set_text(bearb, TRENNZ_BEARB_PARAM);
+    if(tz.at(0) == BEARBART_BOHR)
+    {
+        bohrung bo;
+        bo.set_text(bearb);
+        if(bo.bezug() == WST_BEZUG_OBSEI || bo.bezug() == WST_BEZUG_UNSEI)
+        {
+            bo.set_x(bo.x()+ax);
+            bo.set_y(bo.y()+ay);
+        }else if(bo.bezug() == WST_BEZUG_LI)
+        {
+            if(bo.x() != 0)
+            {
+                bo.set_x(bo.x()+ax);
+            }
+            bo.set_y(bo.y()+ay);
+            bo.set_z(bo.z()+az);
+        }else if(bo.bezug() == WST_BEZUG_RE)
+        {
+            if(bo.x() == wst_l_alt)
+            {
+                bo.set_x(wst_l_neu);
+            }else
+            {
+                bo.set_x(bo.x()+ax);
+            }
+            bo.set_y(bo.y()+ay);
+            bo.set_z(bo.z()+az);
+        }else if(bo.bezug() == WST_BEZUG_VO)
+        {
+            bo.set_x(bo.x()+ax);
+            if(bo.y() != 0)
+            {
+                bo.set_y(bo.y()+ay);
+            }
+            bo.set_z(bo.z()+az);
+        }else if(bo.bezug() == WST_BEZUG_HI)
+        {
+            bo.set_x(bo.x()+ax);
+            if(bo.y() == wst_b_alt)
+            {
+                bo.set_y(wst_b_neu);
+            }else
+            {
+                bo.set_y(bo.y()+ay);
+            }
+            bo.set_z(bo.z()+az);
+        }
+        bearb = bo.text();
+    }else if(tz.at(0) == BEARBART_RTA)
+    {
+        rechtecktasche rt;
+        rt.set_text(bearb);
+        if(rt.bezug() == WST_BEZUG_OBSEI || rt.bezug() == WST_BEZUG_UNSEI)
+        {
+            rt.set_x(rt.x()+ax);
+            rt.set_y(rt.y()+ay);
+        }else if(rt.bezug() == WST_BEZUG_LI)
+        {
+            rt.set_x(0);
+            rt.set_y(rt.y()+ay);
+            rt.set_z(rt.z()+az);
+        }else if(rt.bezug() == WST_BEZUG_RE)
+        {
+            rt.set_x(wst_l_neu);
+            rt.set_y(rt.y()+ay);
+            rt.set_z(rt.z()+az);
+        }else if(rt.bezug() == WST_BEZUG_VO)
+        {
+            rt.set_x(rt.x()+ax);
+            rt.set_y(0);
+            rt.set_z(rt.z()+az);
+        }else if(rt.bezug() == WST_BEZUG_HI)
+        {
+            rt.set_x(rt.x()+ax);
+            rt.set_y(wst_b_neu);
+            rt.set_z(rt.z()+az);
+        }
+        bearb = rt.text();
+    }if(tz.at(0) == BEARBART_NUT)
+    {
+        nut nu;
+        nu.set_text(bearb);
+        if(nu.bezug() == WST_BEZUG_OBSEI || nu.bezug() == WST_BEZUG_UNSEI)
+        {
+            nu.set_xs(nu.xs()+ax);
+            nu.set_xe(nu.xe()+ax);
+            nu.set_ys(nu.ys()+ay);
+            nu.set_ye(nu.ye()+ay);
+        }else if(nu.bezug() == WST_BEZUG_LI)
+        {
+            nu.set_xs(0);
+            nu.set_xe(0);
+            nu.set_ys(nu.ys()+ay);
+            nu.set_ye(nu.ye()+ay);
+            nu.set_zs(nu.zs()+az);
+            nu.set_ze(nu.ze()+az);
+        }else if(nu.bezug() == WST_BEZUG_RE)
+        {
+            nu.set_xs(wst_l_neu);
+            nu.set_xe(wst_l_neu);
+            nu.set_ys(nu.ys()+ay);
+            nu.set_ye(nu.ye()+ay);
+            nu.set_zs(nu.zs()+az);
+            nu.set_ze(nu.ze()+az);
+        }else if(nu.bezug() == WST_BEZUG_VO)
+        {
+            nu.set_xs(nu.xs()+ax);
+            nu.set_xe(nu.xe()+ax);
+            nu.set_ys(0);
+            nu.set_ye(0);
+            nu.set_zs(nu.zs()+az);
+            nu.set_ze(nu.ze()+az);
+        }else if(nu.bezug() == WST_BEZUG_HI)
+        {
+            nu.set_xs(nu.xs()+ax);
+            nu.set_xe(nu.xe()+ax);
+            nu.set_ys(wst_b_neu);
+            nu.set_ye(wst_b_neu);
+            nu.set_zs(nu.zs()+az);
+            nu.set_ze(nu.ze()+az);
+        }
+        bearb = nu.text();
+    }if(tz.at(0) == BEARBART_FRAESERAUFRUF)
+    {
+        fraeseraufruf fa;
+        fa.set_text(bearb);
+        fa.set_x(fa.x()+ax);
+        fa.set_y(fa.y()+ay);
+        bearb = fa.text();
+    }if(tz.at(0) == BEARBART_FRAESERGERADE)
+    {
+        fraesergerade fg;
+        fg.set_text(bearb);
+        fg.set_xs(fg.xs()+ax);
+        fg.set_xe(fg.xe()+ax);
+        fg.set_ys(fg.ys()+ay);
+        fg.set_ye(fg.ye()+ay);
+        bearb = fg.text();
+    }if(tz.at(0) == BEARBART_FRAESERBOGEN)
+    {
+        fraeserbogen fb;
+        fb.set_text(bearb);
+        fb.bog_ptr()->verschieben_um(ax, ay);
+        bearb = fb.text();
+    }
+    return bearb;
+}
+void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verwenden)
+{
+    //index_bearb ist der index der Bearbeitung
+    //bearb ist eine Zeile der Bearbeitugen
+    int index_dat = ui->listWidget_dateien->currentRow();
+
+    text_zw bearbeitungen = Wste.wst(index_dat)->bearb();
+    bearbeitungen.edit(index_bearb, bearb);
+    Wste.wst(index_dat)->bearb_ptr()->edit(index_bearb, bearbeitungen.at(index_bearb));
+    if(unredor_verwenden == true)
+    {
+        Wste.wst(index_dat)->unredo_neu();
+    }
+    wkz_magazin wkz;
+    if(ui->comboBox_maschinen->currentIndex() >= 0)
+    {
+        QString masch_bez = ui->comboBox_maschinen->currentText();
+        int index = Maschinen.get_index(masch_bez);
+        wkz = Maschinen.masch(index)->wkzmag();
+    }
+    update_listwidget_bearb(Wste.wst(index_dat));
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_bearb+1);
+}
+void MainWindow::slot_rta(rechtecktasche rta)
+{
+    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = rta.text();
+    ui->listWidget_bearb->item(index)->setText(rta_zu_prgzei(bearb));
+    zeile_aendern(index, bearb, true);
+}
+void MainWindow::slot_bo(bohrung bo)
+{
+    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = bo.text();
+    ui->listWidget_bearb->item(index)->setText(bohr_zu_prgzei(bearb));
+    zeile_aendern(index, bearb, true);
+}
+void MainWindow::slot_nut(nut nu)
+{
+    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = nu.text();
+    ui->listWidget_bearb->item(index)->setText(nut_zu_prgzei(bearb));
+    zeile_aendern(index, bearb, true);
+}
+void MainWindow::slot_faufruf(fraeseraufruf fa)
+{
+    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = fa.text();
+    ui->listWidget_bearb->item(index)->setText(fauf_zu_prgzei(bearb));
+    text_zw bearbeitungen = Wste.wst(index)->bearb();
+
+    fraeseraufruf fa_alt;
+    fa_alt.set_text(bearbeitungen.at(index));
+    if(fa_alt.text() != fa.text())
+    {
+        //Bezug mit ändern
+        //Frästiefe ändern
+        //Z-Pos ändern
+        //XY-Pos der direkten Folgezeile mit ändern
+        double tiefe_neu = fa.tiefe();
+        double pos_z = fa.pos().z();
+        for(uint i=index+1; i<bearbeitungen.count() ;i++)
+        {
+            text_zw bearb_ff;
+            bearb_ff.set_text(bearbeitungen.at(i),TRENNZ_BEARB_PARAM);
+            if(bearb_ff.at(0) == BEARBART_FRAESERGERADE)
+            {
+                fraesergerade fg(bearb_ff.text());
+                fg.set_bezug(fa.bezug());
+                fg.set_tiSta(tiefe_neu);
+                fg.set_tiEnd(tiefe_neu);
+                fg.set_zs(pos_z);
+                fg.set_ze(pos_z);
+                if(i == index+1)//direkte folgezeile vom Fräseraufruf
+                {
+                    fg.set_xs(fa.pos().x());
+                    fg.set_ys(fa.pos().y());
+                }
+                zeile_aendern(i, fg.text(), false);
+            }else if(bearb_ff.at(0) == BEARBART_FRAESERBOGEN)
+            {
+                fraeserbogen fb(bearb_ff.text());
+                if(fa_alt.bezug() != fa.bezug())
+                {
+                    fb.bog_ptr()->richtung_unkehren();
+                    fb.set_bezug(fa.bezug());
+                }
+                fb.set_tiSta(tiefe_neu);
+                fb.set_tiEnd(tiefe_neu);
+                fb.set_tiSta(pos_z);
+                fb.set_tiEnd(pos_z);
+                if(i == index+1)//direkte folgezeile vom Fräseraufruf
+                {
+                    fb.bog_ptr()->versetze_spu(fa.pos());
+                }
+                zeile_aendern(i, fb.text(), false);
+            }else
+            {
+                break;//for
+            }
+        }
+    }
+    zeile_aendern(index, bearb, true);
+}
+void MainWindow::slot_fgerade(fraesergerade fg)
+{
+    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = fg.text();
+    ui->listWidget_bearb->item(index)->setText(fgerade_zu_prgzei(bearb));
+    text_zw bearbeitungen = Wste.wst(index)->bearb();
+    //Zeile davor mit ändern?:
+    if(index-1 >=0)
+    {
+        text_zw bearb_vor;
+        bearb_vor.set_text(bearbeitungen.at(index-1),TRENNZ_BEARB_PARAM);
+        if(bearb_vor.at(0) == BEARBART_FRAESERAUFRUF)
+        {
+            fraeseraufruf fa_vor(bearb_vor.text());
+            fa_vor.set_pos(fg.sp());
+            fa_vor.set_tiefe(fg.tiSta());
+            zeile_aendern(index-1, fa_vor.text(), false);
+        }else if(bearb_vor.at(0) == BEARBART_FRAESERGERADE)
+        {
+            fraesergerade fg_vor(bearb_vor.text());
+            fg_vor.set_endpunkt(fg.sp());
+            fg_vor.set_tiEnd(fg.tiSta());
+            zeile_aendern(index-1, fg_vor.text(), false);
+        }else if(bearb_vor.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            fraeserbogen fb_vor(bearb_vor.text());
+            fb_vor.bog_ptr()->versetze_epu(fg.sp());
+            fb_vor.set_tiEnd(fg.tiSta());
+            zeile_aendern(index-1, fb_vor.text(), false);
+        }
+    }
+    //Folgezeile mit ändern?:
+    if(index+1 < bearbeitungen.count())
+    {
+        text_zw bearb_nach;
+        bearb_nach.set_text(bearbeitungen.at(index+1),TRENNZ_BEARB_PARAM);
+        if(bearb_nach.at(0) == BEARBART_FRAESERGERADE)
+        {
+            fraesergerade fg_nach(bearb_nach.text());
+            fg_nach.set_startpunkt(fg.ep());
+            fg_nach.set_tiSta(fg.tiEnd());
+            zeile_aendern(index+1, fg_nach.text(), false);
+        }else if(bearb_nach.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            fraeserbogen fb_nach(bearb_nach.text());
+            fb_nach.bog_ptr()->versetze_spu(fg.ep());
+            fb_nach.set_tiSta(fg.tiEnd());
+            zeile_aendern(index+1, fb_nach.text(), false);
+        }
+    }
+    zeile_aendern(index, bearb, true);
+}
+void MainWindow::slot_fbogen(fraeserbogen fb)
+{
+    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = fb.text();
+    ui->listWidget_bearb->item(index)->setText(fbogen_zu_prgzei(bearb));
+    text_zw bearbeitungen = Wste.wst(index)->bearb();
+    //Zeile davor mit ändern?:
+    if(index-1 >=0)
+    {
+        text_zw bearb_vor;
+        bearb_vor.set_text(bearbeitungen.at(index-1),TRENNZ_BEARB_PARAM);
+        if(bearb_vor.at(0) == BEARBART_FRAESERAUFRUF)
+        {
+            fraeseraufruf fa_vor(bearb_vor.text());
+            fa_vor.set_pos(fb.sp());
+            fa_vor.set_tiefe(fb.tiSta());
+            zeile_aendern(index-1, fa_vor.text(), false);
+        }else if(bearb_vor.at(0) == BEARBART_FRAESERGERADE)
+        {
+            fraesergerade fg_vor(bearb_vor.text());
+            fg_vor.set_endpunkt(fb.sp());
+            fg_vor.set_tiEnd(fb.tiSta());
+            zeile_aendern(index-1, fg_vor.text(), false);
+        }else if(bearb_vor.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            fraeserbogen fb_vor(bearb_vor.text());
+            fb_vor.bog_ptr()->versetze_epu(fb.sp());
+            fb_vor.set_tiEnd(fb.tiSta());
+            zeile_aendern(index-1, fb_vor.text(), false);
+        }
+    }
+    //Folgezeile mit ändern?:
+    if(index+1 < bearbeitungen.count())
+    {
+        text_zw bearb_nach;
+        bearb_nach.set_text(bearbeitungen.at(index+1),TRENNZ_BEARB_PARAM);
+        if(bearb_nach.at(0) == BEARBART_FRAESERGERADE)
+        {
+            fraesergerade fg_nach(bearb_nach.text());
+            fg_nach.set_startpunkt(fb.ep());
+            fg_nach.set_tiSta(fb.tiEnd());
+            zeile_aendern(index+1, fg_nach.text(), false);
+        }else if(bearb_nach.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            fraeserbogen fb_nach(bearb_nach.text());
+            fb_nach.bog_ptr()->versetze_spu(fb.ep());
+            fb_nach.set_tiSta(fb.tiEnd());
+            zeile_aendern(index+1, fb_nach.text(), false);
+        }
+    }
+    zeile_aendern(index, bearb, true);
+}
+
+void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat < 0)
+    {
+        return;
+    }
+    int index_bearb = ui->listWidget_bearb->currentRow();
+    //Werte zurück speichern:
+    if(index_bearb == 0)
+    {
+        Wste.wst(index_dat)->bearb_ptr()->add_vo(bearb);
+    }else if(index_bearb+1 < ui->listWidget_bearb->count())
+    {
+        Wste.wst(index_dat)->bearb_ptr()->add_mi(index_bearb-1, bearb);
+    }else
+    {
+        Wste.wst(index_dat)->bearb_ptr()->add_hi(bearb);
+    }
+    update_listwidget_bearb(Wste.wst(index_dat));
+    if(unredor_verwenden == true)
+    {
+        Wste.wst(index_dat)->unredo_neu();
+    }
+    wkz_magazin wkz;
+    if(ui->comboBox_maschinen->currentIndex() >= 0)
+    {
+        QString masch_bez = ui->comboBox_maschinen->currentText();
+        int index = Maschinen.get_index(masch_bez);
+        wkz = Maschinen.masch(index)->wkzmag();
+    }
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_dat);
+}
+void MainWindow::slot_make_bo(bohrung bo)
+{
+    slot_make(bo.text(), true);
+}
+void MainWindow::slot_make_rta(rechtecktasche rt)
+{
+    slot_make(rt.text(), true);
+}
+void MainWindow::slot_make_nut(nut nu)
+{
+    slot_make(nu.text(), true);
+}
+void MainWindow::on_action_make_bohrung_triggered()
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat >= 0)
+    {
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        Dialog_bearb_bohrung dlg;
+        dlg.setModal(true);
+        bohrung bo;//Default-Daten
+        dlg.set_data(bo.text(),  Wste.wst(index_dat), wkz.magazin());
+        connect(&dlg, SIGNAL(signal_bo(bohrung)), this, SLOT(slot_make_bo(bohrung)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein aktives Werkstück vorhanden!");
+        mb.setWindowTitle("Bohrung einfügen");
+        mb.exec();
+    }
+}
+void MainWindow::on_action_make_rta_triggered()
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat >= 0)
+    {
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        Dialog_bearb_rta dlg;
+        dlg.setModal(true);
+        rechtecktasche rt;//Default-Daten
+        dlg.set_data(rt.text(),  Wste.wst(index_dat), wkz.magazin());
+        connect(&dlg, SIGNAL(signal_rta(rechtecktasche)), this, SLOT(slot_make_rta(rechtecktasche)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein aktives Werkstück vorhanden!");
+        mb.setWindowTitle("Rechtecktasche einfügen");
+        mb.exec();
+    }
+}
+void MainWindow::on_action_make_nut_triggered()
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat >= 0)
+    {
+        Dialog_bearb_nut dlg;
+        dlg.setModal(true);
+        nut nu;//Default-Daten
+        dlg.set_data(nu.text(),  Wste.wst(index_dat));
+        connect(&dlg, SIGNAL(signal_nut(nut)), this, SLOT(slot_make_nut(nut)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein aktives Werkstück vorhanden!");
+        mb.setWindowTitle("Nut einfügen");
+        mb.exec();
+    }
+}
 //------------------------------------------------------
+
+
+
+
+
+
 
 
 

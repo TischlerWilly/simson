@@ -19,6 +19,7 @@
 #include "bohrraster.h"
 #include "Defines/dateinamen.h"
 #include "Klassen/geo/geo_text.h"
+#include "Klassen/undo_redo.h"
 
 
 class werkstueck
@@ -81,6 +82,10 @@ public:
     }
 
     //--------------------------------------------------Manipulationen:
+    void undo();
+    void redo();
+    void unredo_neu();
+    void unredo_clear();
 
     //--------------------------------------------------
 
@@ -93,6 +98,11 @@ private:
     double Versatz_y;
     text_zw Bearb;
     QString Name;
+
+    undo_redo<text_zw> UnReDo;
+    undo_redo<double> UnReDo_L;
+    undo_redo<double> UnReDo_B;
+    undo_redo<double> UnReDo_D;
 
 };
 

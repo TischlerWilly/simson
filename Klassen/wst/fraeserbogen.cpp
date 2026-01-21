@@ -42,6 +42,10 @@ bogen fraeserbogen::bog()
 {
     return Bogen;
 }
+bogen *fraeserbogen::bog_ptr()
+{
+    return &Bogen;
+}
 double fraeserbogen::xs()
 {
     return Bogen.spu().x();

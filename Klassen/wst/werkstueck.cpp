@@ -179,8 +179,38 @@ geo_text werkstueck::geo(wkz_magazin wkzm)
 }
 
 //--------------------------------------------------Manipulationen:
+void werkstueck::undo()
+{
+    Laenge = UnReDo_L.undo();
+    Breite = UnReDo_B.undo();
+    Dicke = UnReDo_D.undo();
+    Bearb = UnReDo.undo();
+}
+void werkstueck::redo()
+{
+    Laenge = UnReDo_L.redo();
+    Breite = UnReDo_B.redo();
+    Dicke = UnReDo_D.redo();
+    Bearb = UnReDo.redo();
+}
+void werkstueck::unredo_neu()
+{
+    UnReDo_L.neu(Laenge);
+    UnReDo_B.neu(Breite);
+    UnReDo_D.neu(Dicke);
+    UnReDo.neu(Bearb);
+}
+void werkstueck::unredo_clear()
+{
+    UnReDo_L.clear();
+    UnReDo_B.clear();
+    UnReDo_D.clear();
+    UnReDo.clear();
+}
 
-
+//#######################################################################
+//Private:
+//#######################################################################
 
 
 

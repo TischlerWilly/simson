@@ -11,7 +11,7 @@ class undo_redo
 public:
     undo_redo()
     {
-        set_groesse_max(20);
+        set_groesse_max(100);
         clear();
     }
     void neu(T t_neu)

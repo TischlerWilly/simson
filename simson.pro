@@ -9,6 +9,13 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Dialoge/bearb/dialog_bearb_bohrung.cpp \
+    Dialoge/bearb/dialog_bearb_faufruf.cpp \
+    Dialoge/bearb/dialog_bearb_fbogen.cpp \
+    Dialoge/bearb/dialog_bearb_fgerade.cpp \
+    Dialoge/bearb/dialog_bearb_nut.cpp \
+    Dialoge/bearb/dialog_bearb_pkopf.cpp \
+    Dialoge/bearb/dialog_bearb_rta.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
     Dialoge/dialog_maschinen.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
@@ -58,6 +65,13 @@ HEADERS += \
     Defines/dateinamen.h \
     Defines/def_bearbeitungen.h \
     Defines/werkzeug.h \
+    Dialoge/bearb/dialog_bearb_bohrung.h \
+    Dialoge/bearb/dialog_bearb_faufruf.h \
+    Dialoge/bearb/dialog_bearb_fbogen.h \
+    Dialoge/bearb/dialog_bearb_fgerade.h \
+    Dialoge/bearb/dialog_bearb_nut.h \
+    Dialoge/bearb/dialog_bearb_pkopf.h \
+    Dialoge/bearb/dialog_bearb_rta.h \
     Dialoge/dialog_einstellung_pfade.h \
     Dialoge/dialog_maschinen.h \
     Dialoge/wkz/dialog_bohrer.h \
@@ -104,6 +118,13 @@ HEADERS += \
     mainwindow.h
 
 FORMS += \
+    Dialoge/bearb/dialog_bearb_bohrung.ui \
+    Dialoge/bearb/dialog_bearb_faufruf.ui \
+    Dialoge/bearb/dialog_bearb_fbogen.ui \
+    Dialoge/bearb/dialog_bearb_fgerade.ui \
+    Dialoge/bearb/dialog_bearb_nut.ui \
+    Dialoge/bearb/dialog_bearb_pkopf.ui \
+    Dialoge/bearb/dialog_bearb_rta.ui \
     Dialoge/dialog_einstellung_pfade.ui \
     Dialoge/dialog_maschinen.ui \
     Dialoge/wkz/dialog_bohrer.ui \

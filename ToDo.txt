@@ -1,24 +1,7 @@
 ToDo:
 
--> Programmeinstellungen
-    > ini-Datei
-        > Benutzerordner
-            > Ein Unterordner für jede Maschine
-
--> CNC-Maschinen verwalten
-    > Maschine erzeugen
-        > Werkzeugmagazin
-            > Werkzeugmagazin bearbeiten
-        > Maximale Werkstückgröße
-    > Maschine entfernen
-    > Maschinentisch darstellen
-
--> Bearbeitungen editieren
-    > Bohrungen
-    > KTA
-    > RTA
-    > Nut
-    > fkon
+- Fräserauswahldialog
+    >wkz filtern (z.B. bei RTAs nur Fräser und keine Sägen oder Boher
 
 
 
