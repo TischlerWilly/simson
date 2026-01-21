@@ -14,6 +14,7 @@
 #include "Dialoge/dialog_maschinen.h"
 #include "Klassen/wkz/maschinen.h"
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;

@@ -140,8 +140,17 @@ void MainWindow::maschinen_einlesen()
         if(file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
             m.set_text(file.readAll());
+
+            QFile file_wkz(PrgPfade.path_wkz_mag(name));
+            if(file_wkz.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                wkz_magazin wkz;
+                wkz.set_text(file_wkz.readAll());
+                m.set_wkzmag(wkz);
+            }
+            file_wkz.close();
         }
-        //-------------------------------<<<<<<<<<<<<<<<Noch wkz einlesen
+        file.close();
         Maschinen.neu(m);
     }
 }
