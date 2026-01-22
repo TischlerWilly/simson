@@ -549,6 +549,61 @@ void MainWindow::on_actionUmbenennen_triggered()
         mb.exec();
     }
 }
+
+void MainWindow::on_actionUndo_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+
+        Wste.wst(index_wst)->undo();
+        update_listwidget_bearb(Wste.wst(index_wst));
+
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Werkstück umbenennen");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionRedo_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+
+        Wste.wst(index_wst)->redo();
+        update_listwidget_bearb(Wste.wst(index_wst));
+
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Werkstück umbenennen");
+        mb.exec();
+    }
+}
 void MainWindow::on_listWidget_bearb_itemDoubleClicked(QListWidgetItem *item)
 {
     int index = ui->listWidget_bearb->currentRow();
@@ -822,6 +877,33 @@ QString MainWindow::verschiebe_bearb_einen(QString bearb, double ax, double ay, 
     }
     return bearb;
 }
+
+int MainWindow::auswahl_erster()
+{
+    QList<QListWidgetItem*> items = ui->listWidget_bearb->selectedItems();
+    int row_erstes = 0;//Nummer des ersten Elementes
+    for(int i=0; i<ui->listWidget_bearb->count() ;i++)
+    {
+        if(ui->listWidget_bearb->item(i)->isSelected())
+        {
+            row_erstes = i;
+            break;
+        }
+    }
+    return row_erstes;
+}
+int MainWindow::auswahl_letzter()
+{
+    int erster = auswahl_erster();
+    int menge = auswahl_menge();
+    return erster+menge-1;
+}
+int MainWindow::auswahl_menge()
+{
+    QList<QListWidgetItem*> items = ui->listWidget_bearb->selectedItems();
+    return items.count();
+}
+
 void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verwenden)
 {
     //index_bearb ist der index der Bearbeitung
@@ -1031,6 +1113,211 @@ void MainWindow::slot_fbogen(fraeserbogen fb)
     zeile_aendern(index, bearb, true);
 }
 
+void MainWindow::slot_verschieben(punkt3d p)
+{
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//index der Bearbeitung, nicht vom listwidget
+    int index_wst = ui->listWidget_dateien->currentRow();
+    //Die index-Prüfung erfolgt bereits in der Funktion on_actionVerschieben_triggered()
+    int row_erstes = auswahl_erster()-1;//-1 weil index der Bearbeitung, nicht vom listwidget
+    int items_menge = auswahl_menge();
+    if(items_menge==1)
+    {
+        if(index_bearb >= 0  &&  index_bearb+1 < ui->listWidget_bearb->count())
+        {
+            QString bearb = Wste.wst(index_wst)->bearb_ptr()->at(index_bearb);
+            double l = Wste.wst(index_wst)->laenge();
+            double b = Wste.wst(index_wst)->breite();
+            bearb = verschiebe_bearb_einen(bearb, p.x(), p.y(), p.z(), l, l, b, b);
+            zeile_aendern(index_bearb, bearb, true);
+        }
+    }else
+    {
+        index_bearb = row_erstes;
+        if(index_bearb < 0)
+        {
+            index_bearb = 0;
+            items_menge = items_menge-1;
+        }
+        if(index_bearb+items_menge >= ui->listWidget_bearb->count())
+        {
+            items_menge = ui->listWidget_bearb->count()-index_bearb-1;
+        }
+        for (int i=0 ; i<items_menge ; i++)
+        {
+            QString bearb = Wste.wst(index_wst)->bearb_ptr()->at(index_bearb+i);
+            double l = Wste.wst(index_wst)->laenge();
+            double b = Wste.wst(index_wst)->breite();
+            bearb = verschiebe_bearb_einen(bearb, p.x(), p.y(), p.z(), l, l, b, b);
+            zeile_aendern(index_bearb+i, bearb, false);
+        }
+        Wste.wst(index_wst)->unredo_neu();
+    }
+}
+void MainWindow::on_actionVerschieben_triggered()
+{
+    if((ui->listWidget_bearb->currentIndex().isValid())  &&  \
+       (ui->listWidget_bearb->currentItem()->isSelected())    )
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+        //Prüfen ob Fräsbahnen durch das Verschieben geteilt werden:
+        bool gesund = true;
+        //--Prüfen ob eine Fräsbahn nach der Auswahl weiter geht:
+        if(auswahl_letzter() < ui->listWidget_bearb->count())
+        {
+            int zeile_dannach = auswahl_letzter();//index von QListwidget
+            text_zw bearb;
+            bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_dannach),TRENNZ_BEARB_PARAM);
+            if(bearb.at(0) == BEARBART_FRAESERGERADE  || \
+               bearb.at(0) == BEARBART_FRAESERBOGEN)
+            {
+                gesund = false;
+            }
+        }
+        //---Prüfen ob eine Fräsbahn vor der Auswahl beginnt:
+        if(auswahl_erster() >= 2)
+        {
+            int zeile_davor = auswahl_erster()-1;//index von QListwidget
+            text_zw bearb;
+            bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_davor),TRENNZ_BEARB_PARAM);
+            text_zw bearb_erster;
+            bearb_erster.set_text(Wste.wst(index_wst)->bearb_ptr()->at(auswahl_erster()-1),TRENNZ_BEARB_PARAM);
+            if(bearb_erster.at(0) != BEARBART_FRAESERAUFRUF)
+            {
+                if(bearb.at(0) == BEARBART_FRAESERAUFRUF  || \
+                                                                 bearb.at(0) == BEARBART_FRAESERGERADE  || \
+                           bearb.at(0) == BEARBART_FRAESERBOGEN)
+                {
+                    gesund = false;
+                }
+            }
+        }
+        //---
+        if(gesund == false)
+        {
+            QMessageBox mb;
+            mb.setText("Das Verschieben dieser Zeilenauswahl ist nicht möglich weil eine Fräsbahn nur vollständig verschoben werden kann!");
+            mb.exec();
+            return;
+        }
+        //---
+        Dialog_bearb_verschieben dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_punkt(punkt3d)), this, SLOT(slot_verschieben(punkt3d)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Sie haben noch nichts ausgewaelt was verschoben werden kann!");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionKopieren_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        int index_liwid = ui->listWidget_bearb->currentRow();
+        int index_bearb = index_liwid-1;
+        int index_wst = ui->listWidget_dateien->currentRow();
+
+        if((ui->listWidget_bearb->currentIndex().isValid())  &&  \
+            (ui->listWidget_bearb->currentItem()->isSelected())    )
+        {
+            QList<QListWidgetItem*> items = ui->listWidget_bearb->selectedItems();
+            int items_menge = items.count();
+            int row_erstes_liwid = 0;//Nummer des ersten Elementes
+            for(int i=0; i<ui->listWidget_bearb->count() ;i++)
+            {
+                if(ui->listWidget_bearb->item(i)->isSelected())
+                {
+                    row_erstes_liwid = i;
+                    break;
+                }
+            }
+            int row_erstes_bearb = row_erstes_liwid-1;
+            if(items_menge==1)
+            {
+                if(index_liwid > 0  &&  index_liwid+1 < ui->listWidget_bearb->count())
+                {
+                    KopierterEintrag = Wste.wst(index_wst)->bearb_ptr()->at(index_bearb);
+                }
+            }else
+            {
+                if(row_erstes_liwid == 0)//Programmkopf
+                {
+                    row_erstes_liwid = 1;
+                    row_erstes_bearb = row_erstes_liwid-1;
+                    items_menge = items_menge-1;
+                }
+                if(row_erstes_liwid+items_menge >= ui->listWidget_bearb->count())
+                {
+                    items_menge = ui->listWidget_bearb->count()-row_erstes_liwid-1;
+                }
+                QString tmp = Wste.wst(index_wst)->bearb_ptr()->at(row_erstes_bearb, items_menge);
+                KopierterEintrag = tmp;
+            }
+        }else
+        {
+            QMessageBox mb;
+            mb.setText("Sie haben noch nichts ausgewaelt was kopiert werden kann!");
+            mb.exec();
+        }
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Werkstück umbenennen");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionEinfuegen_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        if(!KopierterEintrag.isEmpty())
+        {
+            int index_liwid = ui->listWidget_bearb->currentRow();
+            int index_wst = ui->listWidget_dateien->currentRow();
+
+            if(index_liwid == 0)//Programmkopf
+            {
+                index_liwid = 1;
+            }
+            if(index_liwid == 1)
+            {
+                Wste.wst(index_wst)->bearb_ptr()->add_vo(KopierterEintrag);
+            }else if(index_liwid == ui->listWidget_bearb->count()-1)
+            {
+                Wste.wst(index_wst)->bearb_ptr()->add_hi(KopierterEintrag);
+            }else
+            {
+                Wste.wst(index_wst)->bearb_ptr()->add_mi(index_liwid-2, KopierterEintrag);
+            }
+            update_listwidget_bearb(Wste.wst(index_wst));
+            Wste.wst(index_wst)->unredo_neu();
+            ui->listWidget_bearb->setCurrentRow(index_liwid);
+
+            wkz_magazin wkz;
+            if(ui->comboBox_maschinen->currentIndex() >= 0)
+            {
+                QString masch_bez = ui->comboBox_maschinen->currentText();
+                int index = Maschinen.get_index(masch_bez);
+                wkz = Maschinen.masch(index)->wkzmag();
+            }
+            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+        }
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Werkstück umbenennen");
+        mb.exec();
+    }
+}
+
 void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
 {
     int index_dat = ui->listWidget_dateien->currentRow();
@@ -1148,6 +1435,15 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 
 

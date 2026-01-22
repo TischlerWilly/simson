@@ -69,6 +69,12 @@ void Dialog_fraeser::on_pushButton_ok_clicked()
         mb.setText("Bitte zuerst eine Fräsernummer eintragen!");
         mb.setWindowTitle("Daten unvollständig");
         mb.exec();
+    }else if(ui->lineEdit_alias->text().isEmpty())
+    {
+        QMessageBox mb;
+        mb.setText("Bitte zuerst einen Alias-Namen eintragen!");
+        mb.setWindowTitle("Daten unvollständig");
+        mb.exec();
     }else if(ui->lineEdit_dm->text().isEmpty())
     {
         QMessageBox mb;

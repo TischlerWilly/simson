@@ -65,6 +65,9 @@
       <height>192</height>
      </rect>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SelectionMode::ContiguousSelection</enum>
+    </property>
    </widget>
    <widget class="QComboBox" name="comboBox_maschinen">
     <property name="geometry">
@@ -105,9 +108,16 @@
     <property name="title">
      <string>Bearbeitungen</string>
     </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
     <addaction name="action_make_bohrung"/>
     <addaction name="action_make_rta"/>
     <addaction name="action_make_nut"/>
+    <addaction name="separator"/>
+    <addaction name="actionVerschieben"/>
+    <addaction name="actionKopieren"/>
+    <addaction name="actionEinfuegen"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
@@ -161,6 +171,46 @@
   <action name="action_make_nut">
    <property name="text">
     <string>Nut einfügen</string>
+   </property>
+  </action>
+  <action name="actionVerschieben">
+   <property name="text">
+    <string>Verschieben</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Rückgängig</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Wiederholen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionKopieren">
+   <property name="text">
+    <string>Kopieren</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionEinfuegen">
+   <property name="text">
+    <string>Einfügen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

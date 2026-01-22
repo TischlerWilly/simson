@@ -20,6 +20,7 @@
 #include "Dialoge/bearb/dialog_bearb_faufruf.h"
 #include "Dialoge/bearb/dialog_bearb_fgerade.h"
 #include "Dialoge/bearb/dialog_bearb_fbogen.h"
+#include "Dialoge/bearb/dialog_bearb_verschieben.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -47,6 +48,9 @@ private:
     QString verschiebe_bearb_einen(QString bearb, double ax, double ay, double az,\
                                    double wst_l_alt, double wst_l_neu,\
                                    double wst_b_alt, double wst_b_ne  );
+    int auswahl_erster();
+    int auswahl_letzter();
+    int auswahl_menge();
 
     //Variablen:
     Ui::MainWindow *ui;    
@@ -55,6 +59,7 @@ private:
     maschinen Maschinen;
     einstellung Einstellung;
     prgpfade PrgPfade;
+    QString KopierterEintrag;
 
     //Dialoge:
     Dialog_Einstellung_pfade dlg_Einstellung_pfade;
@@ -81,6 +86,11 @@ private slots:
     void on_action_make_bohrung_triggered();
     void on_action_make_rta_triggered();
     void on_action_make_nut_triggered();
+    void on_actionVerschieben_triggered();
+    void on_actionUndo_triggered();
+    void on_actionRedo_triggered();
+    void on_actionKopieren_triggered();
+    void on_actionEinfuegen_triggered();
 
 public slots:
     void getEinstellung(einstellung e);
@@ -93,6 +103,8 @@ public slots:
     void slot_faufruf(fraeseraufruf fa);
     void slot_fgerade(fraesergerade fg);
     void slot_fbogen(fraeserbogen fb);
+
+    void slot_verschieben(punkt3d p);
     //Erstellen/Make:
     void slot_make(QString bearb, bool unredor_verwenden);
     void slot_make_bo(bohrung bo);

@@ -16,6 +16,7 @@ SOURCES += \
     Dialoge/bearb/dialog_bearb_nut.cpp \
     Dialoge/bearb/dialog_bearb_pkopf.cpp \
     Dialoge/bearb/dialog_bearb_rta.cpp \
+    Dialoge/bearb/dialog_bearb_verschieben.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
     Dialoge/dialog_maschinen.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
@@ -72,6 +73,7 @@ HEADERS += \
     Dialoge/bearb/dialog_bearb_nut.h \
     Dialoge/bearb/dialog_bearb_pkopf.h \
     Dialoge/bearb/dialog_bearb_rta.h \
+    Dialoge/bearb/dialog_bearb_verschieben.h \
     Dialoge/dialog_einstellung_pfade.h \
     Dialoge/dialog_maschinen.h \
     Dialoge/wkz/dialog_bohrer.h \
@@ -125,6 +127,7 @@ FORMS += \
     Dialoge/bearb/dialog_bearb_nut.ui \
     Dialoge/bearb/dialog_bearb_pkopf.ui \
     Dialoge/bearb/dialog_bearb_rta.ui \
+    Dialoge/bearb/dialog_bearb_verschieben.ui \
     Dialoge/dialog_einstellung_pfade.ui \
     Dialoge/dialog_maschinen.ui \
     Dialoge/wkz/dialog_bohrer.ui \

@@ -146,6 +146,7 @@ void Dialog_bearb_rta::on_pushButton_wkzwahl_clicked()
     }
     dlg_wkzwahl.set_max_dm(min);
     dlg_wkzwahl.set_min_nutz(ui->lineEdit_ti->text().toDouble());
+    dlg_wkzwahl.set_wkztyp(WKZ_TYP_FRAESER);
     dlg_wkzwahl.set_wkzmag(Wkzmag);
     dlg_wkzwahl.update_wkztabelle();
     dlg_wkzwahl.show();

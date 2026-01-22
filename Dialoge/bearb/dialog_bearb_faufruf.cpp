@@ -179,6 +179,7 @@ void Dialog_bearb_faufruf::on_btn_abbrechen_clicked()
 void Dialog_bearb_faufruf::on_pushButton_wkzwahl_clicked()
 {
     dlg_wkzwahl.set_min_nutz(ui->lineEdit_ti->text().toDouble());
+    dlg_wkzwahl.set_wkztyp(WKZ_TYP_FRAESER);
     dlg_wkzwahl.set_wkzmag(Wkzmag);
     dlg_wkzwahl.update_wkztabelle();
     dlg_wkzwahl.show();

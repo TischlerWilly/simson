@@ -83,7 +83,16 @@ void Dialog_fraeserauswahl::update_wkztabelle()
         {
             ui->tableWidget->hideRow(i);
         }
+        if(Wkztyp != "")
+        {
+            QString akttyp = zeile.at(0);
+            if(Wkztyp != akttyp)
+            {
+                ui->tableWidget->hideRow(i);
+            }
+        }
     }
+    set_fenstertitel();
 }
 void Dialog_fraeserauswahl::set_wkzmag(text_zw wkzm)
 {
@@ -99,22 +108,41 @@ void Dialog_fraeserauswahl::set_min_nutz(double nutzl)
     Min_nutzl = nutzl;
     set_fenstertitel();
 }
+void Dialog_fraeserauswahl::set_wkztyp(QString typ)
+{
+    Wkztyp = typ;
+}
 
 void Dialog_fraeserauswahl::set_fenstertitel()
 {
-    QString fenstertitel = "Fräser auswählen";
+    QString fenstertitel = "gefilterte Werkzeugauswahl   { ";
     if(Max_dm > 0)
     {
-        fenstertitel +=  "        DM < ";
+        fenstertitel +=  "DM < ";
         fenstertitel += double_to_qstring(Max_dm);
         fenstertitel += "mm";
     }
     if(Min_nutzl > 0)
     {
-        fenstertitel +=  "        Nutzlänge > ";
+        fenstertitel +=  " | Nutzlänge > ";
         fenstertitel += double_to_qstring(Min_nutzl);
         fenstertitel += "mm";
     }
+    if(Wkztyp != "")
+    {
+        fenstertitel +=  " | Werkzeugtyp: ";
+        if(Wkztyp == WKZ_TYP_FRAESER)
+        {
+            fenstertitel += "Fräser";
+        }else if(Wkztyp == WKZ_TYP_SAEGE)
+        {
+            fenstertitel += "Säge";
+        }else if(Wkztyp == WKZ_TYP_BOHRER)
+        {
+            fenstertitel += "Bohrer";
+        }
+    }
+    fenstertitel += " }";
     this->setWindowTitle(fenstertitel);
 }
 

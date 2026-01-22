@@ -19,6 +19,7 @@ public:
     void set_wkzmag(text_zw wkzm);
     void set_max_dm(double dm);
     void set_min_nutz(double nutzl);
+    void set_wkztyp(QString typ);
 
 signals:
     void send_wkz(QString w);
@@ -33,6 +34,7 @@ private:
     text_zw Wkzmag;
     double Max_dm;
     double Min_nutzl;
+    QString Wkztyp;
 
     void set_fenstertitel();
 

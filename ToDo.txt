@@ -1,7 +1,5 @@
 ToDo:
 
-- Fräserauswahldialog
-    >wkz filtern (z.B. bei RTAs nur Fräser und keine Sägen oder Boher
 
 
 
