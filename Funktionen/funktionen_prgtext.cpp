@@ -213,9 +213,18 @@ QString fbogen_zu_prgzei(QString text)
     msg += "\tMPY: ";
     msg += fb.bog().mipu().y_QString();
     msg += "\tSWI: ";
-    msg += fb.bog().swi_QString();
+    msg += double_to_qstring(qRadiansToDegrees(fb.bog().swi()));
     msg += "\tEWI: ";
-    msg += fb.bog().ewi_QString();
+    msg += double_to_qstring(qRadiansToDegrees(fb.bog().ewi()));
+    msg += "\tUSZ: ";
+    if(fb.bog_ptr()->uzs())
+    {
+        msg += "ja";
+    }else
+    {
+        msg += "nein";
+    }
+
 
     msg += "\tAFB: ";
     msg += fb.afb();

@@ -24,6 +24,8 @@ SOURCES += \
     Dialoge/wkz/dialog_fraeserauswahl.cpp \
     Dialoge/wkz/dialog_saege.cpp \
     Funktionen/funktionen_prgtext.cpp \
+    Funktionen/import/ewx.cpp \
+    Funktionen/import/ewx_reference.cpp \
     Funktionen/myfunktion.cpp \
     Funktionen/runden.cpp \
     Funktionen/text.cpp \
@@ -81,6 +83,8 @@ HEADERS += \
     Dialoge/wkz/dialog_fraeserauswahl.h \
     Dialoge/wkz/dialog_saege.h \
     Funktionen/funktionen_prgtext.h \
+    Funktionen/import/ewx.h \
+    Funktionen/import/ewx_reference.h \
     Funktionen/myfunktion.h \
     Funktionen/runden.h \
     Funktionen/text.h \

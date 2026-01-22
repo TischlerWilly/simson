@@ -88,7 +88,7 @@ void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
     M2.set_y( C.y() - ny * h );
 
     // Auswahl abhängig von Drehrichtung
-    punkt3d M = uzs ? M1 : M2;
+    punkt3d M = uzs ? M2 : M1;
 
     // Winkel berechnen
     double startAngle = std::atan2( P0.y() - M.y(), P0.x() - M.x() );

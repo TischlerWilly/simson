@@ -21,6 +21,7 @@
 #include "Dialoge/bearb/dialog_bearb_fgerade.h"
 #include "Dialoge/bearb/dialog_bearb_fbogen.h"
 #include "Dialoge/bearb/dialog_bearb_verschieben.h"
+#include "Funktionen/import/ewx.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -60,6 +61,7 @@ private:
     einstellung Einstellung;
     prgpfade PrgPfade;
     QString KopierterEintrag;
+    QString Pfad_letzte_geoeffnete_datei;
 
     //Dialoge:
     Dialog_Einstellung_pfade dlg_Einstellung_pfade;

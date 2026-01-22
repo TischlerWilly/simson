@@ -46,8 +46,6 @@ public:
     QString tiSta_qstring();
     double tiEnd();
     QString tiEnd_qstring();
-    punkt3d stapu();
-    inline punkt3d endpu();
 
     QString text();
     void set_text(QString text);

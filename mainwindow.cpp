@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
             &dlg_Einstellung_maschinen, SLOT(slot_maschinen(maschinen)));
     connect(&dlg_Einstellung_maschinen, SIGNAL(send_maschinen(maschinen)),\
             this, SLOT(getMaschinen(maschinen)));
+
+    this->setWindowState(Qt::WindowMaximized);
 }
 
 MainWindow::~MainWindow()
@@ -408,25 +410,19 @@ void MainWindow::on_btn_import_clicked()
 }
 void MainWindow::on_action_oeffnen_triggered()
 {
-    //QString pfad_lokal = Einstellung.verzeichnis_ziel_lokal();
-    //pfad_lokal += QDir::separator();
-    //pfad_lokal += "eigen";
-    //pfad_lokal.replace("\\", QDir::separator());//linux style
-    //pfad_lokal.replace("/", QDir::separator());//windows style
-    //if(Pfad_letzte_geoeffnete_ggf_datei.isEmpty())
-    //{
-    //    Pfad_letzte_geoeffnete_ggf_datei = pfad_lokal;
-    //}
-    QString Pfad_letzte_geoeffnete_ggf_datei;
+    if(Pfad_letzte_geoeffnete_datei.isEmpty())
+    {
+        Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
+    }
     QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
-                                                      Pfad_letzte_geoeffnete_ggf_datei, tr("ewx Dateien (*.ewx)"));
+                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"));
     for(int i=0; i<pfade.size() ;i++)
     {
-        /*
         QString aktueller_pfad = pfade.at(i);
         QFile datei(aktueller_pfad);
         QFileInfo finfo(datei);
-        Pfad_letzte_geoeffnete_ggf_datei = finfo.path();
+        Pfad_letzte_geoeffnete_datei = finfo.path();
+
         if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
         {
             QString tmp = "Fehler beim Dateizugriff!\n";
@@ -437,32 +433,42 @@ void MainWindow::on_action_oeffnen_triggered()
         }else
         {
             QString inhalt = datei.readAll();
-            QFileInfo info;
-            info.setFile(aktueller_pfad);
-            QString wstname = info.fileName();
-            QString dateiendung = ".ppf";
+            QString wstname = finfo.fileName();
+            QString dateiendung = finfo.suffix();
             wstname = wstname.left(wstname.length()-dateiendung.length());
-            if(wste.import_ppf(wstname, inhalt) == false)
+            if(dateiendung == "ewx")
+            {
+                if(Wste.ist_bekannt(wstname))
+                {
+                    QString msg;
+                    msg  = "Die Datei \"";
+                    msg += wstname;
+                    msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
+                    msg += "Arbeitsliste vorhanden ist.";
+                    QMessageBox mb;
+                    mb.setWindowTitle("Datei öffnen");
+                    mb.setText(msg);
+                    mb.exec();
+                }else
+                {
+                    werkstueck w = import_ewx(inhalt);
+                    w.set_name(wstname);
+                    Wste.neu(w);
+                    ui->listWidget_dateien->addItem(wstname);
+                }
+            }else
             {
                 QString msg;
-                msg  = "Die Datei \"";
-                msg += wstname;
-                msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
-                msg += "Arbeitsliste vorhanden ist.";
+                msg += "Die Dateiendung \"";
+                msg += dateiendung;
+                msg += "\" wird zum Einlesen nicht unterstützt.";
                 QMessageBox mb;
-                mb.setWindowTitle("Datei öffnen");
                 mb.setText(msg);
+                mb.setWindowTitle("Datei einlesen");
                 mb.exec();
             }
         }
-        */
     }
-    /*
-    werkstueck w;//leeres wst
-    emit sendVorschauAktualisieren(w, 0);//leeres wst an vorschau schicken
-    update_listwidget_wste();
-    emit signal_exporte(wste.namen_tz());
-    */
 }
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 {
