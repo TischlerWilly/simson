@@ -41,7 +41,7 @@ double winkel(double endpunkt1_x, double endpunkt1_y,\
     return angle_rad;
 }
 
-punkt3d drehen(punkt3d punkt, punkt3d zentrum, double drewi)
+punkt3d drehen(punkt3d zentrum, punkt3d punkt, double drewi)
 {
     //drewi muss in Radiant angegeben werden!!
 

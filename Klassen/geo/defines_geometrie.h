@@ -36,9 +36,10 @@
  5) Radius
  6) Startwinkel (in Radiant)
  7) Endwinkel (in Radiant)
- 8) Farbe der Linie
- 9) Breite der Linie
-10) Stil der Linie
+ 8) Uhrzeigersinn
+ 9) Farbe der Linie
+10) Breite der Linie
+11) Stil der Linie
 */
 #define KREIS       "cadKreis"
 /*

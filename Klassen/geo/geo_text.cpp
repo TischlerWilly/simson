@@ -100,6 +100,7 @@ void geo_text::add_bogen(bogen b, uint index)
     geo.add_hi(b.rad_QString());
     geo.add_hi(b.swi_QString());
     geo.add_hi(b.ewi_QString());
+    geo.add_hi(b.uzs_QString());
     geo.add_hi(b.farbe());
     geo.add_hi(b.linienbreite_qstring());
     geo.add_hi(b.stil());
@@ -874,21 +875,25 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                     r.set_laenge(nu.tiefe());
                     r.set_breite(s.laenge2d());
                     r.set_drewi(0);
+                    r.set_li(s.mipu());
                 }else if(nu.bezug() == WST_BEZUG_RE)
                 {
                     r.set_laenge(nu.tiefe());
                     r.set_breite(s.laenge2d());
                     r.set_drewi(0);
+                    r.set_re(s.mipu());
                 }else if(nu.bezug() == WST_BEZUG_VO)
                 {
                     r.set_laenge(s.laenge2d());
                     r.set_breite(nu.tiefe());
                     r.set_drewi(0);
+                    r.set_un(s.mipu());
                 }else if(nu.bezug() == WST_BEZUG_HI)
                 {
                     r.set_laenge(s.laenge2d());
                     r.set_breite(nu.tiefe());
                     r.set_drewi(0);
+                    r.set_ob(s.mipu());
                 }
                 r.set_farbe_fuellung(FARBE_GELB);
                 punkt3d mipu = s.mipu();
@@ -898,13 +903,13 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 s_mipu.set_laenge(nu.tiefe()/2, strecke_bezugspunkt_start);
                 s_mipu.drenen_um_stapu_2d(degToRad(90));
                 mipu = s_mipu.endpu();
-                r.set_mipu(mipu);
                 r.verschieben_um(versatz_x, versatz_y);
                 //Start anzeigen:
                 strecke stmp = s;
-                stmp.drenen_um_stapu_2d(degToRad(90));
-                stmp.set_laenge(stmp.laenge2d()+nu.tiefe(), strecke_bezugspunkt_ende);
+                stmp.drenen_um_stapu_2d(degToRad(-90));
                 stmp.set_laenge(30, strecke_bezugspunkt_start);
+                stmp.set_laenge(9999, strecke_bezugspunkt_ende);
+                stmp.set_laenge(stmp.laenge2d()-nu.tiefe(), strecke_bezugspunkt_start);
                 kreis k;
                 k.set_mipu(stmp.endpu());
                 k.set_rad(30);

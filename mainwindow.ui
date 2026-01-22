@@ -65,6 +65,9 @@
       <height>192</height>
      </rect>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SelectionMode::ContiguousSelection</enum>
+    </property>
    </widget>
    <widget class="QComboBox" name="comboBox_maschinen">
     <property name="geometry">
@@ -90,8 +93,8 @@
     <property name="title">
      <string>Datei</string>
     </property>
-    <addaction name="action_oeffnen"/>
     <addaction name="actionNeu"/>
+    <addaction name="action_oeffnen"/>
     <addaction name="actionUmbenennen"/>
    </widget>
    <widget class="QMenu" name="menuEinstellungen">
@@ -101,7 +104,23 @@
     <addaction name="actionPfade"/>
     <addaction name="actionCNC_Maschinen"/>
    </widget>
+   <widget class="QMenu" name="menuBearbeitungen">
+    <property name="title">
+     <string>Bearbeitungen</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="action_make_bohrung"/>
+    <addaction name="action_make_rta"/>
+    <addaction name="action_make_nut"/>
+    <addaction name="separator"/>
+    <addaction name="actionVerschieben"/>
+    <addaction name="actionKopieren"/>
+    <addaction name="actionEinfuegen"/>
+   </widget>
    <addaction name="menuDatei"/>
+   <addaction name="menuBearbeitungen"/>
    <addaction name="menuEinstellungen"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -137,6 +156,61 @@
   <action name="actionCNC_Maschinen">
    <property name="text">
     <string>CNC-Maschinen</string>
+   </property>
+  </action>
+  <action name="action_make_bohrung">
+   <property name="text">
+    <string>Bohrung einfügen</string>
+   </property>
+  </action>
+  <action name="action_make_rta">
+   <property name="text">
+    <string>Rechtecktasche einfügen</string>
+   </property>
+  </action>
+  <action name="action_make_nut">
+   <property name="text">
+    <string>Nut einfügen</string>
+   </property>
+  </action>
+  <action name="actionVerschieben">
+   <property name="text">
+    <string>Verschieben</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Rückgängig</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Wiederholen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionKopieren">
+   <property name="text">
+    <string>Kopieren</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionEinfuegen">
+   <property name="text">
+    <string>Einfügen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,7 @@
 
 bogen::bogen()
 {
-
+    Uzs = false;
 }
 
 //---------------------------------set:
@@ -11,16 +11,17 @@ void bogen::set_text(QString geotext)
     text_zw tz;
     tz.set_text(geotext,TRZ_PA_);
     punkt3d p;
-    p.set_x(tz.at(1).toDouble());
-    p.set_y(tz.at(2).toDouble());
-    p.set_z(tz.at(3).toDouble());
+    p.set_x(tz.at(1).toDouble()); //2) x-Mittelpunkt
+    p.set_y(tz.at(2).toDouble()); //3) y-Mittelpunkt
+    p.set_z(tz.at(3).toDouble()); //4) z-Mittelpunkt
     set_mipu(p);
-    set_rad(tz.at(4).toDouble());
-    set_swi(tz.at(5).toDouble());
-    set_ewi(tz.at(6).toDouble());
-    set_farbe(tz.at(7));
-    set_linienbreite(tz.at(8).toInt());
-    set_stil(tz.at(9));
+    set_rad(tz.at(4).toDouble()); //5) Radius
+    set_swi(tz.at(5).toDouble()); //6) Startwinkel (in Radiant)
+    set_ewi(tz.at(6).toDouble()); //7) Endwinkel (in Radiant)
+    set_uzs(tz.at(7));            //8) Uhrzeigersinn
+    set_farbe(tz.at(8));          //9) Farbe der Linie
+    set_linienbreite(tz.at(9).toInt()); //10) Breite der Linie
+    set_stil(tz.at(10));          //11) Stil der Linie
 }
 void bogen::set_mipu(punkt3d p)
 {
@@ -51,28 +52,208 @@ void bogen::set_ewi(double w)
 {
     Ewi = w;
 }
+void bogen::set_uzs(bool uzs)
+{
+    Uzs = uzs;
+}
+void bogen::set_uzs(QString uzs)
+{
+    if(uzs == "1")
+    {
+        Uzs = true;
+    }else
+    {
+        Uzs = false;
+    }
+}
+void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
+{
+    Uzs = uzs;
+    punkt3d P0 = sp;
+    punkt3d P1 = ep;
+    double dx = P1.x() - P0.x();
+    double dy = P1.y() - P0.y();
+    double d = std::sqrt(dx*dx + dy*dy);
+
+    if (d > 2*rad)
+        throw std::runtime_error("Kein Kreis möglich: Abstand > 2*Radius");
+
+    // Mittelpunkt der Sehne
+    punkt3d C;
+    C.set_x( (P0.x() + P1.x()) * 0.5 );
+    C.set_y( (P0.y() + P1.y()) * 0.5 );
+
+    // Normalisierte Richtung
+    double ux = dx / d;
+    double uy = dy / d;
+
+    // Normale
+    double nx = -uy;
+    double ny = ux;
+
+    // Abstand vom Sehnenmittelpunkt zum Kreismittelpunkt
+    double h = std::sqrt(rad*rad - (d*0.5)*(d*0.5));
+
+    // Zwei mögliche Mittelpunkte
+    punkt3d M1;
+    M1.set_x( C.x() + nx * h );
+    M1.set_y( C.y() + ny * h );
+
+    punkt3d M2;
+    M2.set_x( C.x() - nx * h );
+    M2.set_y( C.y() - ny * h );
+
+    // Auswahl abhängig von Drehrichtung
+    punkt3d M = uzs ? M2 : M1;
+
+    // Winkel berechnen
+    double startAngle = std::atan2( P0.y() - M.y(), P0.x() - M.x() );
+    double endAngle   = std::atan2( P1.y() - M.y(), P1.x() - M.x() );
+
+    // Winkelrichtung anpassen
+    if(uzs)
+    {
+        if (endAngle > startAngle)
+        {
+            endAngle -= 2 * M_PI;
+        }
+    }else
+    {
+        if (endAngle < startAngle)
+        {
+            endAngle += 2 * M_PI;
+        }
+    }
+    set_mipu(M);
+    set_rad(rad);
+    set_swi(startAngle);
+    set_ewi(endAngle);
+}
+void bogen::versetze_spu(punkt3d neue_pos)
+{
+    //Der alte Endpunkt bleibt fix.
+    //Der neue Startpunkt wird übergeben.
+    //Der Winkelspan bleibt derselbe.
+    //Mittelpunkt und Radius werden so berechnet, dass alter
+    //Endpunkt und neuer Startpunkt garantiert auf dem Kreis liegen.
+
+    // 1. Distanz zwischen Start- und Endpunkt
+    punkt3d oldEndPoint( epu() );
+    punkt3d newStartPoint = neue_pos;
+    double dx = oldEndPoint.x() - newStartPoint.x();
+    double dy = oldEndPoint.y() - newStartPoint.y();
+    double d = std::sqrt(dx*dx + dy*dy);
+
+    // 2. Mittelpunkt der Strecke
+    punkt3d mid;
+    mid.set_x( (newStartPoint.x() + oldEndPoint.x()) / 2.0 );
+    mid.set_y( (newStartPoint.y() + oldEndPoint.y()) / 2.0 );
+
+    // 3. Abstand des Kreismittelpunkts von der Mitte
+    double oldAngleSpan = spannwinkel();
+    double h = d / (2.0 * std::tan(oldAngleSpan / 2.0));
+
+    // 4. Normale zur Strecke (linksseitig)
+    double nx = -dy / d;
+    double ny =  dx / d;
+
+    // 5. Mittelpunkt berechnen
+    punkt3d C;
+    C.set_x( mid.x() + nx * h );
+    C.set_y( mid.y() + ny * h );
+
+    // 6. Radius
+    double r = std::sqrt( (newStartPoint.x() - C.x())*(newStartPoint.x() - C.x()) +\
+                          (newStartPoint.y() - C.y())*(newStartPoint.y() - C.y()) );
+
+    // 7. Winkel
+    double startAngle = std::atan2( newStartPoint.y() - C.y(),
+                                    newStartPoint.x() - C.x() );
+
+    double endAngle = std::atan2( oldEndPoint.y() - C.y(),
+                                  oldEndPoint.x() - C.x() );
+
+    // Ergebnis setzen
+    set_mipu(C);
+    set_rad(r);
+    set_swi(startAngle);
+    set_ewi(endAngle);
+}
+void bogen::versetze_epu(punkt3d neue_pos)
+{
+    //Der alte Startpunkt bleibt fix.
+    //Der neue Endpunkt wird übergeben.
+    //Der Winkelspan bleibt derselbe.
+    //Mittelpunkt und Radius werden so berechnet, dass alter
+    //Startpunkt und neuer Endpunkt garantiert auf dem Kreis liegen.
+
+    // 1. Distanz zwischen Start- und Endpunkt
+    punkt3d oldStartPoint( spu() );
+    punkt3d newEndPoint = neue_pos;
+    double dx = newEndPoint.x() - oldStartPoint.x();
+    double dy = newEndPoint.y() - oldStartPoint.y();
+    double d = std::sqrt(dx*dx + dy*dy);
+
+    // 2. Mittelpunkt der Strecke
+    punkt3d mid;
+    mid.set_x( (oldStartPoint.x() + newEndPoint.x()) / 2.0 );
+    mid.set_y( (oldStartPoint.y() + newEndPoint.y()) / 2.0 );
+
+    // 3. Abstand des Kreismittelpunkts von der Mitte
+    double oldAngleSpan = spannwinkel();
+    double h = d / (2.0 * std::tan(oldAngleSpan / 2.0));
+
+    // 4. Normale zur Strecke (linksseitig)
+    double nx = -dy / d;
+    double ny =  dx / d;
+
+    // 5. Mittelpunkt berechnen
+    punkt3d C;
+    C.set_x( mid.x() + nx * h );
+    C.set_y( mid.y() + ny * h );
+
+    // 6. Radius
+    double r = std::sqrt( (oldStartPoint.x() - C.x())*(oldStartPoint.x() - C.x()) +\
+                          (oldStartPoint.y() - C.y())*(oldStartPoint.y() - C.y()) );
+
+    // 7. Winkel
+    double startAngle = std::atan2( oldStartPoint.y() - C.y(),
+                                    oldStartPoint.x() - C.x() );
+
+    double endAngle = std::atan2( newEndPoint.y() - C.y(),
+                                  newEndPoint.x() - C.x() );
+
+    // Ergebnis setzen
+    set_mipu(C);
+    set_rad(r);
+    set_swi(startAngle);
+    set_ewi(endAngle);
+}
 
 //---------------------------------get:
 QString bogen::text()
 {
     QString msg = BOGEN;
     msg += TRZ_PA;
-    msg += Mipu.x_QString();
+    msg += Mipu.x_QString(); //2) x-Mittelpunkt
     msg += TRZ_PA;
-    msg += Mipu.y_QString();
+    msg += Mipu.y_QString(); //3) y-Mittelpunkt
     msg += TRZ_PA;
-    msg += Mipu.z_QString();
+    msg += Mipu.z_QString(); //4) z-Mittelpunkt
     msg += TRZ_PA;
-    msg += rad_QString();
+    msg += rad_QString();    //5) Radius
     msg += TRZ_PA;
-    msg += swi_QString();
+    msg += swi_QString();    //6) Startwinkel (in Radiant)
     msg += TRZ_PA;
-    msg += ewi_QString();
-    msg += farbe();
+    msg += ewi_QString();    //7) Endwinkel (in Radiant)
     msg += TRZ_PA;
-    msg += linienbreite_qstring();
+    msg += uzs_QString();    //8) Uhrzeigersinn
     msg += TRZ_PA;
-    msg += stil();
+    msg += farbe();          //9) Farbe der Linie
+    msg += TRZ_PA;
+    msg += linienbreite_qstring(); //10) Breite der Linie
+    msg += TRZ_PA;
+    msg += stil();           //11) Stil der Linie
 
     return msg;
 }
@@ -106,16 +287,46 @@ QString bogen::ewi_QString()
 }
 punkt3d bogen::spu()
 {
+    double startAngle;
+    double angleA = swi();
+    double angleB = ewi();
+
+    // Logik zur Bestimmung des Startwinkels:
+    // Bei CCW (Standard) ist der "kleinere" Winkel der Start.
+    // Bei CW ist der "größere" Winkel der Start, um in Uhrzeigerrichtung zum Ziel zu kommen.
+    if (!uzs()) {
+        // Gegen den Uhrzeigersinn: Wir nehmen den Winkel, der mathematisch "zuerst" kommt
+        startAngle = (angleA < angleB) ? angleA : angleB;
+    } else {
+        // Im Uhrzeigersinn: Der Startpunkt muss der "höhere" Winkel sein
+        startAngle = (angleA > angleB) ? angleA : angleB;
+    }
+
     punkt3d p;
-    p.set_x(mipu().x() + rad() * std::cos(swi()));
-    p.set_y(mipu().y() + rad() * std::sin(swi()));
+    p.set_x(mipu().x() + rad() * std::cos(startAngle));
+    p.set_y(mipu().y() + rad() * std::sin(startAngle));
     return p;
 }
 punkt3d bogen::epu()
 {
+    double startAngle;
+    double angleA = swi();
+    double angleB = ewi();
+
+    // Logik zur Bestimmung des Startwinkels:
+    // Bei CCW (Standard) ist der "kleinere" Winkel der Start.
+    // Bei CW ist der "größere" Winkel der Start, um in Uhrzeigerrichtung zum Ziel zu kommen.
+    if (uzs()) {
+        // Gegen den Uhrzeigersinn: Wir nehmen den Winkel, der mathematisch "zuerst" kommt
+        startAngle = (angleA < angleB) ? angleA : angleB;
+    } else {
+        // Im Uhrzeigersinn: Der Startpunkt muss der "höhere" Winkel sein
+        startAngle = (angleA > angleB) ? angleA : angleB;
+    }
+
     punkt3d p;
-    p.set_x(mipu().x() + rad() * std::cos(ewi()));
-    p.set_y(mipu().y() + rad() * std::sin(ewi()));
+    p.set_x(mipu().x() + rad() * std::cos(startAngle));
+    p.set_y(mipu().y() + rad() * std::sin(startAngle));
     return p;
 }
 double bogen::abst(punkt3d p)
@@ -168,6 +379,32 @@ double bogen::abst(punkt3d p)
 
     return std::min(ds, de);
 }
+double bogen::spannwinkel()
+{
+    // Gibt den Winkelspan des Bogens zurück
+    double s = normalizeAngle(Swi);
+    double e = normalizeAngle(Ewi);
+
+    double span = e - s;
+    if (span < 0.0)
+        span += 2.0 * M_PI;
+
+    return span;
+}
+bool bogen::uzs()
+{
+    return Uzs;
+}
+QString bogen::uzs_QString()
+{
+    if(uzs() == true)
+    {
+        return "1";
+    }else
+    {
+        return "0";
+    }
+}
 //---------------------------------Manipulationen:
 void bogen::richtung_unkehren()
 {
@@ -192,5 +429,17 @@ void bogen::wenden()
 
 
 
+
+//---------------------------------Privat:
+
+double bogen::normalizeAngle(double a)
+{
+    // Normalisiert einen Winkel in den Bereich [0, 2π)
+    const double TWO_PI = 2.0 * M_PI;
+    a = fmod(a, TWO_PI);
+    if (a < 0.0)
+        a += TWO_PI;
+    return a;
+}
 
 

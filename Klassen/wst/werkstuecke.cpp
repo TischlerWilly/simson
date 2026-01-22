@@ -16,6 +16,7 @@ bool werkstuecke::neu(werkstueck w)
         return true;//FEHLER, der Teil gibt es bereits!!!
     }else
     {
+        w.unredo_neu();
         Namen.add_hi(w.name());
         Wste.append(w);
     }

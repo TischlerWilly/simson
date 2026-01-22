@@ -6,6 +6,11 @@ Dialog_maschinen::Dialog_maschinen(QWidget *parent)
     , ui(new Ui::Dialog_maschinen)
 {
     ui->setupUi(this);
+
+    connect(&dlg_wkzmag, SIGNAL(wkzmag(QString,wkz_magazin)), \
+            this, SLOT(getDialogDataWKZ(QString,wkz_magazin)) );
+    connect(&dlg_wkzmag, SIGNAL(abbruch()), \
+            this, SLOT(getAbbruch()) );
 }
 
 Dialog_maschinen::~Dialog_maschinen()
@@ -23,6 +28,29 @@ void Dialog_maschinen::slot_maschinen(maschinen m)
     {
         ui->listWidget_maschinen->addItem(m.masch(i)->name());
     }
+    this->show();
+}
+void Dialog_maschinen::getDialogDataWKZ(QString fenstertitel, wkz_magazin werkzeugmagazin)
+{
+    //Der Übergebene Parameter "fenstertietel" muss dem Namen der CNC-Maschine entsprechen!
+    int index = Maschinen.get_index(fenstertitel);
+    if(index >= 0)
+    {
+        Maschinen.masch(index)->set_wkzmag(werkzeugmagazin);
+    }else
+    {
+        QString msg;
+        msg += "Fehler in Funktion getDialogDataWKZ(QString, wkz_magazin)\n";
+        msg += "Maschine konnte nicht ermittelt werden.";
+        QMessageBox mb;
+        mb.setWindowTitle("Werkzeugdaten übertragen");
+        mb.setText(msg);
+        mb.exec();
+    }
+    this->show();
+}
+void Dialog_maschinen::getAbbruch()
+{
     this->show();
 }
 
@@ -89,6 +117,15 @@ void Dialog_maschinen::on_pushButton_neue_maschine_clicked()
             Maschinen.neu(neuer_name);
             ui->listWidget_maschinen->addItem(neuer_name);
         }
+    }
+}
+void Dialog_maschinen::on_pushButton_wkz_clicked()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        dlg_wkzmag.set_wkzmag(Maschinen.masch(ui->listWidget_maschinen->currentRow())->name(), \
+                    Maschinen.masch(ui->listWidget_maschinen->currentRow())->wkzmag());
+        this->hide();
     }
 }
 

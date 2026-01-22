@@ -42,6 +42,10 @@ bogen fraeserbogen::bog()
 {
     return Bogen;
 }
+bogen *fraeserbogen::bog_ptr()
+{
+    return &Bogen;
+}
 double fraeserbogen::xs()
 {
     return Bogen.spu().x();
@@ -152,7 +156,9 @@ QString fraeserbogen::text()
     msg += TRENNZ_BEARB_PARAM_;
     msg += bog().ewi_QString();          //Zeile 8
     msg += TRENNZ_BEARB_PARAM_;
-    msg += afb();                        //Zeile 9
+    msg += bog().uzs_QString();          //Zeile 9
+    msg += TRENNZ_BEARB_PARAM_;
+    msg += afb();                        //Zeile 10
 
     return msg;
 }
@@ -162,15 +168,17 @@ void fraeserbogen::set_text(QString text)
     tz.set_text(text,TRENNZ_BEARB_PARAM);
     if(tz.at(0) == BEARBART_FRAESERBOGEN)
     {
-        set_bezug(tz.at(1));
-        double mipu_x = tz.at(2).toDouble();
-        double mipu_y = tz.at(3).toDouble();
-        set_tiSta(tz.at(4).toDouble());
-        set_tiEnd(tz.at(5).toDouble());
-        double rad = tz.at(6).toDouble();
-        double swi = tz.at(7).toDouble();
-        double ewi = tz.at(8).toDouble();
-        set_afb(tz.at(9));
+        set_bezug(tz.at(1));                    //Zeile 1
+        double mipu_x = tz.at(2).toDouble();    //Zeile 2
+        double mipu_y = tz.at(3).toDouble();    //Zeile 3
+        set_tiSta(tz.at(4).toDouble());         //Zeile 4
+        set_tiEnd(tz.at(5).toDouble());         //Zeile 5
+        double rad = tz.at(6).toDouble();       //Zeile 6
+        double swi = tz.at(7).toDouble();       //Zeile 7
+        double ewi = tz.at(8).toDouble();       //Zeile 8
+        Bogen.set_uzs(tz.at(9));                //Zeile 9
+        set_afb(tz.at(10));                     //Zeile 10
+
         Bogen.set_mipu(mipu_x, mipu_y,0);
         Bogen.set_rad(rad);
         Bogen.set_swi(swi);
