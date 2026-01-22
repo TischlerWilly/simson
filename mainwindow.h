@@ -45,7 +45,7 @@ private:
     void schreibe_ini();
     void schreibe_maschinen();
     void maschinen_einlesen();
-    void zeile_bearb_bearbeiten(int zeile);
+    void zeile_bearb_bearbeiten(int zeile_bearb);
     QString verschiebe_bearb_einen(QString bearb, double ax, double ay, double az,\
                                    double wst_l_alt, double wst_l_neu,\
                                    double wst_b_alt, double wst_b_ne  );

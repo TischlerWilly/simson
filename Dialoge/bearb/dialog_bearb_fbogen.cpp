@@ -93,7 +93,6 @@ void Dialog_bearb_fbogen::on_btn_ok_clicked()
     {
         uzs_bool = false;
     }
-
     fb.bog_ptr()->set_bogen(sp, ep, rad, uzs_bool);
 
     QString bezug = ui->comboBox_bezug->currentText();

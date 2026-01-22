@@ -2,7 +2,7 @@
 
 bogen::bogen()
 {
-
+    Uzs = false;
 }
 
 //---------------------------------set:
@@ -68,6 +68,7 @@ void bogen::set_uzs(QString uzs)
 }
 void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
 {
+    Uzs = uzs;
     punkt3d P0 = sp;
     punkt3d P1 = ep;
     double dx = P1.x() - P0.x();
@@ -110,12 +111,18 @@ void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
     double endAngle   = std::atan2( P1.y() - M.y(), P1.x() - M.x() );
 
     // Winkelrichtung anpassen
-    if (uzs) {
+    if(uzs)
+    {
         if (endAngle > startAngle)
+        {
             endAngle -= 2 * M_PI;
-    } else {
+        }
+    }else
+    {
         if (endAngle < startAngle)
+        {
             endAngle += 2 * M_PI;
+        }
     }
     set_mipu(M);
     set_rad(rad);
@@ -280,16 +287,46 @@ QString bogen::ewi_QString()
 }
 punkt3d bogen::spu()
 {
+    double startAngle;
+    double angleA = swi();
+    double angleB = ewi();
+
+    // Logik zur Bestimmung des Startwinkels:
+    // Bei CCW (Standard) ist der "kleinere" Winkel der Start.
+    // Bei CW ist der "größere" Winkel der Start, um in Uhrzeigerrichtung zum Ziel zu kommen.
+    if (!uzs()) {
+        // Gegen den Uhrzeigersinn: Wir nehmen den Winkel, der mathematisch "zuerst" kommt
+        startAngle = (angleA < angleB) ? angleA : angleB;
+    } else {
+        // Im Uhrzeigersinn: Der Startpunkt muss der "höhere" Winkel sein
+        startAngle = (angleA > angleB) ? angleA : angleB;
+    }
+
     punkt3d p;
-    p.set_x(mipu().x() + rad() * std::cos(swi()));
-    p.set_y(mipu().y() + rad() * std::sin(swi()));
+    p.set_x(mipu().x() + rad() * std::cos(startAngle));
+    p.set_y(mipu().y() + rad() * std::sin(startAngle));
     return p;
 }
 punkt3d bogen::epu()
 {
+    double startAngle;
+    double angleA = swi();
+    double angleB = ewi();
+
+    // Logik zur Bestimmung des Startwinkels:
+    // Bei CCW (Standard) ist der "kleinere" Winkel der Start.
+    // Bei CW ist der "größere" Winkel der Start, um in Uhrzeigerrichtung zum Ziel zu kommen.
+    if (uzs()) {
+        // Gegen den Uhrzeigersinn: Wir nehmen den Winkel, der mathematisch "zuerst" kommt
+        startAngle = (angleA < angleB) ? angleA : angleB;
+    } else {
+        // Im Uhrzeigersinn: Der Startpunkt muss der "höhere" Winkel sein
+        startAngle = (angleA > angleB) ? angleA : angleB;
+    }
+
     punkt3d p;
-    p.set_x(mipu().x() + rad() * std::cos(ewi()));
-    p.set_y(mipu().y() + rad() * std::sin(ewi()));
+    p.set_x(mipu().x() + rad() * std::cos(startAngle));
+    p.set_y(mipu().y() + rad() * std::sin(startAngle));
     return p;
 }
 double bogen::abst(punkt3d p)

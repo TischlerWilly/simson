@@ -612,10 +612,10 @@ void MainWindow::on_actionRedo_triggered()
 }
 void MainWindow::on_listWidget_bearb_itemDoubleClicked(QListWidgetItem *item)
 {
-    int index = ui->listWidget_bearb->currentRow();
-    zeile_bearb_bearbeiten(index);
+    int index_bearb = ui->listWidget_bearb->currentRow();
+    zeile_bearb_bearbeiten(index_bearb);
 }
-void MainWindow::zeile_bearb_bearbeiten(int zeile)
+void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
 {
     if(ui->listWidget_dateien->currentRow() < 0)
     {
@@ -631,11 +631,11 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile)
     if(ui->comboBox_maschinen->currentIndex() >= 0)
     {
         QString masch_bez = ui->comboBox_maschinen->currentText();
-        int index = Maschinen.get_index(masch_bez);
-        wkz = Maschinen.masch(index)->wkzmag();
+        int index_masch = Maschinen.get_index(masch_bez);
+        wkz = Maschinen.masch(index_masch)->wkzmag();
     }
 
-    if(zeile == 0)
+    if(zeile_bearb == 0)
     {
         double letzte_wst_l = Wste.wst(index_wst)->laenge();
         double letzte_wst_b = Wste.wst(index_wst)->breite();
@@ -681,7 +681,7 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile)
 
     //Zeile Auslesen:
     text_zw bearb;
-    bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile-1),TRENNZ_BEARB_PARAM);
+    bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_bearb-1),TRENNZ_BEARB_PARAM);
     //Dialogfenster aufrufen:
     if(bearb.at(0) == BEARBART_RTA)
     {
@@ -912,7 +912,7 @@ int MainWindow::auswahl_menge()
 
 void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verwenden)
 {
-    //index_bearb ist der index der Bearbeitung
+    //index ist der index der Bearbeitung
     //bearb ist eine Zeile der Bearbeitugen
     int index_dat = ui->listWidget_dateien->currentRow();
 
@@ -927,42 +927,43 @@ void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verw
     if(ui->comboBox_maschinen->currentIndex() >= 0)
     {
         QString masch_bez = ui->comboBox_maschinen->currentText();
-        int index = Maschinen.get_index(masch_bez);
-        wkz = Maschinen.masch(index)->wkzmag();
+        int index_masch = Maschinen.get_index(masch_bez);
+        wkz = Maschinen.masch(index_masch)->wkzmag();
     }
     update_listwidget_bearb(Wste.wst(index_dat));
     vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_bearb+1);
 }
 void MainWindow::slot_rta(rechtecktasche rta)
 {
-    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
     QString bearb = rta.text();
-    ui->listWidget_bearb->item(index)->setText(rta_zu_prgzei(bearb));
-    zeile_aendern(index, bearb, true);
+    ui->listWidget_bearb->item(index_bearb)->setText(rta_zu_prgzei(bearb));
+    zeile_aendern(index_bearb, bearb, true);
 }
 void MainWindow::slot_bo(bohrung bo)
 {
-    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
     QString bearb = bo.text();
-    ui->listWidget_bearb->item(index)->setText(bohr_zu_prgzei(bearb));
-    zeile_aendern(index, bearb, true);
+    ui->listWidget_bearb->item(index_bearb)->setText(bohr_zu_prgzei(bearb));
+    zeile_aendern(index_bearb, bearb, true);
 }
 void MainWindow::slot_nut(nut nu)
 {
-    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
     QString bearb = nu.text();
-    ui->listWidget_bearb->item(index)->setText(nut_zu_prgzei(bearb));
-    zeile_aendern(index, bearb, true);
+    ui->listWidget_bearb->item(index_bearb)->setText(nut_zu_prgzei(bearb));
+    zeile_aendern(index_bearb, bearb, true);
 }
 void MainWindow::slot_faufruf(fraeseraufruf fa)
 {
-    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_wst = ui->listWidget_dateien->currentRow();
     QString bearb = fa.text();
-    ui->listWidget_bearb->item(index)->setText(fauf_zu_prgzei(bearb));
-    text_zw bearbeitungen = Wste.wst(index)->bearb();
+    ui->listWidget_bearb->item(index_bearb)->setText(fauf_zu_prgzei(bearb));
+    text_zw bearbeitungen = Wste.wst(index_wst)->bearb();
 
     fraeseraufruf fa_alt;
-    fa_alt.set_text(bearbeitungen.at(index));
+    fa_alt.set_text(bearbeitungen.at(index_bearb));
     if(fa_alt.text() != fa.text())
     {
         //Bezug mit ändern
@@ -971,7 +972,7 @@ void MainWindow::slot_faufruf(fraeseraufruf fa)
         //XY-Pos der direkten Folgezeile mit ändern
         double tiefe_neu = fa.tiefe();
         double pos_z = fa.pos().z();
-        for(uint i=index+1; i<bearbeitungen.count() ;i++)
+        for(uint i=index_bearb+1; i<bearbeitungen.count() ;i++)
         {
             text_zw bearb_ff;
             bearb_ff.set_text(bearbeitungen.at(i),TRENNZ_BEARB_PARAM);
@@ -983,7 +984,7 @@ void MainWindow::slot_faufruf(fraeseraufruf fa)
                 fg.set_tiEnd(tiefe_neu);
                 fg.set_zs(pos_z);
                 fg.set_ze(pos_z);
-                if(i == index+1)//direkte folgezeile vom Fräseraufruf
+                if(i == index_bearb+1)//direkte folgezeile vom Fräseraufruf
                 {
                     fg.set_xs(fa.pos().x());
                     fg.set_ys(fa.pos().y());
@@ -1001,7 +1002,7 @@ void MainWindow::slot_faufruf(fraeseraufruf fa)
                 fb.set_tiEnd(tiefe_neu);
                 fb.set_tiSta(pos_z);
                 fb.set_tiEnd(pos_z);
-                if(i == index+1)//direkte folgezeile vom Fräseraufruf
+                if(i == index_bearb+1)//direkte folgezeile vom Fräseraufruf
                 {
                     fb.bog_ptr()->versetze_spu(fa.pos());
                 }
@@ -1012,111 +1013,114 @@ void MainWindow::slot_faufruf(fraeseraufruf fa)
             }
         }
     }
-    zeile_aendern(index, bearb, true);
+    zeile_aendern(index_bearb, bearb, true);
 }
 void MainWindow::slot_fgerade(fraesergerade fg)
 {
-    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_wst = ui->listWidget_dateien->currentRow();
     QString bearb = fg.text();
-    ui->listWidget_bearb->item(index)->setText(fgerade_zu_prgzei(bearb));
-    text_zw bearbeitungen = Wste.wst(index)->bearb();
+    ui->listWidget_bearb->item(index_bearb)->setText(fgerade_zu_prgzei(bearb));
+    text_zw bearbeitungen = Wste.wst(index_wst)->bearb();
     //Zeile davor mit ändern?:
-    if(index-1 >=0)
+    if(index_bearb-1 >=0)
     {
         text_zw bearb_vor;
-        bearb_vor.set_text(bearbeitungen.at(index-1),TRENNZ_BEARB_PARAM);
+        bearb_vor.set_text(bearbeitungen.at(index_bearb-1),TRENNZ_BEARB_PARAM);
         if(bearb_vor.at(0) == BEARBART_FRAESERAUFRUF)
         {
             fraeseraufruf fa_vor(bearb_vor.text());
             fa_vor.set_pos(fg.sp());
             fa_vor.set_tiefe(fg.tiSta());
-            zeile_aendern(index-1, fa_vor.text(), false);
+            zeile_aendern(index_bearb-1, fa_vor.text(), false);
         }else if(bearb_vor.at(0) == BEARBART_FRAESERGERADE)
         {
             fraesergerade fg_vor(bearb_vor.text());
             fg_vor.set_endpunkt(fg.sp());
             fg_vor.set_tiEnd(fg.tiSta());
-            zeile_aendern(index-1, fg_vor.text(), false);
+            zeile_aendern(index_bearb-1, fg_vor.text(), false);
         }else if(bearb_vor.at(0) == BEARBART_FRAESERBOGEN)
         {
             fraeserbogen fb_vor(bearb_vor.text());
             fb_vor.bog_ptr()->versetze_epu(fg.sp());
             fb_vor.set_tiEnd(fg.tiSta());
-            zeile_aendern(index-1, fb_vor.text(), false);
+            zeile_aendern(index_bearb-1, fb_vor.text(), false);
         }
     }
     //Folgezeile mit ändern?:
-    if(index+1 < bearbeitungen.count())
+    if(index_bearb+1 < bearbeitungen.count())
     {
         text_zw bearb_nach;
-        bearb_nach.set_text(bearbeitungen.at(index+1),TRENNZ_BEARB_PARAM);
+        bearb_nach.set_text(bearbeitungen.at(index_bearb+1),TRENNZ_BEARB_PARAM);
         if(bearb_nach.at(0) == BEARBART_FRAESERGERADE)
         {
             fraesergerade fg_nach(bearb_nach.text());
             fg_nach.set_startpunkt(fg.ep());
             fg_nach.set_tiSta(fg.tiEnd());
-            zeile_aendern(index+1, fg_nach.text(), false);
+            zeile_aendern(index_bearb+1, fg_nach.text(), false);
         }else if(bearb_nach.at(0) == BEARBART_FRAESERBOGEN)
         {
             fraeserbogen fb_nach(bearb_nach.text());
             fb_nach.bog_ptr()->versetze_spu(fg.ep());
             fb_nach.set_tiSta(fg.tiEnd());
-            zeile_aendern(index+1, fb_nach.text(), false);
+            zeile_aendern(index_bearb+1, fb_nach.text(), false);
         }
     }
-    zeile_aendern(index, bearb, true);
+    zeile_aendern(index_bearb, bearb, true);
 }
 void MainWindow::slot_fbogen(fraeserbogen fb)
 {
-    int index = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    int index_wst = ui->listWidget_dateien->currentRow();
+
     QString bearb = fb.text();
-    ui->listWidget_bearb->item(index)->setText(fbogen_zu_prgzei(bearb));
-    text_zw bearbeitungen = Wste.wst(index)->bearb();
+    ui->listWidget_bearb->item(index_bearb)->setText(fbogen_zu_prgzei(bearb));
+    text_zw bearbeitungen = Wste.wst(index_wst)->bearb();
     //Zeile davor mit ändern?:
-    if(index-1 >=0)
+    if(index_bearb-1 >=0)
     {
         text_zw bearb_vor;
-        bearb_vor.set_text(bearbeitungen.at(index-1),TRENNZ_BEARB_PARAM);
+        bearb_vor.set_text(bearbeitungen.at(index_bearb-1),TRENNZ_BEARB_PARAM);
         if(bearb_vor.at(0) == BEARBART_FRAESERAUFRUF)
         {
             fraeseraufruf fa_vor(bearb_vor.text());
             fa_vor.set_pos(fb.sp());
             fa_vor.set_tiefe(fb.tiSta());
-            zeile_aendern(index-1, fa_vor.text(), false);
+            zeile_aendern(index_bearb-1, fa_vor.text(), false);
         }else if(bearb_vor.at(0) == BEARBART_FRAESERGERADE)
         {
             fraesergerade fg_vor(bearb_vor.text());
             fg_vor.set_endpunkt(fb.sp());
             fg_vor.set_tiEnd(fb.tiSta());
-            zeile_aendern(index-1, fg_vor.text(), false);
+            zeile_aendern(index_bearb-1, fg_vor.text(), false);
         }else if(bearb_vor.at(0) == BEARBART_FRAESERBOGEN)
         {
             fraeserbogen fb_vor(bearb_vor.text());
             fb_vor.bog_ptr()->versetze_epu(fb.sp());
             fb_vor.set_tiEnd(fb.tiSta());
-            zeile_aendern(index-1, fb_vor.text(), false);
+            zeile_aendern(index_bearb-1, fb_vor.text(), false);
         }
     }
     //Folgezeile mit ändern?:
-    if(index+1 < bearbeitungen.count())
+    if(index_bearb+1 < bearbeitungen.count())
     {
         text_zw bearb_nach;
-        bearb_nach.set_text(bearbeitungen.at(index+1),TRENNZ_BEARB_PARAM);
+        bearb_nach.set_text(bearbeitungen.at(index_bearb+1),TRENNZ_BEARB_PARAM);
         if(bearb_nach.at(0) == BEARBART_FRAESERGERADE)
         {
             fraesergerade fg_nach(bearb_nach.text());
             fg_nach.set_startpunkt(fb.ep());
             fg_nach.set_tiSta(fb.tiEnd());
-            zeile_aendern(index+1, fg_nach.text(), false);
+            zeile_aendern(index_bearb+1, fg_nach.text(), false);
         }else if(bearb_nach.at(0) == BEARBART_FRAESERBOGEN)
         {
             fraeserbogen fb_nach(bearb_nach.text());
             fb_nach.bog_ptr()->versetze_spu(fb.ep());
             fb_nach.set_tiSta(fb.tiEnd());
-            zeile_aendern(index+1, fb_nach.text(), false);
+            zeile_aendern(index_bearb+1, fb_nach.text(), false);
         }
     }
-    zeile_aendern(index, bearb, true);
+    zeile_aendern(index_bearb, bearb, true);
 }
 
 void MainWindow::slot_verschieben(punkt3d p)

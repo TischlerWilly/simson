@@ -26,7 +26,7 @@ public:
     void versetze_epu(punkt3d neue_pos);
 
     //get:
-    //QString text();
+    QString text();
     punkt3d mipu();
     double rad();
     QString rad_QString();
