@@ -34,10 +34,10 @@ void mainwin_wkzmagazin::liste_aktualisieren()
             wkz_fraeser fraeser(wkz);
             istaktiv = fraeser.istaktiv();
             zeile  = "Fräser           ";
-            zeile += fraeser.wkznr();
-            zeile += "\t";
             zeile += double_to_qstring(fraeser.dm());
             zeile += "mm";
+            zeile += "\t";
+            zeile += fraeser.wkznr();
         }else if(wkz.at(0) == WKZ_TYP_BOHRER)
         {
             wkz_bohrer bohrer(wkz);
@@ -266,7 +266,7 @@ void mainwin_wkzmagazin::set_wkzmag(QString fenstertitel, wkz_magazin wkzmag)
 //-------------------------------------private slots:
 void mainwin_wkzmagazin::resizeEvent(QResizeEvent *event)
 {
-    ui->listWidget->setFixedWidth(250);
+    ui->listWidget->setFixedWidth(this->width()/3);
     ui->listWidget->setFixedHeight(this->height()-100);
     ui->listWidget->move(5,5);
     //----------------------

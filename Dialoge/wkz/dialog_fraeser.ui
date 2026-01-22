@@ -72,7 +72,7 @@
     <item row="7" column="1">
      <widget class="QLineEdit" name="lineEdit_alias">
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ein Alias-Name ist ein zweiter Name für das selbe Werkzeug. Wird mehr als ein Alias-Name benötigt, so kann das Werkzeug dupliziert werden und dem Duplikat ein anderer Alias-Name zugewiesen werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name des  Fräsers im Export des vorgeschalteten CAD-Programmes. Der Alias-name wird programminertn dazu verwendet gleiche Fräser auf unterschiedlichen Maschinen zu erkennen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -84,13 +84,21 @@
      </widget>
     </item>
     <item row="5" column="1">
-     <widget class="QLineEdit" name="lineEdit_zust_min"/>
+     <widget class="QLineEdit" name="lineEdit_zust_min">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;erste Zustelltiefe&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
     </item>
     <item row="3" column="1">
      <widget class="QLineEdit" name="lineEdit_zustmassvert"/>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_nr"/>
+     <widget class="QLineEdit" name="lineEdit_nr">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bezeichnung des Fräsers die beim Export verwendet wird&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
     </item>
     <item row="8" column="1">
      <widget class="QLineEdit" name="lineEdit_spiegel"/>
