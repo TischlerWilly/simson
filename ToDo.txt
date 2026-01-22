@@ -1,5 +1,6 @@
 ToDo:
 
+- Fräser der aktiven Zeile darstellen
 
 
 

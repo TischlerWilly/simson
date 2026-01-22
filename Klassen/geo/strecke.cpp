@@ -279,8 +279,8 @@ void strecke::drenen_um_mipu_2d(double drehwi)
     punkt3d sp(Stapu);
     punkt3d ep(Endpu);
     punkt3d mp = mipu();
-    sp = drehen(sp, mp, drehwi);
-    ep = drehen(ep, mp,drehwi);
+    sp = drehen(mp, sp, drehwi);
+    ep = drehen(mp, ep,drehwi);
     set_stapu(sp);
     set_endpu(ep);
 }
