@@ -467,9 +467,9 @@ werkstueck import_ewx(QString dateiinhalt)
             if(ref.bezug() == WST_BEZUG_UNSEI)
             {
                 uzs = !uzs;
-            }
-
+            }            
             bogen b;
+            b.set_uzs(uzs);
             b.set_bogen(stapu, endpu, rad, uzs);
             fraeserbogen fb;
             fb.set_bogen(b);

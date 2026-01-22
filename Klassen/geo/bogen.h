@@ -19,12 +19,14 @@ public:
     void set_rad(double rad);
     void set_swi(double w);
     void set_ewi(double w);
+    void set_uzs(bool uzs);
+    void set_uzs(QString uzs);
     void set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs);
     void versetze_spu(punkt3d neue_pos);
     void versetze_epu(punkt3d neue_pos);
 
     //get:
-    QString text();
+    //QString text();
     punkt3d mipu();
     double rad();
     QString rad_QString();
@@ -37,6 +39,7 @@ public:
     double abst(punkt3d p);
     double spannwinkel();
     bool uzs();
+    QString uzs_QString();
 
     //Manipulationen:
     void    richtung_unkehren();
@@ -48,6 +51,7 @@ private:
     double Rad;
     double Swi;//in Radiant
     double Ewi;//in Radiant
+    bool Uzs; //Uhrzeigersinn
 
     double normalizeAngle(double a);
 

@@ -11,16 +11,17 @@ void bogen::set_text(QString geotext)
     text_zw tz;
     tz.set_text(geotext,TRZ_PA_);
     punkt3d p;
-    p.set_x(tz.at(1).toDouble());
-    p.set_y(tz.at(2).toDouble());
-    p.set_z(tz.at(3).toDouble());
+    p.set_x(tz.at(1).toDouble()); //2) x-Mittelpunkt
+    p.set_y(tz.at(2).toDouble()); //3) y-Mittelpunkt
+    p.set_z(tz.at(3).toDouble()); //4) z-Mittelpunkt
     set_mipu(p);
-    set_rad(tz.at(4).toDouble());
-    set_swi(tz.at(5).toDouble());
-    set_ewi(tz.at(6).toDouble());
-    set_farbe(tz.at(7));
-    set_linienbreite(tz.at(8).toInt());
-    set_stil(tz.at(9));
+    set_rad(tz.at(4).toDouble()); //5) Radius
+    set_swi(tz.at(5).toDouble()); //6) Startwinkel (in Radiant)
+    set_ewi(tz.at(6).toDouble()); //7) Endwinkel (in Radiant)
+    set_uzs(tz.at(7));            //8) Uhrzeigersinn
+    set_farbe(tz.at(8));          //9) Farbe der Linie
+    set_linienbreite(tz.at(9).toInt()); //10) Breite der Linie
+    set_stil(tz.at(10));          //11) Stil der Linie
 }
 void bogen::set_mipu(punkt3d p)
 {
@@ -50,6 +51,20 @@ void bogen::set_swi(double w)
 void bogen::set_ewi(double w)
 {
     Ewi = w;
+}
+void bogen::set_uzs(bool uzs)
+{
+    Uzs = uzs;
+}
+void bogen::set_uzs(QString uzs)
+{
+    if(uzs == "1")
+    {
+        Uzs = true;
+    }else
+    {
+        Uzs = false;
+    }
 }
 void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
 {
@@ -213,22 +228,25 @@ QString bogen::text()
 {
     QString msg = BOGEN;
     msg += TRZ_PA;
-    msg += Mipu.x_QString();
+    msg += Mipu.x_QString(); //2) x-Mittelpunkt
     msg += TRZ_PA;
-    msg += Mipu.y_QString();
+    msg += Mipu.y_QString(); //3) y-Mittelpunkt
     msg += TRZ_PA;
-    msg += Mipu.z_QString();
+    msg += Mipu.z_QString(); //4) z-Mittelpunkt
     msg += TRZ_PA;
-    msg += rad_QString();
+    msg += rad_QString();    //5) Radius
     msg += TRZ_PA;
-    msg += swi_QString();
+    msg += swi_QString();    //6) Startwinkel (in Radiant)
     msg += TRZ_PA;
-    msg += ewi_QString();
-    msg += farbe();
+    msg += ewi_QString();    //7) Endwinkel (in Radiant)
     msg += TRZ_PA;
-    msg += linienbreite_qstring();
+    msg += uzs_QString();    //8) Uhrzeigersinn
     msg += TRZ_PA;
-    msg += stil();
+    msg += farbe();          //9) Farbe der Linie
+    msg += TRZ_PA;
+    msg += linienbreite_qstring(); //10) Breite der Linie
+    msg += TRZ_PA;
+    msg += stil();           //11) Stil der Linie
 
     return msg;
 }
@@ -338,25 +356,17 @@ double bogen::spannwinkel()
 }
 bool bogen::uzs()
 {
-    const double TWO_PI = 2.0 * M_PI;
-
-    // Winkel in [0, 2π) normalisieren
-    auto norm = [&](double a) {
-        a = fmod(a, TWO_PI);
-        if (a < 0) a += TWO_PI;
-        return a;
-    };
-
-    double startAngle = Swi;
-    double endAngle = Ewi;
-    startAngle = norm(startAngle);
-    endAngle   = norm(endAngle);
-
-    // CCW-Differenz berechnen
-    double delta = fmod(endAngle - startAngle + TWO_PI, TWO_PI);
-
-    // Wenn der CCW-Weg größer als π ist, ist der kürzere Weg CW
-    return delta > M_PI;
+    return Uzs;
+}
+QString bogen::uzs_QString()
+{
+    if(uzs() == true)
+    {
+        return "1";
+    }else
+    {
+        return "0";
+    }
 }
 //---------------------------------Manipulationen:
 void bogen::richtung_unkehren()

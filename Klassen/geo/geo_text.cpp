@@ -100,6 +100,7 @@ void geo_text::add_bogen(bogen b, uint index)
     geo.add_hi(b.rad_QString());
     geo.add_hi(b.swi_QString());
     geo.add_hi(b.ewi_QString());
+    geo.add_hi(b.uzs_QString());
     geo.add_hi(b.farbe());
     geo.add_hi(b.linienbreite_qstring());
     geo.add_hi(b.stil());
