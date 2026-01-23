@@ -252,8 +252,13 @@ void strecke::richtung_unkehren()
     Stapu = Endpu;
     Endpu = tmp;
 }
-void strecke::drenen_um_stapu_2d(double drehwi)
+void strecke::drenen_um_stapu_2d(double drehwi, bool uzs)
 {
+    //drewi muss in Radiant angegeben werden!!
+    if(uzs == true)
+    {
+        drehwi = -drehwi;
+    }
     punkt3d sp(Stapu);
     punkt3d ep(Endpu);
     ep = drehen(sp, ep, drehwi);
@@ -263,8 +268,14 @@ void strecke::drenen_um_stapu_2d(double drehwi)
     tmp.set_z(Endpu.z());
     set_endpu(tmp);
 }
-void strecke::drenen_um_endpu_2d(double drehwi)
+
+void strecke::drenen_um_endpu_2d(double drehwi, bool uzs)
 {
+    //drewi muss in Radiant angegeben werden!!
+    if(uzs == true)
+    {
+        drehwi = -drehwi;
+    }
     punkt3d sp(Stapu);
     punkt3d ep(Endpu);
     sp = drehen(ep, sp, drehwi);
@@ -274,8 +285,13 @@ void strecke::drenen_um_endpu_2d(double drehwi)
     tmp.set_z(Stapu.z());
     set_stapu(tmp);
 }
-void strecke::drenen_um_mipu_2d(double drehwi)
+void strecke::drenen_um_mipu_2d(double drehwi, bool uzs)
 {
+    //drewi muss in Radiant angegeben werden!!
+    if(uzs == true)
+    {
+        drehwi = -drehwi;
+    }
     punkt3d sp(Stapu);
     punkt3d ep(Endpu);
     punkt3d mp = mipu();

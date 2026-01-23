@@ -28,6 +28,7 @@ public:
     //get:
     QString text();
     punkt3d mipu();
+    punkt3d mipu_auf_bog();
     double rad();
     QString rad_QString();
     double swi();

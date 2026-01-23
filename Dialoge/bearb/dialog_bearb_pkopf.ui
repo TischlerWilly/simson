@@ -23,10 +23,30 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_3">
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Dicke</string>
+       <string>X-Versatz</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="lineEdit_d"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="lineEdit_l"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Breite</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Y-Versatz</string>
       </property>
      </widget>
     </item>
@@ -37,21 +57,31 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_l"/>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_d"/>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Dicke</string>
+      </property>
+     </widget>
     </item>
     <item row="1" column="1">
      <widget class="QLineEdit" name="lineEdit_b"/>
     </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_2">
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_6">
       <property name="text">
-       <string>Breite</string>
+       <string>Z-Versatz</string>
       </property>
      </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="lineEdit_ax"/>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="lineEdit_ay"/>
+    </item>
+    <item row="5" column="1">
+     <widget class="QLineEdit" name="lineEdit_az"/>
     </item>
    </layout>
   </widget>
@@ -86,6 +116,9 @@
   <tabstop>lineEdit_l</tabstop>
   <tabstop>lineEdit_b</tabstop>
   <tabstop>lineEdit_d</tabstop>
+  <tabstop>lineEdit_ax</tabstop>
+  <tabstop>lineEdit_ay</tabstop>
+  <tabstop>lineEdit_az</tabstop>
   <tabstop>pushButton_ok</tabstop>
   <tabstop>pushButton_abbrechen</tabstop>
  </tabstops>

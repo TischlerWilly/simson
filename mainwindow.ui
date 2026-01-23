@@ -26,9 +26,6 @@
     <property name="text">
      <string>importieren</string>
     </property>
-    <property name="shortcut">
-     <string>Enter</string>
-    </property>
    </widget>
    <widget class="QListWidget" name="listWidget_dateien">
     <property name="geometry">
@@ -38,6 +35,9 @@
       <width>256</width>
       <height>261</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dateien/Werkstücke&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_mauspos">
@@ -64,6 +64,9 @@
       <width>256</width>
       <height>192</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bearbeitungen auf deinem Werkstück&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="selectionMode">
      <enum>QAbstractItemView::SelectionMode::ContiguousSelection</enum>
@@ -95,7 +98,11 @@
     </property>
     <addaction name="actionNeu"/>
     <addaction name="action_oeffnen"/>
+    <addaction name="action_importieren"/>
+    <addaction name="separator"/>
     <addaction name="actionUmbenennen"/>
+    <addaction name="separator"/>
+    <addaction name="action_schliessen"/>
    </widget>
    <widget class="QMenu" name="menuEinstellungen">
     <property name="title">
@@ -211,6 +218,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="action_schliessen">
+   <property name="text">
+    <string>Schließen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="action_importieren">
+   <property name="text">
+    <string>Importieren aus Quellverzeichniss</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>

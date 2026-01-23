@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QDirIterator>
 
 #include "Klassen/einstellung.h"
 #include "Klassen/prgpfade.h"
@@ -70,6 +71,7 @@ private:
 private slots:
     //Grafik und UI:
     void resizeEvent(QResizeEvent *event);
+    void set_vorschaufenster_default();
     void getMausPosXY(QPoint p);
     void get_zeilennummer_bearb(uint nr, bool bearbeiten);
 
@@ -93,6 +95,8 @@ private slots:
     void on_actionRedo_triggered();
     void on_actionKopieren_triggered();
     void on_actionEinfuegen_triggered();
+    void on_action_schliessen_triggered();
+    void on_action_importieren_triggered();
 
 public slots:
     void getEinstellung(einstellung e);

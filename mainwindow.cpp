@@ -6,27 +6,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson 2026.01.12");
+    this->setWindowTitle("Simson V1-2026.01.23");
     PrgPfade.ordner_erstellen();
     setup();
 
-    geo_text gt;
-    kreis k;
-    k.set_mipu(0,0,0);
-    k.set_rad(20);
-    gt.add_kreis(k);
-    strecke s;
-    s.set_stapu(-50,0,0);
-    s.set_endpu(50,0,0);
-    gt.add_strecke(s);
-    s.drenen_um_mipu_2d(degToRad(90));
-    gt.add_strecke(s);
-    gt.zeilenvorschub();
-
-    punkt3d p(500,500,0);
-    gt.add_punkt(p);
-
-    vorschaufenster.slot_aktualisieren(gt, 0);
+    set_vorschaufenster_default();
 
     connect(&vorschaufenster, SIGNAL(sende_maus_pos(QPoint)),\
             this, SLOT(getMausPosXY(QPoint)));
@@ -234,6 +218,27 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     ui->comboBox_maschinen->setFixedWidth(b);
     ui->comboBox_maschinen->setFixedHeight(20);
 }
+void MainWindow::set_vorschaufenster_default()
+{
+    geo_text gt;
+    geo_text fkon;
+    kreis k;
+    k.set_mipu(0,0,0);
+    k.set_rad(20);
+    gt.add_kreis(k);
+    strecke s;
+    s.set_stapu(-50,0,0);
+    s.set_endpu(50,0,0);
+    gt.add_strecke(s);
+    s.drenen_um_mipu_2d(degToRad(90));
+    gt.add_strecke(s);
+    gt.zeilenvorschub();
+
+    punkt3d p(500,500,0);
+    gt.add_punkt(p);
+
+    vorschaufenster.slot_aktualisieren(gt, fkon, 0);
+}
 void MainWindow::getMausPosXY(QPoint p)
 {
     QString x = int_to_qstring(p.x());
@@ -404,24 +409,35 @@ void MainWindow::on_actionNeu_triggered()
 }
 void MainWindow::on_btn_import_clicked()
 {
-    QMessageBox mb;
-    mb.setText("Diese Funktion ist noch in Arbeit");
-    mb.exec();
+    on_action_importieren_triggered();
 }
-void MainWindow::on_action_oeffnen_triggered()
+void MainWindow::on_action_importieren_triggered()
 {
-    if(Pfad_letzte_geoeffnete_datei.isEmpty())
+    QString ordnerPfad = Einstellung.verzeichnis_quelle();
+
+    // NameFilter definieren (Wildcards sind erlaubt)
+    QStringList filter;
+    filter << "*.ewx";
+
+    // QDirIterator ist speicherschonend und schnell
+    // Flags:
+    //      QDir::NoDotAndDotDot (schließt "." und ".." aus)
+    //      QDir::Files (nur Dateien, keine Ordner)
+    QDirIterator it(ordnerPfad, filter, QDir::Files | QDir::NoDotAndDotDot);
+
+    QStringList pfade;
+    while (it.hasNext())
     {
-        Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
+        // it.next() gibt den vollständigen Pfad zurück und springt zum nächsten Element
+        pfade.append(it.next());
     }
-    QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
-                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"));
+
+    //-----------------------------Dateien einlesen:
     for(int i=0; i<pfade.size() ;i++)
     {
         QString aktueller_pfad = pfade.at(i);
         QFile datei(aktueller_pfad);
         QFileInfo finfo(datei);
-        Pfad_letzte_geoeffnete_datei = finfo.path();
 
         if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
         {
@@ -454,20 +470,126 @@ void MainWindow::on_action_oeffnen_triggered()
                     werkstueck w = import_ewx(inhalt);
                     w.set_name(wstname);
                     Wste.neu(w);
-                    ui->listWidget_dateien->addItem(wstname);
                 }
-            }else
-            {
-                QString msg;
-                msg += "Die Dateiendung \"";
-                msg += dateiendung;
-                msg += "\" wird zum Einlesen nicht unterstützt.";
-                QMessageBox mb;
-                mb.setText(msg);
-                mb.setWindowTitle("Datei einlesen");
-                mb.exec();
             }
         }
+    }
+    //-----------------------------
+    //-----------------------------UI aktualisieren:
+    if(Wste.wst(0))
+    {
+        werkstueck *w = Wste.wst(0);
+        ui->listWidget_dateien->clear();
+        for(uint i=0; i<Wste.anzahl();i++)
+        {
+            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
+            ui->listWidget_dateien->setCurrentRow(0);
+        }
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index_masch = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index_masch)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+    }
+    //-----------------------------
+}
+void MainWindow::on_action_oeffnen_triggered()
+{
+    if(Pfad_letzte_geoeffnete_datei.isEmpty())
+    {
+        Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
+    }
+    QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
+                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"));
+
+    //-----------------------------Dateien einlesen:
+    for(int i=0; i<pfade.size() ;i++)
+    {
+        QString aktueller_pfad = pfade.at(i);
+        QFile datei(aktueller_pfad);
+        QFileInfo finfo(datei);
+
+        if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += aktueller_pfad;
+            tmp += "\n";
+            tmp += "in der Funktion on_action_oeffnen_triggered";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            QString inhalt = datei.readAll();
+            QString wstname = finfo.fileName();
+            QString dateiendung = finfo.suffix();
+            wstname = wstname.left(wstname.length()-dateiendung.length());
+            if(dateiendung == "ewx")
+            {
+                if(Wste.ist_bekannt(wstname))
+                {
+                    QString msg;
+                    msg  = "Die Datei \"";
+                    msg += wstname;
+                    msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
+                    msg += "Arbeitsliste vorhanden ist.";
+                    QMessageBox mb;
+                    mb.setWindowTitle("Datei öffnen");
+                    mb.setText(msg);
+                    mb.exec();
+                }else
+                {
+                    werkstueck w = import_ewx(inhalt);
+                    w.set_name(wstname);
+                    Wste.neu(w);
+                }
+            }
+        }
+    }
+    //-----------------------------
+    //-----------------------------UI aktualisieren:
+    if(Wste.wst(0))
+    {
+        werkstueck *w = Wste.wst(0);
+        ui->listWidget_dateien->clear();
+        for(uint i=0; i<Wste.anzahl();i++)
+        {
+            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
+            ui->listWidget_dateien->setCurrentRow(0);
+        }
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index_masch = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index_masch)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+    }
+    //-----------------------------
+}
+void MainWindow::on_action_schliessen_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        QString name = ui->listWidget_dateien->currentItem()->text();
+        Wste.entf(name);
+        int index_dat = ui->listWidget_dateien->currentRow();
+        ui->listWidget_dateien->clear();
+        for(uint i=0; i<Wste.anzahl();i++)
+        {
+            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
+            ui->listWidget_dateien->setCurrentRow(0);
+        }
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Datei/Bautreil schließen");
+        mb.exec();
     }
 }
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
@@ -478,22 +600,19 @@ void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
         werkstueck *w = Wste.wst(row);
 
         wkz_magazin wkz;
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), 0);
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index_masch = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index_masch)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
 
         update_listwidget_bearb(w);
     }else
     {
-        QString msg;
-        msg = "currentRow = ";
-        msg += int_to_qstring(currentRow);
-        msg += "\n row = ";
-        msg += int_to_qstring(row);
-        msg += "\nAnz wst = ";
-        msg += int_to_qstring(Wste.anzahl());
-        QMessageBox mb;
-        mb.setText(msg);
-        mb.setWindowTitle("Fehler in Funktion MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)");
-        mb.exec();
+        ui->listWidget_bearb->clear();
+        set_vorschaufenster_default();
     }
 }
 void MainWindow::on_listWidget_bearb_currentRowChanged(int currentRow)
@@ -572,7 +691,7 @@ void MainWindow::on_actionUndo_triggered()
             int index = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
     }else
     {
         QString msg;
@@ -599,7 +718,7 @@ void MainWindow::on_actionRedo_triggered()
             int index = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
     }else
     {
         QString msg;
@@ -675,7 +794,8 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         Wste.wst(index_wst)->set_bearb(bearb_neu);
         Wste.wst(index_wst)->unredo_neu();
         update_listwidget_bearb(Wste.wst(index_wst));
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), index_wst);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), zeile_bearb);
         return;
     }
 
@@ -931,7 +1051,8 @@ void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verw
         wkz = Maschinen.masch(index_masch)->wkzmag();
     }
     update_listwidget_bearb(Wste.wst(index_dat));
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_bearb+1);
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), \
+                                       Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb+1);
 }
 void MainWindow::slot_rta(rechtecktasche rta)
 {
@@ -1315,7 +1436,8 @@ void MainWindow::on_actionEinfuegen_triggered()
                 int index = Maschinen.get_index(masch_bez);
                 wkz = Maschinen.masch(index)->wkzmag();
             }
-            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                               Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
         }
     }else
     {
@@ -1359,7 +1481,8 @@ void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
         int index = Maschinen.get_index(masch_bez);
         wkz = Maschinen.masch(index)->wkzmag();
     }
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_dat);
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), \
+                                       Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb);
 }
 void MainWindow::slot_make_bo(bohrung bo)
 {
@@ -1445,6 +1568,11 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
+
+
 
 
 

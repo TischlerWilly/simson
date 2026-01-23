@@ -1,6 +1,8 @@
 ToDo:
 
-- Fräser der aktiven Zeile darstellen
+
+- DLG fbog:
+    labels einfügen die die internen Bogenparameter anzeigen
 
 
 

@@ -5,6 +5,9 @@ werkstueck::werkstueck()
     Laenge  = 0;
     Breite  = 0;
     Dicke   = 0;
+    Versatz_x = 0;
+    Versatz_y = 0;
+    Versatz_z = 0;
 }
 werkstueck::werkstueck(QString neuer_name)
 {
@@ -12,6 +15,9 @@ werkstueck::werkstueck(QString neuer_name)
     Laenge  = 0;
     Breite  = 0;
     Dicke   = 0;
+    Versatz_x = 0;
+    Versatz_y = 0;
+    Versatz_z = 0;
 }
 //#######################################################################
 //Public:
@@ -86,6 +92,10 @@ void werkstueck::set_versatz_x(double versatz)
 void werkstueck::set_versatz_y(double versatz)
 {
     Versatz_y = versatz;
+}
+void werkstueck::set_versatz_z(double versatz)
+{
+    Versatz_z = versatz;
 }
 //--------------------------------------------------get_xy:
 
@@ -175,7 +185,13 @@ QString werkstueck::cad_fehler(bool kurz)
 }
 geo_text werkstueck::geo(wkz_magazin wkzm)
 {
-    return geo_ermitteln(Bearb, Laenge, Breite, Dicke, Versatz_x, Versatz_y, wkzm);
+    geo_text gt = geo_ermitteln(Bearb, Laenge, Breite, Dicke, Versatz_x, Versatz_y, wkzm);
+    return gt;
+}
+geo_text werkstueck::geo_aktfkon(wkz_magazin wkzm)
+{
+    geo_text fkon = geo_ermitteln_akt_fkon(Bearb, Versatz_x, Versatz_y, wkzm);
+    return fkon;
 }
 
 //--------------------------------------------------Manipulationen:

@@ -76,7 +76,11 @@ void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
     double d = std::sqrt(dx*dx + dy*dy);
 
     if (d > 2*rad)
-        throw std::runtime_error("Kein Kreis möglich: Abstand > 2*Radius");
+    {
+        //    throw std::runtime_error("Kein Kreis möglich: Abstand > 2*Radius");
+        rad = d/2;
+    }
+
 
     // Mittelpunkt der Sehne
     punkt3d C;
@@ -260,6 +264,28 @@ QString bogen::text()
 punkt3d bogen::mipu()
 {
     return Mipu;
+}
+punkt3d bogen::mipu_auf_bog()
+{
+    punkt3d p;
+
+    double diff = ewi() - swi();
+
+    // Normalisierung der Winkeldifferenz basierend auf der Richtung
+    if (uzs()) {
+        if (diff > 0) diff -= 2.0 * M_PI;
+    } else {
+        if (diff < 0) diff += 2.0 * M_PI;
+    }
+
+    // Der Winkel in der Mitte der Bogenlänge
+    double midAngle = swi() + (diff / 2.0);
+
+    // Umrechnung von Polarkoordinaten in kartesische Koordinaten
+    p.set_x( mipu().x() + rad() * std::cos(midAngle) );
+    p.set_y( mipu().y() + rad() * std::sin(midAngle) );
+
+    return p;
 }
 double bogen::rad()
 {
