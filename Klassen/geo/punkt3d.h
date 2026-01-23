@@ -20,6 +20,8 @@ public:
     }
 
     void set_text(QString geotext);
+    QString text();
+
     inline  void    set_x(double wert)
     {
         X_param = wert;

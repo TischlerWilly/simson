@@ -57,7 +57,7 @@ signals:
     void sende_zeilennummer(uint nr, bool bearbeiten);
 
 public slots:
-    void slot_aktualisieren(geo_text gt, int aktive_zeile);
+    void slot_aktualisieren(geo_text gt, geo_text fkon, int aktive_zeile);
     void slot_aktualisieren();
     void slot_aktives_Element_einfaerben(int zeilennummer);
 

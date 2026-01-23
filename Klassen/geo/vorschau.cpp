@@ -29,6 +29,16 @@ void vorschau::update_cad()
             zeichneGeotext(spalten.at(ii), i);
         }
     }
+    //Fräser darstellen:
+    for(uint i=0;i<GeoFkon.count();i++)
+    {
+        text_zw spalten = GeoFkon.at(i);
+        for(uint ii=0;ii<spalten.count();ii++)
+        {
+            zeichneGeotext(spalten.at(ii), i);
+        }
+    }
+
     this->update();
 }
 
@@ -285,9 +295,10 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
     }
 }
 
-void vorschau::slot_aktualisieren(geo_text gt, int aktive_zeile)
+void vorschau::slot_aktualisieren(geo_text gt, geo_text fkon, int aktive_zeile)
 {
     Geotext = gt;
+    GeoFkon = fkon;
     Aktuelle_zeilennummer = aktive_zeile;
     slot_aktualisieren();
 }
@@ -585,6 +596,9 @@ QColor vorschau::set_farbe(QString farbe)
     }else if(farbe == FARBE_GELB)
     {
         qfarbe = Qt::yellow;
+    }else if(farbe == FARBE_DUNKELGELB)
+    {
+        qfarbe = Qt::darkYellow;
     }else if(farbe == FARBE_GRAU)
     {
         qfarbe = Qt::gray;

@@ -21,6 +21,21 @@ void punkt3d::set_text(QString geotext)
     set_farbe(tz.at(4));
     set_linienbreite(tz.at(5).toInt());
 }
+QString punkt3d::text()
+{
+    QString msg = PUNKT;
+    msg += TRZ_PA;
+    msg += x_QString();
+    msg += TRZ_PA;
+    msg += y_QString();
+    msg += TRZ_PA;
+    msg += z_QString();
+    msg += TRZ_PA;
+    msg += farbe();
+    msg += TRZ_PA;
+    msg += linienbreite_qstring();
+    return msg;
+}
 
 void punkt3d::verschieben_um(double xversatz, double yversatz)
 {

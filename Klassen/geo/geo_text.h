@@ -63,6 +63,7 @@ private:
 
 geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, double versatz_x, double versatz_y, \
                        wkz_magazin wkzm);
+geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm);
 
 
 #endif // GEO_TEXT_H

@@ -65,9 +65,9 @@ public:
 
     //-----------------------------------------manipulationen:
     void    richtung_unkehren();
-    void    drenen_um_stapu_2d(double drehwi);
-    void    drenen_um_endpu_2d(double drehwi);
-    void    drenen_um_mipu_2d(double drehwi);
+    void    drenen_um_stapu_2d(double drehwi, bool uzs = false);
+    void    drenen_um_endpu_2d(double drehwi, bool uzs = false);
+    void    drenen_um_mipu_2d(double drehwi, bool uzs = false);
     void    verschieben_um(double xversatz, double yversatz);
     void    set_laenge(double neue_laenge, \
                        strecke_bezugspunkt bezugspunkt = strecke_bezugspunkt_mitte);

@@ -221,6 +221,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 void MainWindow::set_vorschaufenster_default()
 {
     geo_text gt;
+    geo_text fkon;
     kreis k;
     k.set_mipu(0,0,0);
     k.set_rad(20);
@@ -236,7 +237,7 @@ void MainWindow::set_vorschaufenster_default()
     punkt3d p(500,500,0);
     gt.add_punkt(p);
 
-    vorschaufenster.slot_aktualisieren(gt, 0);
+    vorschaufenster.slot_aktualisieren(gt, fkon, 0);
 }
 void MainWindow::getMausPosXY(QPoint p)
 {
@@ -491,7 +492,7 @@ void MainWindow::on_action_importieren_triggered()
             int index_masch = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index_masch)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
     }
     //-----------------------------
 }
@@ -564,7 +565,7 @@ void MainWindow::on_action_oeffnen_triggered()
             int index_masch = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index_masch)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
     }
     //-----------------------------
 }
@@ -605,7 +606,7 @@ void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
             int index_masch = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index_masch)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
 
         update_listwidget_bearb(w);
     }else
@@ -690,7 +691,7 @@ void MainWindow::on_actionUndo_triggered()
             int index = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
     }else
     {
         QString msg;
@@ -717,7 +718,7 @@ void MainWindow::on_actionRedo_triggered()
             int index = Maschinen.get_index(masch_bez);
             wkz = Maschinen.masch(index)->wkzmag();
         }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
     }else
     {
         QString msg;
@@ -793,7 +794,7 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         Wste.wst(index_wst)->set_bearb(bearb_neu);
         Wste.wst(index_wst)->unredo_neu();
         update_listwidget_bearb(Wste.wst(index_wst));
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), index_wst);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), index_wst);
         return;
     }
 
@@ -1049,7 +1050,7 @@ void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verw
         wkz = Maschinen.masch(index_masch)->wkzmag();
     }
     update_listwidget_bearb(Wste.wst(index_dat));
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_bearb+1);
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb+1);
 }
 void MainWindow::slot_rta(rechtecktasche rta)
 {
@@ -1433,7 +1434,7 @@ void MainWindow::on_actionEinfuegen_triggered()
                 int index = Maschinen.get_index(masch_bez);
                 wkz = Maschinen.masch(index)->wkzmag();
             }
-            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), 0);
+            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
         }
     }else
     {
@@ -1477,7 +1478,7 @@ void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
         int index = Maschinen.get_index(masch_bez);
         wkz = Maschinen.masch(index)->wkzmag();
     }
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), index_dat);
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), Wste.wst(index_dat)->geo_aktfkon(wkz), index_dat);
 }
 void MainWindow::slot_make_bo(bohrung bo)
 {

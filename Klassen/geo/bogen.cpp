@@ -76,7 +76,11 @@ void bogen::set_bogen(punkt3d sp, punkt3d ep, double rad, bool uzs)
     double d = std::sqrt(dx*dx + dy*dy);
 
     if (d > 2*rad)
-        throw std::runtime_error("Kein Kreis möglich: Abstand > 2*Radius");
+    {
+        //    throw std::runtime_error("Kein Kreis möglich: Abstand > 2*Radius");
+        rad = d/2;
+    }
+
 
     // Mittelpunkt der Sehne
     punkt3d C;
