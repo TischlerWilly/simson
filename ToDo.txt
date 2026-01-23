@@ -1,9 +1,5 @@
 ToDo:
 
-- Fräser der aktiven Zeile darstellen
-    geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm)
-        else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
-        >Bei Bögen ab 180° wird die Position des dargestellten fräsers(Kreises) falsch berechnet
 
 - DLG fbog:
     labels einfügen die die internen Bogenparameter anzeigen

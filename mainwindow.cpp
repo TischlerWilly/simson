@@ -794,7 +794,8 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         Wste.wst(index_wst)->set_bearb(bearb_neu);
         Wste.wst(index_wst)->unredo_neu();
         update_listwidget_bearb(Wste.wst(index_wst));
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), index_wst);
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), zeile_bearb);
         return;
     }
 
@@ -1050,7 +1051,8 @@ void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verw
         wkz = Maschinen.masch(index_masch)->wkzmag();
     }
     update_listwidget_bearb(Wste.wst(index_dat));
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb+1);
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), \
+                                       Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb+1);
 }
 void MainWindow::slot_rta(rechtecktasche rta)
 {
@@ -1434,7 +1436,8 @@ void MainWindow::on_actionEinfuegen_triggered()
                 int index = Maschinen.get_index(masch_bez);
                 wkz = Maschinen.masch(index)->wkzmag();
             }
-            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
+            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                               Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
         }
     }else
     {
@@ -1478,7 +1481,8 @@ void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
         int index = Maschinen.get_index(masch_bez);
         wkz = Maschinen.masch(index)->wkzmag();
     }
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), Wste.wst(index_dat)->geo_aktfkon(wkz), index_dat);
+    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), \
+                                       Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb);
 }
 void MainWindow::slot_make_bo(bohrung bo)
 {

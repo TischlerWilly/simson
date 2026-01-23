@@ -5,6 +5,9 @@ werkstueck::werkstueck()
     Laenge  = 0;
     Breite  = 0;
     Dicke   = 0;
+    Versatz_x = 0;
+    Versatz_y = 0;
+    Versatz_z = 0;
 }
 werkstueck::werkstueck(QString neuer_name)
 {
@@ -12,6 +15,9 @@ werkstueck::werkstueck(QString neuer_name)
     Laenge  = 0;
     Breite  = 0;
     Dicke   = 0;
+    Versatz_x = 0;
+    Versatz_y = 0;
+    Versatz_z = 0;
 }
 //#######################################################################
 //Public:
@@ -86,6 +92,10 @@ void werkstueck::set_versatz_x(double versatz)
 void werkstueck::set_versatz_y(double versatz)
 {
     Versatz_y = versatz;
+}
+void werkstueck::set_versatz_z(double versatz)
+{
+    Versatz_z = versatz;
 }
 //--------------------------------------------------get_xy:
 

@@ -40,6 +40,7 @@ public:
     void set_name(QString neuer_name);
     void set_versatz_x(double versatz);
     void set_versatz_y(double versatz);
+    void set_versatz_z(double versatz);
 
     //--------------------------------------------------get_xy:
     QString cad_fehler(bool kurz = false);
@@ -69,6 +70,30 @@ public:
     {
         return double_to_qstring(Dicke);
     }
+    inline double verastz_x()
+    {
+        return Versatz_x;
+    }
+    inline QString versatz_x_qstring()
+    {
+        return double_to_qstring(Versatz_x);
+    }
+    inline double verastz_y()
+    {
+        return Versatz_y;
+    }
+    inline QString versatz_y_qstring()
+    {
+        return double_to_qstring(Versatz_y);
+    }
+    inline double verastz_z()
+    {
+        return Versatz_z;
+    }
+    inline QString versatz_z_qstring()
+    {
+        return double_to_qstring(Versatz_z);
+    }
     inline QString  name()
     {
         return Name;
@@ -97,6 +122,7 @@ private:
     double Dicke;   //Z-Wert
     double Versatz_x;
     double Versatz_y;
+    double Versatz_z;
     text_zw Bearb;
     QString Name;
 

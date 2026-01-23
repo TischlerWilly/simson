@@ -1430,21 +1430,16 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                 k.set_farbe(FARBE_BLAU);
             }else
             {
-                //b.set_rad(b.rad(), !b.uzs());
                 b.richtung_unkehren();
                 k.set_farbe(farbe_unterseite);
                 k.set_stil(STIL_GESTRICHELT);
             }
-            strecke sehne;
-            sehne.set_stapu(b.spu());
-            sehne.set_endpu(b.epu());
             strecke s;
             s.set_stapu(b.mipu());
-            s.set_endpu(sehne.mipu());
+            s.set_endpu(b.mipu_auf_bog());
             if(radkor == FRKOR_M)
             {
-                s.set_laenge(b.rad(), strecke_bezugspunkt_start);
-                k.set_mipu(s.endpu());
+                k.set_mipu(b.mipu_auf_bog());
             }else
             {
                 if(fb.bezug() == WST_BEZUG_OBSEI)
