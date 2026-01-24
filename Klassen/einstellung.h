@@ -17,6 +17,7 @@ public:
     void set_verzeichnis_quelle(QString v);
     void set_verzeichnis_ziel_server(QString v);
     void set_verzeichnis_ziel_lokal(QString v);
+    void set_verzeichnis_zuletzt_geoefnet(QString v);
 
     //get:    
     QString text();
@@ -24,12 +25,14 @@ public:
     QString verzeichnis_quelle();
     QString verzeichnis_ziel_server();
     QString verzeichnis_ziel_lokal();
+    QString verzeichnis_zuletzt_geoefnet();
 
 private:
     bool Entwicklermodus;
     QString Verzeichnis_quelle;
     QString Verzeichnis_ziel_server;
     QString Verzeichnis_ziel_lokal;
+    QString Verzeichnis_zuletzt_geoefnet;
 
 };
 

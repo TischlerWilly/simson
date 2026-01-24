@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.01.23");
+    this->setWindowTitle("Simson V1-2026.01.24");
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -498,7 +498,9 @@ void MainWindow::on_action_importieren_triggered()
 }
 void MainWindow::on_action_oeffnen_triggered()
 {
-    if(Pfad_letzte_geoeffnete_datei.isEmpty())
+    Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_zuletzt_geoefnet();
+    QDir d(Pfad_letzte_geoeffnete_datei);
+    if(!d.exists())//z.B. wenn der ordner zwischenzeitlich umbenannt wurde
     {
         Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
     }
@@ -509,8 +511,11 @@ void MainWindow::on_action_oeffnen_triggered()
     for(int i=0; i<pfade.size() ;i++)
     {
         QString aktueller_pfad = pfade.at(i);
-        QFile datei(aktueller_pfad);
+        QFile datei(aktueller_pfad);        
         QFileInfo finfo(datei);
+        Pfad_letzte_geoeffnete_datei = finfo.path();
+        Einstellung.set_verzeichnis_zuletzt_geoefnet(Pfad_letzte_geoeffnete_datei);
+        schreibe_ini();
 
         if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
         {
