@@ -148,6 +148,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     ToDo.txt \
+    simson.ico \
     toolbaricons/Fraese 100x100.png \
     toolbaricons/down.png \
     toolbaricons/drill.png \
@@ -157,6 +158,8 @@ DISTFILES += \
     toolbaricons/trash.png \
     toolbaricons/undo.png \
     toolbaricons/up.png
+
+RC_ICONS = postprozessor.ico
 
 RESOURCES += \
     toolbaricons.qrc
