@@ -159,7 +159,7 @@ DISTFILES += \
     toolbaricons/undo.png \
     toolbaricons/up.png
 
-RC_ICONS = postprozessor.ico
+RC_ICONS = simson.ico
 
 RESOURCES += \
     toolbaricons.qrc
