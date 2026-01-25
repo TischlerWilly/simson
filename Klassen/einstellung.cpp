@@ -30,6 +30,10 @@ void einstellung::set_text(QString t)
         {
             set_verzeichnis_ziel_lokal(spalten.at(1));
         }
+        else if(spalten.at(0) == "Verzeichnis_zuletzt_geoefnet:")
+        {
+            set_verzeichnis_zuletzt_geoefnet(spalten.at(1));
+        }
     }
 }
 void einstellung::set_entwicklermodus(bool ja)
@@ -57,6 +61,10 @@ void einstellung::set_verzeichnis_ziel_server(QString v)
 void einstellung::set_verzeichnis_ziel_lokal(QString v)
 {
     Verzeichnis_ziel_lokal = v;
+}
+void einstellung::set_verzeichnis_zuletzt_geoefnet(QString v)
+{
+    Verzeichnis_zuletzt_geoefnet = v;
 }
 
 //----------------------------------------get:
@@ -88,7 +96,12 @@ QString einstellung::text()
     text += "verzeichnis_ziel_lokal:";
     text += "\t";
     text += verzeichnis_ziel_lokal();
-    text += "\n";    
+    text += "\n";
+
+    text += "Verzeichnis_zuletzt_geoefnet:";
+    text += "\t";
+    text += verzeichnis_zuletzt_geoefnet();
+    text += "\n";
 
     return text;
 }
@@ -107,4 +120,8 @@ QString einstellung::verzeichnis_ziel_server()
 QString einstellung::verzeichnis_ziel_lokal()
 {
     return Verzeichnis_ziel_lokal;
+}
+QString einstellung::verzeichnis_zuletzt_geoefnet()
+{
+    return Verzeichnis_zuletzt_geoefnet;
 }
