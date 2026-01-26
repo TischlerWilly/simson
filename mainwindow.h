@@ -23,6 +23,7 @@
 #include "Dialoge/bearb/dialog_bearb_fbogen.h"
 #include "Dialoge/bearb/dialog_bearb_verschieben.h"
 #include "Funktionen/import/ewx.h"
+#include "Funktionen/import/dxf.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -96,7 +97,8 @@ private slots:
     void on_actionKopieren_triggered();
     void on_actionEinfuegen_triggered();
     void on_action_schliessen_triggered();
-    void on_action_importieren_triggered();
+    void on_action_importieren_triggered();    
+    void on_action_import_dxf_triggered();
 
 public slots:
     void getEinstellung(einstellung e);

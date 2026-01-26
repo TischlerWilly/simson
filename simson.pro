@@ -24,12 +24,14 @@ SOURCES += \
     Dialoge/wkz/dialog_fraeserauswahl.cpp \
     Dialoge/wkz/dialog_saege.cpp \
     Funktionen/funktionen_prgtext.cpp \
+    Funktionen/import/dxf.cpp \
     Funktionen/import/ewx.cpp \
     Funktionen/import/ewx_reference.cpp \
     Funktionen/myfunktion.cpp \
     Funktionen/runden.cpp \
     Funktionen/text.cpp \
     Funktionen/umwandeln.cpp \
+    Klassen/DXF/dxf_importklasse.cpp \
     Klassen/einstellung.cpp \
     Klassen/formel.cpp \
     Klassen/geo/bogen.cpp \
@@ -83,12 +85,14 @@ HEADERS += \
     Dialoge/wkz/dialog_fraeserauswahl.h \
     Dialoge/wkz/dialog_saege.h \
     Funktionen/funktionen_prgtext.h \
+    Funktionen/import/dxf.h \
     Funktionen/import/ewx.h \
     Funktionen/import/ewx_reference.h \
     Funktionen/myfunktion.h \
     Funktionen/runden.h \
     Funktionen/text.h \
     Funktionen/umwandeln.h \
+    Klassen/DXF/dxf_importklasse.h \
     Klassen/einstellung.h \
     Klassen/formel.h \
     Klassen/geo/bogen.h \
@@ -163,3 +167,21 @@ RC_ICONS = simson.ico
 
 RESOURCES += \
     toolbaricons.qrc
+
+win32 {
+        # Verzeichnis für die Header-Suche
+        # INCLUDEPATH += "C:/Users/Nordic/Documents/_Oliver/cpp/libdxfrw/src"
+        INCLUDEPATH += "$$PWD/../libdxfrw QT6.8 MinGW/src"
+
+        # Linken der statischen Bibliothek
+        # LIBS += "C:/Users/Nordic/Documents/_Oliver/cpp/libdxfrw/build/libdxfrw.a"
+        LIBS += "$$PWD/../libdxfrw QT6.8 MinGW/build/libdxfrw.a"
+}
+
+unix:!macx {
+        # Verzeichnis für die Header-Suche
+        INCLUDEPATH += /usr/include/libdxfrw
+
+        # Linken der statischen Bibliothek
+        LIBS += /usr/lib/libdxfrw.a
+}

@@ -505,7 +505,8 @@ void MainWindow::on_action_oeffnen_triggered()
         Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
     }
     QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
-                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"));
+                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"), \
+                                                      nullptr, QFileDialog::DontUseNativeDialog);
 
     //-----------------------------Dateien einlesen:
     for(int i=0; i<pfade.size() ;i++)
@@ -596,6 +597,88 @@ void MainWindow::on_action_schliessen_triggered()
         mb.setWindowTitle("Datei/Bautreil schließen");
         mb.exec();
     }
+}
+void MainWindow::on_action_import_dxf_triggered()
+{
+    Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_zuletzt_geoefnet();
+    QDir d(Pfad_letzte_geoeffnete_datei);
+    if(!d.exists())//z.B. wenn der ordner zwischenzeitlich umbenannt wurde
+    {
+        Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
+    }
+
+    QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
+                                                      Pfad_letzte_geoeffnete_datei, tr("dxf Dateien (*.dxf)"), \
+                                                      nullptr, QFileDialog::DontUseNativeDialog);
+
+    //-----------------------------Dateien einlesen:
+    for(int i=0; i<pfade.size() ;i++)
+    {
+        QString aktueller_pfad = pfade.at(i);
+        QFile datei(aktueller_pfad);
+        QFileInfo finfo(datei);
+        Pfad_letzte_geoeffnete_datei = finfo.path();
+        Einstellung.set_verzeichnis_zuletzt_geoefnet(Pfad_letzte_geoeffnete_datei);
+        schreibe_ini();
+
+        if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += aktueller_pfad;
+            tmp += "\n";
+            tmp += "in der Funktion on_action_import_dxf_triggered";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            datei.close();
+            //QString inhalt = datei.readAll();
+            QString wstname = finfo.fileName();
+            QString dateiendung = finfo.suffix();
+            wstname = wstname.left(wstname.length()-dateiendung.length());
+
+            if(dateiendung == "dxf")
+            {
+                if(Wste.ist_bekannt(wstname))
+                {
+                    QString msg;
+                    msg  = "Die Datei \"";
+                    msg += wstname;
+                    msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
+                    msg += "Arbeitsliste vorhanden ist.";
+                    QMessageBox mb;
+                    mb.setWindowTitle("Datei öffnen");
+                    mb.setText(msg);
+                    mb.exec();
+                }else
+                {
+                    werkstueck w = import_dxf(aktueller_pfad);
+                    w.set_name(wstname);
+                    Wste.neu(w);
+                }
+            }
+        }
+    }
+    //-----------------------------
+    //-----------------------------UI aktualisieren:
+    if(Wste.wst(0))
+    {
+        werkstueck *w = Wste.wst(0);
+        ui->listWidget_dateien->clear();
+        for(uint i=0; i<Wste.anzahl();i++)
+        {
+            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
+            ui->listWidget_dateien->setCurrentRow(0);
+        }
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index_masch = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index_masch)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+    }
+    //-----------------------------
 }
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 {
@@ -1573,6 +1656,9 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 

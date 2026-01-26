@@ -99,6 +99,7 @@
     <addaction name="actionNeu"/>
     <addaction name="action_oeffnen"/>
     <addaction name="action_importieren"/>
+    <addaction name="action_import_dxf"/>
     <addaction name="separator"/>
     <addaction name="actionUmbenennen"/>
     <addaction name="separator"/>
@@ -234,6 +235,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="action_import_dxf">
+   <property name="text">
+    <string>importiere dxf-Datei</string>
    </property>
   </action>
  </widget>
