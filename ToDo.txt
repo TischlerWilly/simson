@@ -1,8 +1,9 @@
 ToDo:
 
 
-- DLG fbog:
-    labels einfügen die die internen Bogenparameter anzeigen
+noch darstellungsfehler bei rta mit eckenrad und drewi
+evtl fehler in der funktion
+void vorschau::zeichneGeotext(QString geometrieElement, int i)
 
 
 

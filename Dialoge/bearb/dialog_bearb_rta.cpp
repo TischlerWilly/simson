@@ -35,7 +35,7 @@ void Dialog_bearb_rta::set_data(QString d, werkstueck *w, text_zw wkzmag)
     ui->lineEdit_x->setText(rta.x_qstring());
     ui->lineEdit_y->setText(rta.y_qstring());
     ui->lineEdit_z->setText(rta.z_qstring());
-    ui->lineEdit_wi->setText(rta.drewi_qstring());
+    ui->lineEdit_wi->setText(double_to_qstring(radToDeg(rta.drewi())));
     ui->lineEdit_rad->setText(rta.rad_qstring());
     ui->lineEdit_zust->setText(rta.zustellmass_qstring());
     if(rta.ausraeumen() == true)
@@ -101,7 +101,7 @@ void Dialog_bearb_rta::on_btn_ok_clicked()
     rta.set_x(var_zu_wert(ui->lineEdit_x->text()));
     rta.set_y(var_zu_wert(ui->lineEdit_y->text()));
     rta.set_z(var_zu_wert(ui->lineEdit_z->text()));
-    rta.set_drewi(var_zu_wert(ui->lineEdit_wi->text()));
+    rta.set_drewi(degToRad(var_zu_wert(ui->lineEdit_wi->text()).toDouble()));
     rta.set_rad(var_zu_wert(ui->lineEdit_rad->text()));
     rta.set_zustellmass(var_zu_wert(ui->lineEdit_zust->text()));
     rta.set_ausraeumen(ui->checkBox_raeumen->isChecked());
