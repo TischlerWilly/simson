@@ -193,6 +193,7 @@ private:
     werkstueck Wst;
     einstellung_dxf Einst_allgem;
     einstellung_dxf_klassen Einst_klassen;
+    bool IstOberseite;
 };
 
 #endif // DXF_IMPORTKLASSE_H

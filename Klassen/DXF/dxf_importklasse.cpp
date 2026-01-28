@@ -6,6 +6,7 @@ dxf_importklasse::dxf_importklasse()
     Wst.set_laenge(500);
     Wst.set_breite(300);
     Wst.set_dicke(19);
+    IstOberseite = true;
 }
 void dxf_importklasse::set_einst_allgem(einstellung_dxf e)
 {
@@ -70,15 +71,62 @@ void dxf_importklasse::addArc(const DRW_Arc& data)  {}
 /** Called for every circle */
 void dxf_importklasse::addCircle(const DRW_Circle& data)
 {
-    //erst einmal pauschal Bohrung zum testen:
-    bohrung b;
-    punkt3d mipu;
-    mipu.set_x(data.basePoint.x);
-    mipu.set_y(data.basePoint.y);
-    mipu.set_z(data.basePoint.z);//fraglich bei 2D-Bohrbildern, muss anhand des Layernamen ober oder Unterseite sein
-    b.set_mipu(mipu);
-    b.set_dm(data.radious*2);
-    Wst.bearb_ptr()->add_hi(b.text());
+    QString klasse = QString::fromUtf8(data.layer.c_str());
+
+    if(  klasse.contains(Einst_klassen.bohr_vert())  )
+    {
+        bohrung bo;
+        bo.set_afb("1");
+        QString ti;
+        ti = text_rechts(klasse, Einst_klassen.bohr_vert());
+        ti = text_rechts(ti, Einst_allgem.paramtren());
+        ti.replace(Einst_allgem.dezitren(),".");
+        double ti_double = ti.toDouble();
+        if(ti_double == Wst.dicke())
+        {
+            //ti_double = ti_double + 4;
+        }
+        if(ti_double < 0)
+        {
+            ti_double = Wst.dicke() - ti_double;
+        }
+        bo.set_tiefe(ti_double);
+
+        punkt3d mipu;
+        mipu.set_x(data.basePoint.x);
+        mipu.set_y(data.basePoint.y);
+        if(IstOberseite)
+        {
+            bo.set_bezug(WST_BEZUG_OBSEI);
+            bo.set_x(mipu.x());
+            bo.set_y(mipu.y());
+        }else
+        {
+            bo.set_bezug(WST_BEZUG_UNSEI);
+            if(Einst_allgem.drehtyp_L())
+            {
+                bo.set_x(Wst.laenge()-mipu.x());
+                bo.set_y(mipu.y());
+            }else //if(Einstellung_dxf.drehtyp_B())
+            {
+                bo.set_x(mipu.x());
+                bo.set_y(Wst.breite()-mipu.y());
+            }
+        }
+
+        bo.set_dm(data.radious*2);
+        Wst.bearb_ptr()->add_hi(bo.text());
+    }else
+    {
+        QString msg;
+        msg += "Kreis mit Layernamen \"";
+        msg += klasse;
+        msg += "\" wurde beim Import übersprungen.";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("DXF importieren");
+        mb.exec();
+    }
 }
 
 /** Called for every ellipse */
