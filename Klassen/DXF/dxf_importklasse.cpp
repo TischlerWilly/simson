@@ -7,6 +7,14 @@ dxf_importklasse::dxf_importklasse()
     Wst.set_breite(300);
     Wst.set_dicke(19);
 }
+void dxf_importklasse::set_einst_allgem(einstellung_dxf e)
+{
+    Einst_allgem = e;
+}
+void dxf_importklasse::set_einst_klassen(einstellung_dxf_klassen e)
+{
+    Einst_klassen = e;
+}
 
 /** Called when header is parsed.  */
 void dxf_importklasse::addHeader(const DRW_Header* data)  {}

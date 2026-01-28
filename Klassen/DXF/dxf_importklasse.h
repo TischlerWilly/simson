@@ -12,12 +12,16 @@
 #endif //__linux__
 
 #include "Klassen/wst/werkstueck.h"
+#include "Klassen/einstellung_dxf.h"
+#include "Klassen/einstellung_dxf_klassen.h"
 
 
 class dxf_importklasse : public DRW_Interface
 {
 public:
     dxf_importklasse();
+    void set_einst_allgem(einstellung_dxf e);
+    void set_einst_klassen(einstellung_dxf_klassen e);
 
     /** Called when header is parsed.  */
     void addHeader(const DRW_Header* data);
@@ -187,6 +191,8 @@ public:
 
 private:
     werkstueck Wst;
+    einstellung_dxf Einst_allgem;
+    einstellung_dxf_klassen Einst_klassen;
 };
 
 #endif // DXF_IMPORTKLASSE_H

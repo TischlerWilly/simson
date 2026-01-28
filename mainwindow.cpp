@@ -778,7 +778,7 @@ void MainWindow::on_action_import_dxf_triggered()
                     mb.exec();
                 }else
                 {
-                    werkstueck w = import_dxf(aktueller_pfad);
+                    werkstueck w = import_dxf(aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
                     w.set_name(wstname);
                     Wste.neu(w);
                 }
