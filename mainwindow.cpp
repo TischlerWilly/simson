@@ -27,6 +27,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&dlg_Einstellung_maschinen, SIGNAL(send_maschinen(maschinen)),\
             this, SLOT(getMaschinen(maschinen)));
 
+    connect(this, SIGNAL(sendEinstellungDxf(einstellung_dxf)),\
+            &dlg_einstellung_dxf, SLOT(slot_einstellung(einstellung_dxf)));
+    connect(&dlg_einstellung_dxf, SIGNAL(send_einstellung(einstellung_dxf)),\
+            this, SLOT(getEinstellungDxf(einstellung_dxf )));
+    connect(this, SIGNAL(sendEinstellungDxfKlassen(einstellung_dxf, einstellung_dxf_klassen)),\
+            &dlg_einstellung_dxf_klassen, SLOT(slot_einstellung(einstellung_dxf, einstellung_dxf_klassen)));
+    connect(&dlg_einstellung_dxf_klassen, SIGNAL(send_einstellung(einstellung_dxf_klassen)),\
+            this, SLOT(getEinstellungDxfKlassen(einstellung_dxf_klassen )));
+
     this->setWindowState(Qt::WindowMaximized);
 }
 
@@ -39,6 +48,8 @@ void MainWindow::setup()
 {
     //Schauen ob alle Konfigurationsdateien vorhanden sind:
     bool inifile_gefunden           = false;    //user-Ordner
+    bool ini_dxf_gefunden           = false;    //user-Ordner
+    bool ini_dxf_klassen_gefunden   = false;    //user-Ordner
 
     QDir user_ordner(PrgPfade.path_user());
     QStringList ordnerinhalt;
@@ -49,6 +60,14 @@ void MainWindow::setup()
         if(name.contains(PrgPfade.name_inifile()))
         {
             inifile_gefunden = true;
+        }
+        if(name.contains(PrgPfade.name_ini_dxf()))
+        {
+            ini_dxf_gefunden = true;
+        }
+        if(name.contains(PrgPfade.name_ini_dxf_klassen()))
+        {
+            ini_dxf_klassen_gefunden = true;
         }
     }
 
@@ -81,6 +100,70 @@ void MainWindow::setup()
         }else
         {
             Einstellung.set_text(file.readAll());
+        }
+        file.close();
+    }
+
+    if(ini_dxf_gefunden == false)
+    {
+        QFile file(PrgPfade.path_ini_dxf());
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Einstellung_dxf.text().toLatin1());
+        }
+        file.close();
+    }else
+    {
+        QFile file(PrgPfade.path_ini_dxf());
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            Einstellung_dxf.set_text(file.readAll());
+        }
+        file.close();
+    }
+
+    if(ini_dxf_klassen_gefunden == false)
+    {
+        QFile file(PrgPfade.path_ini_dxf_klassen());
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf_klassen();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Einstellung_dxf_klassen.text().toLatin1());
+        }
+        file.close();
+    }else
+    {
+        QFile file(PrgPfade.path_ini_dxf_klassen());
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf_klassen();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            Einstellung_dxf_klassen.set_text(file.readAll());
         }
         file.close();
     }
@@ -198,7 +281,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int x = vorschaufenster.pos().rx()+vorschaufenster.width()+5;
     ui->btn_import->move(x, 5);
 
-    int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 5;
+    int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 25;
     int b = this->width() - x - 5;
     ui->listWidget_dateien->move(x, ui->btn_import->pos().y()+ui->btn_import->height()+5);
     ui->listWidget_dateien->setFixedHeight(h);
@@ -348,6 +431,42 @@ void MainWindow::getEinstellung(einstellung e)
     Einstellung = e;
     schreibe_ini();
 }
+void MainWindow::getEinstellungDxf(einstellung_dxf e)
+{
+    Einstellung_dxf = e;
+
+    QFile file(PrgPfade.path_ini_dxf());
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QString tmp = "Fehler beim Dateizugriff!\n";
+        tmp += PrgPfade.path_ini_dxf();
+        tmp += "\n";
+        tmp += "in der Funktion getEinstellungDxf";
+        QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+    }else
+    {
+        file.write(Einstellung_dxf.text().toLatin1());
+    }
+    file.close();
+}
+void MainWindow::getEinstellungDxfKlassen(einstellung_dxf_klassen e)
+{
+    Einstellung_dxf_klassen = e;
+
+    QFile file(PrgPfade.path_ini_dxf_klassen());
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QString tmp = "Fehler beim Dateizugriff!\n";
+        tmp += PrgPfade.path_ini_dxf_klassen();
+        tmp += "\n";
+        tmp += "in der Funktion getEinstellungDxfKlassen";
+        QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+    }else
+    {
+        file.write(Einstellung_dxf_klassen.text().toLatin1());
+    }
+    file.close();
+}
 void MainWindow::getMaschinen(maschinen m)
 {
     Maschinen = m;
@@ -362,6 +481,14 @@ void MainWindow::getMaschinen(maschinen m)
 void MainWindow::on_actionPfade_triggered()
 {
     emit sendEinstellungPfade(Einstellung);
+}
+void MainWindow::on_actionDXF_Grundeinstellung_triggered()
+{
+    emit sendEinstellungDxf(Einstellung_dxf);
+}
+void MainWindow::on_actionDXF_Klasseneinstellung_triggered()
+{
+    emit sendEinstellungDxfKlassen(Einstellung_dxf, Einstellung_dxf_klassen);
 }
 void MainWindow::on_actionCNC_Maschinen_triggered()
 {
@@ -1656,6 +1783,9 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 

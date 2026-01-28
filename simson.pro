@@ -17,6 +17,8 @@ SOURCES += \
     Dialoge/bearb/dialog_bearb_pkopf.cpp \
     Dialoge/bearb/dialog_bearb_rta.cpp \
     Dialoge/bearb/dialog_bearb_verschieben.cpp \
+    Dialoge/dialog_einstellung_dxf.cpp \
+    Dialoge/dialog_einstellung_dxf_klassen.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
     Dialoge/dialog_maschinen.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
@@ -33,6 +35,8 @@ SOURCES += \
     Funktionen/umwandeln.cpp \
     Klassen/DXF/dxf_importklasse.cpp \
     Klassen/einstellung.cpp \
+    Klassen/einstellung_dxf.cpp \
+    Klassen/einstellung_dxf_klassen.cpp \
     Klassen/formel.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
@@ -78,6 +82,8 @@ HEADERS += \
     Dialoge/bearb/dialog_bearb_pkopf.h \
     Dialoge/bearb/dialog_bearb_rta.h \
     Dialoge/bearb/dialog_bearb_verschieben.h \
+    Dialoge/dialog_einstellung_dxf.h \
+    Dialoge/dialog_einstellung_dxf_klassen.h \
     Dialoge/dialog_einstellung_pfade.h \
     Dialoge/dialog_maschinen.h \
     Dialoge/wkz/dialog_bohrer.h \
@@ -94,6 +100,8 @@ HEADERS += \
     Funktionen/umwandeln.h \
     Klassen/DXF/dxf_importklasse.h \
     Klassen/einstellung.h \
+    Klassen/einstellung_dxf.h \
+    Klassen/einstellung_dxf_klassen.h \
     Klassen/formel.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
@@ -136,6 +144,8 @@ FORMS += \
     Dialoge/bearb/dialog_bearb_pkopf.ui \
     Dialoge/bearb/dialog_bearb_rta.ui \
     Dialoge/bearb/dialog_bearb_verschieben.ui \
+    Dialoge/dialog_einstellung_dxf.ui \
+    Dialoge/dialog_einstellung_dxf_klassen.ui \
     Dialoge/dialog_einstellung_pfade.ui \
     Dialoge/dialog_maschinen.ui \
     Dialoge/wkz/dialog_bohrer.ui \

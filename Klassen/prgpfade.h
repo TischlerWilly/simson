@@ -14,8 +14,12 @@ public:
     QString path_prg();
     QString path_user();
     QString path_inifile();
+    QString path_ini_dxf();
+    QString path_ini_dxf_klassen();
 
     QString name_inifile();
+    QString name_ini_dxf();
+    QString name_ini_dxf_klassen();
     QString path_wkz_dir();
     QString path_wkz_dir(QString maschine);
     QString path_wkz_mag(QString maschine);
@@ -27,6 +31,8 @@ private:
 
     //ini-Dateien:
     QString Inifile;
+    QString ini_dxf;
+    QString ini_dxf_klassen;
 
     //WKZ-Dateien:
     QString Wkz;
