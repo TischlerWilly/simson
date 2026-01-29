@@ -187,13 +187,16 @@ public:
     void writeAppId();
 
     //-------------------------------------------------
-    werkstueck wst();
+    void set_wst(werkstueck *w);
+    void set_istOberseite(bool istOberseite);
+    void set_modusSucheWstgroesse (bool nur_groesse_ermitteln);
 
 private:
-    werkstueck Wst;
+    werkstueck *Wst;
     einstellung_dxf Einst_allgem;
     einstellung_dxf_klassen Einst_klassen;
     bool IstOberseite;
+    bool ModusSucheWstgroesse;
 };
 
 #endif // DXF_IMPORTKLASSE_H

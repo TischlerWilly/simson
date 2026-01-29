@@ -2,11 +2,8 @@
 
 dxf_importklasse::dxf_importklasse()
 {
-    //Default-Größe:
-    Wst.set_laenge(500);
-    Wst.set_breite(300);
-    Wst.set_dicke(19);
     IstOberseite = true;
+    ModusSucheWstgroesse = false;
 }
 void dxf_importklasse::set_einst_allgem(einstellung_dxf e)
 {
@@ -57,7 +54,12 @@ void dxf_importklasse::endBlock()  {}
 void dxf_importklasse::addPoint(const DRW_Point& data)  {}
 
 /** Called for every line */
-void dxf_importklasse::addLine(const DRW_Line& data)  {}
+void dxf_importklasse::addLine(const DRW_Line& data)
+{
+    QMessageBox mb;
+    mb.setText("Linie gefunden");
+    mb.exec();
+}
 
 /** Called for every ray */
 void dxf_importklasse::addRay(const DRW_Ray& data)  {}
@@ -66,66 +68,74 @@ void dxf_importklasse::addRay(const DRW_Ray& data)  {}
 void dxf_importklasse::addXline(const DRW_Xline& data)  {}
 
 /** Called for every arc */
-void dxf_importklasse::addArc(const DRW_Arc& data)  {}
+void dxf_importklasse::addArc(const DRW_Arc& data)
+{
+    QMessageBox mb;
+    mb.setText("Bogen gefunden");
+    mb.exec();
+}
 
 /** Called for every circle */
 void dxf_importklasse::addCircle(const DRW_Circle& data)
 {
-    QString klasse = QString::fromUtf8(data.layer.c_str());
-
-    if(  klasse.contains(Einst_klassen.bohr_vert())  )
+    if(ModusSucheWstgroesse == false)
     {
-        bohrung bo;
-        bo.set_afb("1");
-        QString ti;
-        ti = text_rechts(klasse, Einst_klassen.bohr_vert());
-        ti = text_rechts(ti, Einst_allgem.paramtren());
-        ti.replace(Einst_allgem.dezitren(),".");
-        double ti_double = ti.toDouble();
-        if(ti_double == Wst.dicke())
-        {
-            //ti_double = ti_double + 4;
-        }
-        if(ti_double < 0)
-        {
-            ti_double = Wst.dicke() - ti_double;
-        }
-        bo.set_tiefe(ti_double);
+        QString klasse = QString::fromUtf8(data.layer.c_str());
 
-        punkt3d mipu;
-        mipu.set_x(data.basePoint.x);
-        mipu.set_y(data.basePoint.y);
-        if(IstOberseite)
+        if(  klasse.contains(Einst_klassen.bohr_vert())  )
         {
-            bo.set_bezug(WST_BEZUG_OBSEI);
-            bo.set_x(mipu.x());
-            bo.set_y(mipu.y());
+            bohrung bo;
+            bo.set_afb("1");
+            QString ti;
+            ti = text_rechts(klasse, Einst_klassen.bohr_vert());
+            ti = text_rechts(ti, Einst_allgem.paramtren());
+            ti.replace(Einst_allgem.dezitren(),".");
+            double ti_double = ti.toDouble();
+            if(ti_double == Wst->dicke())
+            {
+                //ti_double = ti_double + 4;
+            }
+            if(ti_double < 0)
+            {
+                ti_double = Wst->dicke() - ti_double;
+            }
+            bo.set_tiefe(ti_double);
+
+            punkt3d mipu;
+            mipu.set_x(data.basePoint.x);
+            mipu.set_y(data.basePoint.y);
+            if(IstOberseite)
+            {
+                bo.set_bezug(WST_BEZUG_OBSEI);
+                bo.set_x(mipu.x());
+                bo.set_y(mipu.y());
+            }else
+            {
+                bo.set_bezug(WST_BEZUG_UNSEI);
+                if(Einst_allgem.drehtyp_L())
+                {
+                    bo.set_x(Wst->laenge()-mipu.x());
+                    bo.set_y(mipu.y());
+                }else //if(Einstellung_dxf.drehtyp_B())
+                {
+                    bo.set_x(mipu.x());
+                    bo.set_y(Wst->breite()-mipu.y());
+                }
+            }
+
+            bo.set_dm(data.radious*2);
+            Wst->bearb_ptr()->add_hi(bo.text());
         }else
         {
-            bo.set_bezug(WST_BEZUG_UNSEI);
-            if(Einst_allgem.drehtyp_L())
-            {
-                bo.set_x(Wst.laenge()-mipu.x());
-                bo.set_y(mipu.y());
-            }else //if(Einstellung_dxf.drehtyp_B())
-            {
-                bo.set_x(mipu.x());
-                bo.set_y(Wst.breite()-mipu.y());
-            }
+            QString msg;
+            msg += "Kreis mit Layernamen \"";
+            msg += klasse;
+            msg += "\" wurde beim Import übersprungen.";
+            QMessageBox mb;
+            mb.setText(msg);
+            mb.setWindowTitle("DXF importieren");
+            mb.exec();
         }
-
-        bo.set_dm(data.radious*2);
-        Wst.bearb_ptr()->add_hi(bo.text());
-    }else
-    {
-        QString msg;
-        msg += "Kreis mit Layernamen \"";
-        msg += klasse;
-        msg += "\" wurde beim Import übersprungen.";
-        QMessageBox mb;
-        mb.setText(msg);
-        mb.setWindowTitle("DXF importieren");
-        mb.exec();
     }
 }
 
@@ -133,10 +143,23 @@ void dxf_importklasse::addCircle(const DRW_Circle& data)
 void dxf_importklasse::addEllipse(const DRW_Ellipse& data)  {}
 
 /** Called for every lwpolyline */
-void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)  {}
+void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
+{
+    if(ModusSucheWstgroesse == true)
+    {
+        QMessageBox mb;
+        mb.setText("LW-Polylinie gefunden");
+        mb.exec();
+    }
+}
 
 /** Called for every polyline start */
-void dxf_importklasse::addPolyline(const DRW_Polyline& data)  {}
+void dxf_importklasse::addPolyline(const DRW_Polyline& data)
+{
+    QMessageBox mb;
+    mb.setText("Polylinie gefunden");
+    mb.exec();
+}
 
 /** Called for every spline */
 void dxf_importklasse::addSpline(const DRW_Spline* data)  {}
@@ -239,7 +262,15 @@ void dxf_importklasse::writeDimstyles()  {}
 void dxf_importklasse::writeAppId()  {}
 
 //-------------------------------------------------
-werkstueck dxf_importklasse::wst()
+void dxf_importklasse::set_wst(werkstueck *w)
 {
-    return Wst;
+    Wst = w;
+}
+void dxf_importklasse::set_istOberseite(bool istOberseite)
+{
+    IstOberseite = istOberseite;
+}
+void dxf_importklasse::set_modusSucheWstgroesse (bool nur_groesse_ermitteln)
+{
+    ModusSucheWstgroesse = nur_groesse_ermitteln;
 }

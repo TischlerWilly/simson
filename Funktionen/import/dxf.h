@@ -3,7 +3,8 @@
 
 #include "Klassen/DXF/dxf_importklasse.h"
 
-werkstueck import_dxf(QString dateipfad, einstellung_dxf algemein, einstellung_dxf_klassen klassen);
+void import_dxf(werkstueck *w, bool istOberseite, const QString &dateipfad,
+                const einstellung_dxf &algemein, const einstellung_dxf_klassen &klassen);
 
 
 #endif // DXF_H

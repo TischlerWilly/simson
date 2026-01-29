@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.01.28");
+    this->setWindowTitle("Simson V1-2026.01.29");
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -748,6 +748,28 @@ void MainWindow::on_action_import_dxf_triggered()
         Einstellung.set_verzeichnis_zuletzt_geoefnet(Pfad_letzte_geoeffnete_datei);
         schreibe_ini();
 
+        //QString nam_ohn_end = dateien_alle.at(i).left(dateien_alle.at(i).length()-dxf.length());
+        QString wstname = finfo.fileName();
+        QString dateiendung = finfo.suffix();
+        wstname = wstname.left(wstname.length()-dateiendung.length()-1);
+        QString kenOb = Einstellung_dxf.kenObsei();
+        QString kenUn = Einstellung_dxf.kenUnsei();
+        QString nam_ohn_pref;
+        bool ist_oberseite = true;
+        if(wstname.right(kenOb.length()) == kenOb)
+        {
+            nam_ohn_pref = wstname.left(wstname.length()-kenOb.length());
+            ist_oberseite = true;
+        }else if(wstname.right(kenUn.length()) == kenUn)
+        {
+            nam_ohn_pref = wstname.left(wstname.length()-kenUn.length());
+            ist_oberseite = false;
+        }else
+        {
+            nam_ohn_pref = wstname;
+            ist_oberseite = true;
+        }
+
         if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
         {
             QString tmp = "Fehler beim Dateizugriff!\n";
@@ -758,30 +780,42 @@ void MainWindow::on_action_import_dxf_triggered()
         }else
         {
             datei.close();
-            //QString inhalt = datei.readAll();
-            QString wstname = finfo.fileName();
-            QString dateiendung = finfo.suffix();
-            wstname = wstname.left(wstname.length()-dateiendung.length());
 
-            if(dateiendung == "dxf")
+            if(ist_oberseite)
             {
-                if(Wste.ist_bekannt(wstname))
+                werkstueck w;
+                w.set_name(nam_ohn_pref);
+                w.set_laenge(600);//Default-Wert
+                w.set_breite(400);//Default-Wert
+                w.set_dicke(19);//Default-Wert
+
+                import_dxf(&w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
+                Wste.neu(w);
+            }else// istUnterseite
+            {
+                int wstindex = Wste.get_index(nam_ohn_pref);
+                if(wstindex >= 0)
                 {
-                    QString msg;
-                    msg  = "Die Datei \"";
-                    msg += wstname;
-                    msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
-                    msg += "Arbeitsliste vorhanden ist.";
-                    QMessageBox mb;
-                    mb.setWindowTitle("Datei öffnen");
-                    mb.setText(msg);
-                    mb.exec();
+                    if(Wste.wst(wstindex))//Doppelte Sicherheit
+                    {
+                        werkstueck *w = Wste.wst(wstindex);//Zeiger auf wst innerhalb von wste
+                        //Bearbeitungen ergänzen im bereits vorhandenne wst:
+                        import_dxf(w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
+                    }
                 }else
                 {
-                    werkstueck w = import_dxf(aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
-                    w.set_name(wstname);
+                    //Die Datei wurde wahrscheinlich versehentlich falsch benannt und es
+                    //gibt zu diesem Zeitpunkt noch keine Oberseitenbearbeitung
+                    ist_oberseite = true;
+                    werkstueck w;
+                    w.set_name(nam_ohn_pref);
+                    w.set_laenge(600);//Default-Wert
+                    w.set_breite(400);//Default-Wert
+                    w.set_dicke(19);//Default-Wert
+                    import_dxf(&w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
                     Wste.neu(w);
                 }
+
             }
         }
     }

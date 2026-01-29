@@ -1,18 +1,49 @@
 #include "dxf.h"
 
-werkstueck import_dxf(QString dateipfad, einstellung_dxf algemein, einstellung_dxf_klassen klassen)
+void import_dxf(werkstueck *w,
+                bool istOberseite,
+                const QString &dateipfad,
+                const einstellung_dxf &algemein,
+                const einstellung_dxf_klassen &klassen)
 {
-    dxf_importklasse import;
-    import.set_einst_allgem(algemein);
-    import.set_einst_klassen(klassen);
+    /*
+    In der libdxfrw-Dokumentation (oder im GitHub Repository von libdxfrw) wird oft empfohlen,
+    für den zweiten Durchlauf ein neues dxfRW-Objekt zu erstellen oder sicherzustellen,
+    dass der Dateizeiger zurückgesetzt wird (was durch ein neues Objekt automatisch passiert).
+    */
+    //---------------------------------------------------------------
+    //WST-Größe einlesen:
+    {
+        dxf_importklasse *import = new dxf_importklasse();
 
-    dxfRW reader(dateipfad.toStdString().c_str());
-    if (reader.read(&import, false))
-    {
-        return import.wst();
-    }else
-    {
-        werkstueck w;
-        return w;
+        import->set_einst_allgem(algemein);
+        import->set_einst_klassen(klassen);
+        import->set_wst(w);
+        import->set_istOberseite(istOberseite);
+
+        std::string path_std = dateipfad.toStdString();
+        dxfRW reader(path_std.c_str());
+        import->set_modusSucheWstgroesse(true);
+        reader.read(import, false);
+
+        delete import;
     }
+    //---------------------------------------------------------------
+    //Bearbeitung einlesen:
+    {
+        dxf_importklasse *import = new dxf_importklasse();
+
+        import->set_einst_allgem(algemein);
+        import->set_einst_klassen(klassen);
+        import->set_wst(w);
+        import->set_istOberseite(istOberseite);
+
+        std::string path_std = dateipfad.toStdString();
+        dxfRW reader(path_std.c_str());
+        import->set_modusSucheWstgroesse(false);
+        reader.read(import, false);
+
+        delete import;
+    }
+    //---------------------------------------------------------------
 }
