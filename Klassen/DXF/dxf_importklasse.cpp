@@ -187,7 +187,129 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
         }
     }else //ModusSucheWstgroesse == false
     {
+        if(data.vertlist.empty()) return;
 
+        QString klasse = QString::fromUtf8(data.layer.c_str());
+
+        if(  klasse.contains(Einst_klassen.rta())  )
+        {
+            size_t anz_punkte = data.vertlist.size();
+            if(anz_punkte == 4)
+            {
+                //Prüfen ob die Polylinie nur aus Strecken besteht oder auch Bögen enthällt:
+                bool nur_strecken = true;
+                for (const auto& v : data.vertlist)
+                {
+                    if(v->bulge != 0)
+                    {
+                        nur_strecken = false;
+                        break; //for
+                    }
+                }
+                if(nur_strecken == true)//rta ist ohne eckenradius definiert
+                {
+                    bool ist_rechteck = true;
+
+                    // Wir prüfen 3 Ecken (0, 1, 2). Bei einer geschlossenen Polyline (4 Punkte)
+                    // reicht das aus, um ein Rechteck zu bestätigen.
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        // Vektoren der zwei angrenzenden Seiten berechnen
+                        // Punkt A (i), Punkt B (i+1), Punkt C (i+2)
+                        auto* vA = data.vertlist[i];
+                        auto* vB = data.vertlist[(i + 1) % anz_punkte];
+                        auto* vC = data.vertlist[(i + 2) % anz_punkte];
+
+                        double dx1 = vA->x - vB->x;
+                        double dy1 = vA->y - vB->y;
+                        double dx2 = vC->x - vB->x;
+                        double dy2 = vC->y - vB->y;
+
+                        // Skalarprodukt: (x1*x2 + y1*y2)
+                        double dotProduct = dx1 * dx2 + dy1 * dy2;
+
+                        // Prüfung auf 90° (mit kleiner Toleranz für Fließkommafehler)
+                        if (std::abs(dotProduct) > 1e-6)
+                        {
+                            ist_rechteck = false;
+                            break;
+                        }
+                    }
+
+                    if(ist_rechteck)
+                    {
+                        rechtecktasche rta;
+                        punkt3d p0, p1, p2, p3;
+                        p0.set_x(data.vertlist[0]->x);
+                        p0.set_y(data.vertlist[0]->y);
+                        p1.set_x(data.vertlist[1]->x);
+                        p1.set_y(data.vertlist[1]->y);
+                        p2.set_x(data.vertlist[2]->x);
+                        p2.set_y(data.vertlist[2]->y);
+                        p3.set_x(data.vertlist[3]->x);
+                        p3.set_y(data.vertlist[3]->y);
+                        strecke diagon;
+                        diagon.set_stapu(p0);
+                        diagon.set_endpu(p2);
+                        rta.set_mipu( diagon.mipu());
+                        strecke s_un, s_re;
+                        s_un.set_stapu(p0);
+                        s_un.set_endpu(p1);
+                        s_re.set_stapu(p1);
+                        s_re.set_endpu(p2);
+                        rta.set_laenge(s_un.laenge2d());
+                        rta.set_breite(s_re.laenge2d());
+
+                        rta.set_drewi(s_un.wink());
+
+                        //Tiefe und wkz einlesen:
+                        QString ti;
+                        ti = text_rechts(klasse, Einst_klassen.rta());
+                        ti = text_rechts(ti, Einst_allgem.paramtren());
+                        if(ti.contains(Einst_allgem.kenWKZnr()))
+                        {
+                            QString wkznr = text_rechts(ti, Einst_allgem.kenWKZnr());
+                            rta.set_wkznum(wkznr);
+                            ti = text_links(ti, Einst_allgem.kenWKZnr());
+                        }
+                        ti.replace(Einst_allgem.dezitren(),".");
+                        double ti_double = ti.toDouble();
+                        if(ti_double == Wst->dicke())
+                        {
+                            ti_double = ti_double + 2;
+                        }
+                        if(ti_double < 0)
+                        {
+                            ti_double = Wst->dicke() - ti_double;
+                        }
+                        rta.set_tiefe(ti_double);
+
+                        if(IstOberseite == true)
+                        {
+                            Wst->bearb_ptr()->add_hi(rta.text());
+                        }else
+                        {
+                            rta.set_bezug(WST_BEZUG_UNSEI);
+                            rta.set_drewi(-rta.drewi());
+
+                            punkt3d mipu;
+                            mipu = rta.mipu();
+                            if(Einst_allgem.drehtyp_L())
+                            {
+                                rta.set_x(Wst->laenge()-mipu.x());
+                                //rta.set_y(mipu.y());
+                            }else //if(Einstellung_dxf.drehtyp_B())
+                            {
+                                //rta.set_x(mipu.x());
+                                rta.set_y(Wst->breite()-mipu.y());
+                            }
+
+                            Wst->bearb_ptr()->add_hi(rta.text());
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

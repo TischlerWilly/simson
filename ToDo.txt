@@ -2,6 +2,7 @@ ToDo:
 
 
 DXF einlesen
-
+  ->void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
+    >>rta mit Eckenradius einlesen
 
 

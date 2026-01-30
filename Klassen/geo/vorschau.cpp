@@ -186,6 +186,7 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
     {
         rechteck r;
         r.set_text(element.text());
+        r.set_drewi(-r.drewi());//Drehwinkel negarivieren deil Ursprung auf dem Monitor oben links
 
         r.set_mipu(N.x()-Npv.x()+r.mipu().x()*Sf*Zf,\
                    N.y()-Npv.y()-r.mipu().y()*Sf*Zf,\
