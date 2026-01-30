@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.01.29");
+    this->setWindowTitle("Simson V1-2026.01.30");
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -785,9 +785,9 @@ void MainWindow::on_action_import_dxf_triggered()
             {
                 werkstueck w;
                 w.set_name(nam_ohn_pref);
-                w.set_laenge(600);//Default-Wert
-                w.set_breite(400);//Default-Wert
-                w.set_dicke(19);//Default-Wert
+                w.set_laenge(400);//Default-Wert
+                w.set_breite(250);//Default-Wert
+                w.set_dicke(20);//Default-Wert
 
                 import_dxf(&w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
                 Wste.neu(w);
@@ -809,9 +809,9 @@ void MainWindow::on_action_import_dxf_triggered()
                     ist_oberseite = true;
                     werkstueck w;
                     w.set_name(nam_ohn_pref);
-                    w.set_laenge(600);//Default-Wert
-                    w.set_breite(400);//Default-Wert
-                    w.set_dicke(19);//Default-Wert
+                    w.set_laenge(400);//Default-Wert
+                    w.set_breite(250);//Default-Wert
+                    w.set_dicke(20);//Default-Wert
                     import_dxf(&w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
                     Wste.neu(w);
                 }

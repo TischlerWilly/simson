@@ -147,9 +147,47 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
 {
     if(ModusSucheWstgroesse == true)
     {
-        QMessageBox mb;
-        mb.setText("LW-Polylinie gefunden");
-        mb.exec();
+        QString klasse = QString::fromUtf8(data.layer.c_str());
+
+        if(  klasse.contains(Einst_klassen.wst())  )
+        {
+            QString dicke;
+            dicke = text_rechts(klasse, Einst_klassen.wst());
+            dicke = text_rechts(dicke, Einst_allgem.paramtren());
+            dicke.replace(Einst_allgem.dezitren(),".");
+            Wst->set_dicke(dicke);
+
+            if(data.vertlist.empty()) return;
+
+            // Initialisierung mit dem ersten Punkt
+            double minX = data.vertlist[0]->x;
+            double maxX = data.vertlist[0]->x;
+            double minY = data.vertlist[0]->y;
+            double maxY = data.vertlist[0]->y;
+
+            // Alle weiteren Eckpunkte vergleichen
+            for (const auto& v : data.vertlist)
+            {
+                if (v->x < minX) minX = v->x;
+                if (v->x > maxX) maxX = v->x;
+                if (v->y < minY) minY = v->y;
+                if (v->y > maxY) maxY = v->y;
+            }
+
+            // Berechnung der Dimensionen
+            double laenge = maxX - minX;
+            double breite = maxY - minY;
+
+            // Werte im Werkstück setzen
+            if(Wst)
+            {
+                Wst->set_laenge(laenge);
+                Wst->set_breite(breite);
+            }
+        }
+    }else //ModusSucheWstgroesse == false
+    {
+
     }
 }
 
