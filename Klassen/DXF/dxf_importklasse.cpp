@@ -308,6 +308,312 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
                         }
                     }
                 }
+            }else if(anz_punkte == 8)
+            {
+                double rad = -1.0;
+                bool alle_radien_gleich = true;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    double bul = data.vertlist[i]->bulge;
+
+                    // Jedes zweite Segment (die Ecken) muss ein Bogen sein
+                    if (i % 2 != 0)
+                    { // Index 1, 3, 5, 7 sind oft die Bögen
+                        if (bul == 0)
+                        {
+                            alle_radien_gleich = false;
+                            break;
+                        }
+
+                        // Radius berechnen: R = (Sehne / 2) * (1 + b²) / (2 * |b|)
+                        auto* vStart = data.vertlist[i];
+                        auto* vEnd = data.vertlist[(i + 1) % 8];
+                        double dist = std::sqrt(std::pow(vEnd->x - vStart->x, 2) + std::pow(vEnd->y - vStart->y, 2));
+                        double currentR = (dist / 2.0) * (1.0 + bul * bul) / (2.0 * std::abs(bul));
+
+                        if (rad < 0)
+                        {
+                            rad = currentR;
+                        }else if (std::abs(rad - currentR) > 1e-4)
+                        {
+                            alle_radien_gleich = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (alle_radien_gleich)
+                {
+                    // Hilfsfunktion für den Abstand zwischen zwei Punkten
+                    auto getDist = [](DRW_Vertex2D* a, DRW_Vertex2D* b)
+                    {
+                        return std::sqrt(std::pow(b->x - a->x, 2) + std::pow(b->y - a->y, 2));
+                    };
+
+                    // Bei 8 Punkten und abwechselnd Gerade/Bogen sind die geraden Segmente:
+                    // 0->1, 2->3, 4->5, 6->7 (oder leicht verschoben je nach DXF-Export)
+                    // Wir prüfen hier Segment 0->1 (Seite A) und 2->3 (Seite B)
+                    double seiteA = getDist(data.vertlist[0], data.vertlist[1]);
+                    double seiteB = getDist(data.vertlist[2], data.vertlist[3]);
+
+                    // Die Gesamtaußenmaße inkl. Rundung
+                    double dim1 = seiteA + 2.0 * rad;
+                    double dim2 = seiteB + 2.0 * rad;
+
+                    double laenge = std::max(dim1, dim2);
+                    double breite = std::min(dim1, dim2);
+
+                    // Drehwinkel berechnen (Winkel des ersten geraden Segments zur X-Achse)
+                    double dx = data.vertlist[1]->x - data.vertlist[0]->x;
+                    double dy = data.vertlist[1]->y - data.vertlist[0]->y;
+                    double winkel_rad = std::atan2(dy, dx);
+                    double winkel_deg = winkel_rad * 180.0 / M_PI;
+
+                    // Falls die erste gefundene Seite die kürzere war, Winkel korrigieren (+90°)
+                    if (dim1 < dim2)
+                    {
+                        winkel_deg += 90.0;
+                    }
+
+                    // Mittelpunkt berechnen (Durchschnitt aller 8 Vertices)
+                    double sumX = 0;
+                    double sumY = 0;
+                    for (const auto& v : data.vertlist)
+                    {
+                        sumX += v->x;
+                        sumY += v->y;
+                    }
+                    double centerX = sumX / 8.0;
+                    double centerY = sumY / 8.0;
+
+                    // Da die Bounding Box bei abgerundeten Ecken die Außenkanten misst:
+                    // breite und laenge sind bereits die korrekten Gesamtaußenmaße.
+                    // Werte zuweisen
+                    rechtecktasche rta;
+                    rta.set_rad(rad);
+                    punkt3d mipu(centerX, centerY, 0);
+                    rta.set_mipu(mipu);
+                    rta.set_laenge(laenge);
+                    rta.set_breite(breite);
+                    rta.set_drewi(degToRad(winkel_deg));
+
+                    //Tiefe und wkz einlesen:
+                    QString ti;
+                    ti = text_rechts(klasse, Einst_klassen.rta());
+                    ti = text_rechts(ti, Einst_allgem.paramtren());
+                    if(ti.contains(Einst_allgem.kenWKZnr()))
+                    {
+                        QString wkznr = text_rechts(ti, Einst_allgem.kenWKZnr());
+                        rta.set_wkznum(wkznr);
+                        ti = text_links(ti, Einst_allgem.kenWKZnr());
+                    }
+                    ti.replace(Einst_allgem.dezitren(),".");
+                    double ti_double = ti.toDouble();
+                    if(ti_double == Wst->dicke())
+                    {
+                        ti_double = ti_double + 2;
+                    }
+                    if(ti_double < 0)
+                    {
+                        ti_double = Wst->dicke() - ti_double;
+                    }
+                    rta.set_tiefe(ti_double);
+
+                    if(IstOberseite == true)
+                    {
+                        Wst->bearb_ptr()->add_hi(rta.text());
+                    }else
+                    {
+                        rta.set_bezug(WST_BEZUG_UNSEI);
+                        rta.set_drewi(-rta.drewi());
+
+                        punkt3d mipu;
+                        mipu = rta.mipu();
+                        if(Einst_allgem.drehtyp_L())
+                        {
+                            rta.set_x(Wst->laenge()-mipu.x());
+                            //rta.set_y(mipu.y());
+                        }else //if(Einstellung_dxf.drehtyp_B())
+                        {
+                            //rta.set_x(mipu.x());
+                            rta.set_y(Wst->breite()-mipu.y());
+                        }
+
+                        Wst->bearb_ptr()->add_hi(rta.text());
+                    }
+                }
+            }
+        }else if(  klasse.contains(Einst_klassen.fraes_vert())  )
+        {
+            size_t anz_punkte = data.vertlist.size();
+            if(anz_punkte > 1)
+            {
+                QString posz;
+                posz = text_mitte(klasse, Einst_klassen.fraes_vert(), Einst_allgem.kenWKZnr());
+                posz = text_rechts(posz, Einst_allgem.paramtren());
+                posz.replace(Einst_allgem.dezitren(),".");
+                double fraeserhoehe;
+                double fti;
+                fraeserhoehe = posz.toDouble();
+                if(fraeserhoehe > 0)
+                {
+                    if(Einst_allgem.bezugTiFkonObSei())
+                    {
+                        fti = fraeserhoehe;
+                        fraeserhoehe = Wst->dicke()-fraeserhoehe;
+                    }else
+                    {
+                        fti = Wst->dicke()-fraeserhoehe;
+                    }
+                }else
+                {
+                    fti = fraeserhoehe * -1;
+                    fti = fti + Wst->dicke();
+                }
+                QString werkznr;
+                werkznr = text_rechts(klasse, Einst_klassen.fraes_vert());
+                werkznr = text_rechts(werkznr, Einst_allgem.kenWKZnr());
+                QString radkor = werkznr.at(werkznr.length()-1);
+                werkznr = text_links(werkznr,radkor);
+                if(radkor == Einst_allgem.kenRadKorLi())
+                {
+                    radkor = FRKOR_L;
+                }else if(radkor == Einst_allgem.kenRadKorRe())
+                {
+                    radkor = FRKOR_R;
+                }else
+                {
+                    radkor = FRKOR_M;
+                }
+
+                punkt3d stapu;
+                stapu.set_x(data.vertlist[0]->x);
+                stapu.set_y(data.vertlist[0]->y);
+                stapu.set_z(posz);
+
+                fraeseraufruf fa;
+                fa.set_tiefe(fti);
+                fa.set_radkor(radkor);
+                fa.set_wkznum(werkznr);
+
+                if(IstOberseite)
+                {
+                    fa.set_bezug(WST_BEZUG_OBSEI);
+                    fa.set_pos(stapu);
+                    Wst->bearb_ptr()->add_hi(fa.text());
+                }else
+                {
+                    fa.set_bezug(WST_BEZUG_UNSEI);
+
+                    if(Einst_allgem.drehtyp_L())
+                    {
+                        stapu.set_x(Wst->laenge()-stapu.x());
+                    }else //if(Einstellung_dxf.drehtyp_B())
+                    {
+                        stapu.set_y(Wst->breite()-stapu.y());
+                    }
+
+                    fa.set_pos(stapu);
+                    Wst->bearb_ptr()->add_hi(fa.text());
+                }
+
+                for (int i = 0; i < anz_punkte; i++)
+                {
+                    // Bestimmung des Endpunkt-Index (berücksichtigt geschlossene Polylinien)
+                    int nextIdx = (i + 1) % anz_punkte;
+
+                    // Wenn die Polyline nicht geschlossen ist, stoppen wir beim vorletzten Punkt
+                    if (nextIdx == 0 && !(data.flags & 1))
+                    {
+                        break;
+                    }
+
+                    DRW_Vertex2D* vStart = data.vertlist[i];
+                    DRW_Vertex2D* vEnd = data.vertlist[nextIdx];
+                    double bul = vStart->bulge;
+
+                    punkt3d spu(vStart->x, vStart->y, fa.pos().z());
+                    punkt3d epu(vEnd->x, vEnd->y, fa.pos().z());
+
+                    if(bul == 0)//Strecke
+                    {
+                        fraesergerade fg;
+                        fg.set_tiSta(fa.tiefe());
+                        fg.set_tiEnd(fa.tiefe());
+
+                        if(IstOberseite)
+                        {
+                            fg.set_bezug(WST_BEZUG_OBSEI);
+                            fg.set_startpunkt(spu);
+                            fg.set_endpunkt(epu);
+                            Wst->bearb_ptr()->add_hi(fg.text());
+                        }else
+                        {
+                            fg.set_bezug(WST_BEZUG_UNSEI);
+
+                            if(Einst_allgem.drehtyp_L())
+                            {
+                                spu.set_x(Wst->laenge()-spu.x());
+                                epu.set_x(Wst->laenge()-epu.x());
+                            }else //if(Einstellung_dxf.drehtyp_B())
+                            {
+                                spu.set_y(Wst->breite()-spu.y());
+                                epu.set_y(Wst->breite()-epu.y());
+                            }
+
+                            fg.set_startpunkt(spu);
+                            fg.set_endpunkt(epu);
+                            Wst->bearb_ptr()->add_hi(fg.text());
+                        }
+
+                    }else //Bogen
+                    {
+                        fraeserbogen fb;
+                        fb.set_tiSta(fa.tiefe());
+                        fb.set_tiEnd(fa.tiefe());
+
+                        // Mathematische Parameter für den Bogen berechnen
+                        double dx = vEnd->x - vStart->x;
+                        double dy = vEnd->y - vStart->y;
+                        double d = std::sqrt(dx * dx + dy * dy); // Sehnenlänge
+
+                        // Radius: R = (d/2) * (1 + b²) / (2*|b|)
+                        double rad = (d / 2.0) * (1.0 + bul * bul) / (2.0 * std::abs(bul));
+
+                        bool uzs = (bul < 0); // Negativer Bulge = Uhrzeigersinn
+
+                        if(IstOberseite)
+                        {
+                            fb.set_bezug(WST_BEZUG_OBSEI);
+                            bogen b;
+                            b.set_bogen(spu, epu, rad, uzs);
+                            fb.set_bogen(b);
+                            Wst->bearb_ptr()->add_hi(fb.text());
+                        }else
+                        {
+                            fb.set_bezug(WST_BEZUG_UNSEI);
+
+                            if(Einst_allgem.drehtyp_L())
+                            {
+                                spu.set_x(Wst->laenge()-spu.x());
+                                epu.set_x(Wst->laenge()-epu.x());
+                            }else //if(Einstellung_dxf.drehtyp_B())
+                            {
+                                spu.set_y(Wst->breite()-spu.y());
+                                epu.set_y(Wst->breite()-epu.y());
+                            }
+
+                            uzs = !uzs;
+
+                            bogen b;
+                            b.set_bogen(spu, epu, rad, uzs);
+                            fb.set_bogen(b);
+                            Wst->bearb_ptr()->add_hi(fb.text());
+                        }
+
+                    }
+                }
             }
         }
     }

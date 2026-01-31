@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.01.30");
+    this->setWindowTitle("Simson V1-2026.01.31");
     PrgPfade.ordner_erstellen();
     setup();
 
