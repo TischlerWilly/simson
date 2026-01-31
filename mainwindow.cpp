@@ -514,9 +514,9 @@ void MainWindow::on_actionNeu_triggered()
         bo.set_z(19);
         bo.set_tiefe(10);
         bo.set_bezug(WST_BEZUG_OBSEI);
-        text_zw bearb;
-        bearb.add_hi(bo.text());
-        w.set_bearb(bearb);
+        //text_zw bearb;
+        //bearb.add_hi(bo.text());
+        //w.set_bearb(bearb);
 
         Wste.neu(w);
 

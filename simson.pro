@@ -38,6 +38,7 @@ SOURCES += \
     Klassen/einstellung_dxf.cpp \
     Klassen/einstellung_dxf_klassen.cpp \
     Klassen/formel.cpp \
+    Klassen/gcode/emc2.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
     Klassen/geo/geo_text.cpp \
@@ -103,6 +104,7 @@ HEADERS += \
     Klassen/einstellung_dxf.h \
     Klassen/einstellung_dxf_klassen.h \
     Klassen/formel.h \
+    Klassen/gcode/emc2.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
     Klassen/geo/defines_geometrie.h \
