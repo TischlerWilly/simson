@@ -17,6 +17,8 @@ SOURCES += \
     Dialoge/bearb/dialog_bearb_pkopf.cpp \
     Dialoge/bearb/dialog_bearb_rta.cpp \
     Dialoge/bearb/dialog_bearb_verschieben.cpp \
+    Dialoge/dialog_einstellung_dxf.cpp \
+    Dialoge/dialog_einstellung_dxf_klassen.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
     Dialoge/dialog_maschinen.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
@@ -24,13 +26,17 @@ SOURCES += \
     Dialoge/wkz/dialog_fraeserauswahl.cpp \
     Dialoge/wkz/dialog_saege.cpp \
     Funktionen/funktionen_prgtext.cpp \
+    Funktionen/import/dxf.cpp \
     Funktionen/import/ewx.cpp \
     Funktionen/import/ewx_reference.cpp \
     Funktionen/myfunktion.cpp \
     Funktionen/runden.cpp \
     Funktionen/text.cpp \
     Funktionen/umwandeln.cpp \
+    Klassen/DXF/dxf_importklasse.cpp \
     Klassen/einstellung.cpp \
+    Klassen/einstellung_dxf.cpp \
+    Klassen/einstellung_dxf_klassen.cpp \
     Klassen/formel.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
@@ -76,6 +82,8 @@ HEADERS += \
     Dialoge/bearb/dialog_bearb_pkopf.h \
     Dialoge/bearb/dialog_bearb_rta.h \
     Dialoge/bearb/dialog_bearb_verschieben.h \
+    Dialoge/dialog_einstellung_dxf.h \
+    Dialoge/dialog_einstellung_dxf_klassen.h \
     Dialoge/dialog_einstellung_pfade.h \
     Dialoge/dialog_maschinen.h \
     Dialoge/wkz/dialog_bohrer.h \
@@ -83,13 +91,17 @@ HEADERS += \
     Dialoge/wkz/dialog_fraeserauswahl.h \
     Dialoge/wkz/dialog_saege.h \
     Funktionen/funktionen_prgtext.h \
+    Funktionen/import/dxf.h \
     Funktionen/import/ewx.h \
     Funktionen/import/ewx_reference.h \
     Funktionen/myfunktion.h \
     Funktionen/runden.h \
     Funktionen/text.h \
     Funktionen/umwandeln.h \
+    Klassen/DXF/dxf_importklasse.h \
     Klassen/einstellung.h \
+    Klassen/einstellung_dxf.h \
+    Klassen/einstellung_dxf_klassen.h \
     Klassen/formel.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
@@ -132,6 +144,8 @@ FORMS += \
     Dialoge/bearb/dialog_bearb_pkopf.ui \
     Dialoge/bearb/dialog_bearb_rta.ui \
     Dialoge/bearb/dialog_bearb_verschieben.ui \
+    Dialoge/dialog_einstellung_dxf.ui \
+    Dialoge/dialog_einstellung_dxf_klassen.ui \
     Dialoge/dialog_einstellung_pfade.ui \
     Dialoge/dialog_maschinen.ui \
     Dialoge/wkz/dialog_bohrer.ui \
@@ -163,3 +177,21 @@ RC_ICONS = simson.ico
 
 RESOURCES += \
     toolbaricons.qrc
+
+win32 {
+        # Verzeichnis für die Header-Suche
+        # INCLUDEPATH += "C:/Users/Nordic/Documents/_Oliver/cpp/libdxfrw/src"
+        INCLUDEPATH += "$$PWD/../libdxfrw QT6.8 MinGW/src"
+
+        # Linken der statischen Bibliothek
+        # LIBS += "C:/Users/Nordic/Documents/_Oliver/cpp/libdxfrw/build/libdxfrw.a"
+        LIBS += "$$PWD/../libdxfrw QT6.8 MinGW/build/libdxfrw.a"
+}
+
+unix:!macx {
+        # Verzeichnis für die Header-Suche
+        INCLUDEPATH += /usr/include/libdxfrw
+
+        # Linken der statischen Bibliothek
+        LIBS += /usr/lib/libdxfrw.a
+}

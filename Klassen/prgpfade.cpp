@@ -3,6 +3,8 @@
 prgpfade::prgpfade()
 {
     Inifile             = "einstellungen.ini";
+    ini_dxf             = "dxf.ini";
+    ini_dxf_klassen     = "dxf_klassen.ini";
     Wkz                 = "wkz_magazin.csv";
     Masch_ini           = "maschine.ini";
 
@@ -42,7 +44,14 @@ QString prgpfade::name_inifile()
 {
     return Inifile;
 }
-
+QString prgpfade::name_ini_dxf()
+{
+    return ini_dxf;
+}
+QString prgpfade::name_ini_dxf_klassen()
+{
+    return ini_dxf_klassen;
+}
 //--------------------------------------Programmordner:
 QString prgpfade::path_prg()
 {
@@ -95,7 +104,22 @@ QString prgpfade::path_inifile()
     tmp += Inifile;
     return tmp;
 }
-
+QString prgpfade::path_ini_dxf()
+{
+    QString tmp;
+    tmp = path_user();
+    tmp += QDir::separator();
+    tmp += ini_dxf;
+    return tmp;
+}
+QString prgpfade::path_ini_dxf_klassen()
+{
+    QString tmp;
+    tmp = path_user();
+    tmp += QDir::separator();
+    tmp += ini_dxf_klassen;
+    return tmp;
+}
 QString prgpfade::path_wkz_dir()
 {
     QString tmp;

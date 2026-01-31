@@ -1011,7 +1011,6 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 b.set_farbe(FARBE_DUNKELGELB);
             }else
             {
-                b.wenden();
                 b.set_farbe(farbe_unterseite);
                 b.set_stil(STIL_GESTRICHELT);
             }
@@ -1430,7 +1429,6 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                 k.set_farbe(FARBE_BLAU);
             }else
             {
-                b.richtung_unkehren();
                 k.set_farbe(farbe_unterseite);
                 k.set_stil(STIL_GESTRICHELT);
             }

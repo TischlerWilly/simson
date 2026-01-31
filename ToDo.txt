@@ -1,8 +1,5 @@
 ToDo:
 
 
-- DLG fbog:
-    labels einfügen die die internen Bogenparameter anzeigen
-
 
 

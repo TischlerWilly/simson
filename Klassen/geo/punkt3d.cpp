@@ -45,6 +45,8 @@ void punkt3d::verschieben_um(double xversatz, double yversatz)
 
 void punkt3d::drehen(punkt3d zentrum, double drewi)
 {
+    //es wird gegen den Uhrzeigersinn gedreht
+
     // Schritt 1: Punkt relativ zum Zentrum verschieben
     double dx = X_param - zentrum.x();
     double dy = Y_param - zentrum.y();

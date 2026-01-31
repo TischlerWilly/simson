@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.01.24");
+    this->setWindowTitle("Simson V1-2026.01.31");
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -27,6 +27,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&dlg_Einstellung_maschinen, SIGNAL(send_maschinen(maschinen)),\
             this, SLOT(getMaschinen(maschinen)));
 
+    connect(this, SIGNAL(sendEinstellungDxf(einstellung_dxf)),\
+            &dlg_einstellung_dxf, SLOT(slot_einstellung(einstellung_dxf)));
+    connect(&dlg_einstellung_dxf, SIGNAL(send_einstellung(einstellung_dxf)),\
+            this, SLOT(getEinstellungDxf(einstellung_dxf )));
+    connect(this, SIGNAL(sendEinstellungDxfKlassen(einstellung_dxf, einstellung_dxf_klassen)),\
+            &dlg_einstellung_dxf_klassen, SLOT(slot_einstellung(einstellung_dxf, einstellung_dxf_klassen)));
+    connect(&dlg_einstellung_dxf_klassen, SIGNAL(send_einstellung(einstellung_dxf_klassen)),\
+            this, SLOT(getEinstellungDxfKlassen(einstellung_dxf_klassen )));
+
     this->setWindowState(Qt::WindowMaximized);
 }
 
@@ -39,6 +48,8 @@ void MainWindow::setup()
 {
     //Schauen ob alle Konfigurationsdateien vorhanden sind:
     bool inifile_gefunden           = false;    //user-Ordner
+    bool ini_dxf_gefunden           = false;    //user-Ordner
+    bool ini_dxf_klassen_gefunden   = false;    //user-Ordner
 
     QDir user_ordner(PrgPfade.path_user());
     QStringList ordnerinhalt;
@@ -49,6 +60,14 @@ void MainWindow::setup()
         if(name.contains(PrgPfade.name_inifile()))
         {
             inifile_gefunden = true;
+        }
+        if(name.contains(PrgPfade.name_ini_dxf()))
+        {
+            ini_dxf_gefunden = true;
+        }
+        if(name.contains(PrgPfade.name_ini_dxf_klassen()))
+        {
+            ini_dxf_klassen_gefunden = true;
         }
     }
 
@@ -81,6 +100,70 @@ void MainWindow::setup()
         }else
         {
             Einstellung.set_text(file.readAll());
+        }
+        file.close();
+    }
+
+    if(ini_dxf_gefunden == false)
+    {
+        QFile file(PrgPfade.path_ini_dxf());
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Einstellung_dxf.text().toLatin1());
+        }
+        file.close();
+    }else
+    {
+        QFile file(PrgPfade.path_ini_dxf());
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            Einstellung_dxf.set_text(file.readAll());
+        }
+        file.close();
+    }
+
+    if(ini_dxf_klassen_gefunden == false)
+    {
+        QFile file(PrgPfade.path_ini_dxf_klassen());
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf_klassen();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Einstellung_dxf_klassen.text().toLatin1());
+        }
+        file.close();
+    }else
+    {
+        QFile file(PrgPfade.path_ini_dxf_klassen());
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_ini_dxf_klassen();
+            tmp += "\n";
+            tmp += "in der Funktion setup";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            Einstellung_dxf_klassen.set_text(file.readAll());
         }
         file.close();
     }
@@ -198,7 +281,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     int x = vorschaufenster.pos().rx()+vorschaufenster.width()+5;
     ui->btn_import->move(x, 5);
 
-    int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 5;
+    int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 25;
     int b = this->width() - x - 5;
     ui->listWidget_dateien->move(x, ui->btn_import->pos().y()+ui->btn_import->height()+5);
     ui->listWidget_dateien->setFixedHeight(h);
@@ -348,6 +431,42 @@ void MainWindow::getEinstellung(einstellung e)
     Einstellung = e;
     schreibe_ini();
 }
+void MainWindow::getEinstellungDxf(einstellung_dxf e)
+{
+    Einstellung_dxf = e;
+
+    QFile file(PrgPfade.path_ini_dxf());
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QString tmp = "Fehler beim Dateizugriff!\n";
+        tmp += PrgPfade.path_ini_dxf();
+        tmp += "\n";
+        tmp += "in der Funktion getEinstellungDxf";
+        QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+    }else
+    {
+        file.write(Einstellung_dxf.text().toLatin1());
+    }
+    file.close();
+}
+void MainWindow::getEinstellungDxfKlassen(einstellung_dxf_klassen e)
+{
+    Einstellung_dxf_klassen = e;
+
+    QFile file(PrgPfade.path_ini_dxf_klassen());
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QString tmp = "Fehler beim Dateizugriff!\n";
+        tmp += PrgPfade.path_ini_dxf_klassen();
+        tmp += "\n";
+        tmp += "in der Funktion getEinstellungDxfKlassen";
+        QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+    }else
+    {
+        file.write(Einstellung_dxf_klassen.text().toLatin1());
+    }
+    file.close();
+}
 void MainWindow::getMaschinen(maschinen m)
 {
     Maschinen = m;
@@ -362,6 +481,14 @@ void MainWindow::getMaschinen(maschinen m)
 void MainWindow::on_actionPfade_triggered()
 {
     emit sendEinstellungPfade(Einstellung);
+}
+void MainWindow::on_actionDXF_Grundeinstellung_triggered()
+{
+    emit sendEinstellungDxf(Einstellung_dxf);
+}
+void MainWindow::on_actionDXF_Klasseneinstellung_triggered()
+{
+    emit sendEinstellungDxfKlassen(Einstellung_dxf, Einstellung_dxf_klassen);
 }
 void MainWindow::on_actionCNC_Maschinen_triggered()
 {
@@ -505,7 +632,8 @@ void MainWindow::on_action_oeffnen_triggered()
         Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
     }
     QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
-                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"));
+                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"), \
+                                                      nullptr, QFileDialog::DontUseNativeDialog);
 
     //-----------------------------Dateien einlesen:
     for(int i=0; i<pfade.size() ;i++)
@@ -596,6 +724,124 @@ void MainWindow::on_action_schliessen_triggered()
         mb.setWindowTitle("Datei/Bautreil schließen");
         mb.exec();
     }
+}
+void MainWindow::on_action_import_dxf_triggered()
+{
+    Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_zuletzt_geoefnet();
+    QDir d(Pfad_letzte_geoeffnete_datei);
+    if(!d.exists())//z.B. wenn der ordner zwischenzeitlich umbenannt wurde
+    {
+        Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
+    }
+
+    QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
+                                                      Pfad_letzte_geoeffnete_datei, tr("dxf Dateien (*.dxf)"), \
+                                                      nullptr, QFileDialog::DontUseNativeDialog);
+
+    //-----------------------------Dateien einlesen:
+    for(int i=0; i<pfade.size() ;i++)
+    {
+        QString aktueller_pfad = pfade.at(i);
+        QFile datei(aktueller_pfad);
+        QFileInfo finfo(datei);
+        Pfad_letzte_geoeffnete_datei = finfo.path();
+        Einstellung.set_verzeichnis_zuletzt_geoefnet(Pfad_letzte_geoeffnete_datei);
+        schreibe_ini();
+
+        //QString nam_ohn_end = dateien_alle.at(i).left(dateien_alle.at(i).length()-dxf.length());
+        QString wstname = finfo.fileName();
+        QString dateiendung = finfo.suffix();
+        wstname = wstname.left(wstname.length()-dateiendung.length()-1);
+        QString kenOb = Einstellung_dxf.kenObsei();
+        QString kenUn = Einstellung_dxf.kenUnsei();
+        QString nam_ohn_pref;
+        bool ist_oberseite = true;
+        if(wstname.right(kenOb.length()) == kenOb)
+        {
+            nam_ohn_pref = wstname.left(wstname.length()-kenOb.length());
+            ist_oberseite = true;
+        }else if(wstname.right(kenUn.length()) == kenUn)
+        {
+            nam_ohn_pref = wstname.left(wstname.length()-kenUn.length());
+            ist_oberseite = false;
+        }else
+        {
+            nam_ohn_pref = wstname;
+            ist_oberseite = true;
+        }
+
+        if(!datei.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += aktueller_pfad;
+            tmp += "\n";
+            tmp += "in der Funktion on_action_import_dxf_triggered";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            datei.close();
+
+            if(ist_oberseite)
+            {
+                werkstueck w;
+                w.set_name(nam_ohn_pref);
+                w.set_laenge(400);//Default-Wert
+                w.set_breite(250);//Default-Wert
+                w.set_dicke(20);//Default-Wert
+
+                import_dxf(&w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
+                Wste.neu(w);
+            }else// istUnterseite
+            {
+                int wstindex = Wste.get_index(nam_ohn_pref);
+                if(wstindex >= 0)
+                {
+                    if(Wste.wst(wstindex))//Doppelte Sicherheit
+                    {
+                        werkstueck *w = Wste.wst(wstindex);//Zeiger auf wst innerhalb von wste
+                        //Bearbeitungen ergänzen im bereits vorhandenne wst:
+                        import_dxf(w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
+                        Wste.wst(wstindex)->unredo_clear();
+                        Wste.wst(wstindex)->unredo_neu();
+                    }
+                }else
+                {
+                    //Die Datei wurde wahrscheinlich versehentlich falsch benannt und es
+                    //gibt zu diesem Zeitpunkt noch keine Oberseitenbearbeitung
+                    ist_oberseite = true;
+                    werkstueck w;
+                    w.set_name(nam_ohn_pref);
+                    w.set_laenge(400);//Default-Wert
+                    w.set_breite(250);//Default-Wert
+                    w.set_dicke(20);//Default-Wert
+                    import_dxf(&w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
+                    Wste.neu(w);
+                }
+
+            }
+        }
+    }
+    //-----------------------------
+    //-----------------------------UI aktualisieren:
+    if(Wste.wst(0))
+    {
+        werkstueck *w = Wste.wst(0);
+        ui->listWidget_dateien->clear();
+        for(uint i=0; i<Wste.anzahl();i++)
+        {
+            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
+            ui->listWidget_dateien->setCurrentRow(0);
+        }
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index_masch = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index_masch)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+    }
+    //-----------------------------
 }
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 {
@@ -1303,8 +1549,7 @@ void MainWindow::on_actionVerschieben_triggered()
             int zeile_dannach = auswahl_letzter();//index von QListwidget
             text_zw bearb;
             bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_dannach),TRENNZ_BEARB_PARAM);
-            if(bearb.at(0) == BEARBART_FRAESERGERADE  || \
-               bearb.at(0) == BEARBART_FRAESERBOGEN)
+            if(bearb.at(0) == BEARBART_FRAESERGERADE  ||  bearb.at(0) == BEARBART_FRAESERBOGEN)
             {
                 gesund = false;
             }
@@ -1331,6 +1576,7 @@ void MainWindow::on_actionVerschieben_triggered()
         if(gesund == false)
         {
             QMessageBox mb;
+            mb.setWindowTitle("Bearbeitung verschieben");
             mb.setText("Das Verschieben dieser Zeilenauswahl ist nicht möglich weil eine Fräsbahn nur vollständig verschoben werden kann!");
             mb.exec();
             return;
@@ -1343,7 +1589,8 @@ void MainWindow::on_actionVerschieben_triggered()
     }else
     {
         QMessageBox mb;
-        mb.setText("Sie haben noch nichts ausgewaelt was verschoben werden kann!");
+        mb.setWindowTitle("Bearbeitung verschieben");
+        mb.setText("Sie haben noch keine Bearbeitung ausgewält die verschoben werden kann!");
         mb.exec();
     }
 }
@@ -1394,6 +1641,7 @@ void MainWindow::on_actionKopieren_triggered()
         }else
         {
             QMessageBox mb;
+            mb.setWindowTitle("Bearbeitung kopieren");
             mb.setText("Sie haben noch nichts ausgewaelt was kopiert werden kann!");
             mb.exec();
         }
@@ -1403,7 +1651,7 @@ void MainWindow::on_actionKopieren_triggered()
         msg = "Es ist kein Bauteil ausgewählt!";
         QMessageBox mb;
         mb.setText(msg);
-        mb.setWindowTitle("Werkstück umbenennen");
+        mb.setWindowTitle("Bearbeitung kopieren");
         mb.exec();
     }
 }
@@ -1450,7 +1698,76 @@ void MainWindow::on_actionEinfuegen_triggered()
         msg = "Es ist kein Bauteil ausgewählt!";
         QMessageBox mb;
         mb.setText(msg);
-        mb.setWindowTitle("Werkstück umbenennen");
+        mb.setWindowTitle("Bearbeitung einfügen");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionEntfernen_triggered()
+{
+    if((ui->listWidget_bearb->currentIndex().isValid())  &&  \
+        (ui->listWidget_bearb->currentItem()->isSelected())    )
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+        //Prüfen ob Fräsbahnen durch das entfernen geteilt werden:
+        bool gesund = true;
+        //--Prüfen ob eine Fräsbahn nach der Auswahl weiter geht:
+        if(auswahl_letzter() < ui->listWidget_bearb->count())
+        {
+            int zeile_dannach = auswahl_letzter();//index von QListwidget
+            text_zw bearb;
+            bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_dannach),TRENNZ_BEARB_PARAM);
+            if(bearb.at(0) == BEARBART_FRAESERGERADE  ||  bearb.at(0) == BEARBART_FRAESERBOGEN)
+            {
+                gesund = false;
+            }
+        }
+        //---Prüfen ob eine Fräsbahn vor der Auswahl beginnt:
+        if(auswahl_erster() >= 2)
+        {
+            int zeile_davor = auswahl_erster()-1;//index von QListwidget
+            text_zw bearb;
+            bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_davor),TRENNZ_BEARB_PARAM);
+            text_zw bearb_erster;
+            bearb_erster.set_text(Wste.wst(index_wst)->bearb_ptr()->at(auswahl_erster()-1),TRENNZ_BEARB_PARAM);
+            if(bearb_erster.at(0) != BEARBART_FRAESERAUFRUF)
+            {
+                if(bearb.at(0) == BEARBART_FRAESERAUFRUF  || \
+                                                                 bearb.at(0) == BEARBART_FRAESERGERADE  || \
+                           bearb.at(0) == BEARBART_FRAESERBOGEN)
+                {
+                    gesund = false;
+                }
+            }
+        }
+        //---
+        if(gesund == false)
+        {
+            QMessageBox mb;
+            mb.setWindowTitle("Bearbeitung entfernen");
+            mb.setText("Das Entfernen dieser Zeilenauswahl ist nicht möglich weil eine Fräsbahn nur vollständig gelöscht werden kann!");
+            mb.exec();
+            return;
+        }
+        //---
+        int index_liwid = ui->listWidget_bearb->currentRow();
+        Wste.wst(index_wst)->bearb_ptr()->entf(auswahl_erster()-1, auswahl_menge());
+        Wste.wst(index_wst)->unredo_neu();
+        update_listwidget_bearb(Wste.wst(index_wst));
+        ui->listWidget_bearb->setCurrentRow(index_liwid-1);
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid-1);
+    }else
+    {
+        QMessageBox mb;
+        mb.setWindowTitle("Bearbeitung entfernen");
+        mb.setText("Sie haben noch keine Bearbeitung ausgewält die entfernt werden kann!");
         mb.exec();
     }
 }
@@ -1573,6 +1890,15 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 
 

@@ -186,6 +186,7 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
     {
         rechteck r;
         r.set_text(element.text());
+        r.set_drewi(-r.drewi());//Drehwinkel negarivieren deil Ursprung auf dem Monitor oben links
 
         r.set_mipu(N.x()-Npv.x()+r.mipu().x()*Sf*Zf,\
                    N.y()-Npv.y()-r.mipu().y()*Sf*Zf,\
@@ -253,7 +254,7 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             //Rundung links unten:
             r_ecke.set_mipu(r_innen.obli());
             pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
-                     qRadiansToDegrees(r.drewi())+180, 90);
+                     180-radToDeg(r.drewi())   , 90);
             //Linie nach rechts unten:            
             punkt3d unre_1;
             unre_1.set_x( mitpu.x() + r.l()/2 - r.rad() );
@@ -263,7 +264,7 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             //Rundung rechts unten:
             r_ecke.set_mipu(r_innen.obre());
             pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
-                     qRadiansToDegrees(r.drewi())+270, 90);
+                     270-radToDeg(r.drewi())   , 90);
             //Linie nach rechts oben:
             punkt3d obre_1;
             obre_1.set_x( mitpu.x() + r.l()/2 );
@@ -273,7 +274,7 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             //Rundung rechts oben
             r_ecke.set_mipu(r_innen.unre());
             pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
-                     qRadiansToDegrees(r.drewi())+0, 90);
+                     0-radToDeg(r.drewi())   , 90);
             //Linie nach links oben:
             punkt3d obli_1;
             obli_1.set_x( mitpu.x() - r.l()/2 + r.rad() );
@@ -283,7 +284,7 @@ void vorschau::zeichneGeotext(QString geometrieElement, int i)
             //Rundung links oben
             r_ecke.set_mipu(r_innen.unli());
             pp.arcTo(r_ecke.unli().x(), r_ecke.unli().y(), r_ecke.l(), r_ecke.b(), \
-                     qRadiansToDegrees(r.drewi())+90, 90);
+                     90-radToDeg(r.drewi())   , 90);
             //Kontur schließen:
             pp.closeSubpath();
 

@@ -99,6 +99,7 @@
     <addaction name="actionNeu"/>
     <addaction name="action_oeffnen"/>
     <addaction name="action_importieren"/>
+    <addaction name="action_import_dxf"/>
     <addaction name="separator"/>
     <addaction name="actionUmbenennen"/>
     <addaction name="separator"/>
@@ -110,6 +111,8 @@
     </property>
     <addaction name="actionPfade"/>
     <addaction name="actionCNC_Maschinen"/>
+    <addaction name="actionDXF_Grundeinstellung"/>
+    <addaction name="actionDXF_Klasseneinstellung"/>
    </widget>
    <widget class="QMenu" name="menuBearbeitungen">
     <property name="title">
@@ -125,6 +128,7 @@
     <addaction name="actionVerschieben"/>
     <addaction name="actionKopieren"/>
     <addaction name="actionEinfuegen"/>
+    <addaction name="actionEntfernen"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
@@ -234,6 +238,29 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="action_import_dxf">
+   <property name="text">
+    <string>importiere dxf-Datei</string>
+   </property>
+  </action>
+  <action name="actionDXF_Grundeinstellung">
+   <property name="text">
+    <string>DXF-Grundeinstellung</string>
+   </property>
+  </action>
+  <action name="actionDXF_Klasseneinstellung">
+   <property name="text">
+    <string>DXF-Klasseneinstellung</string>
+   </property>
+  </action>
+  <action name="actionEntfernen">
+   <property name="text">
+    <string>Entfernen</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
  </widget>

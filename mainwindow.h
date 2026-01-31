@@ -12,6 +12,8 @@
 #include "Klassen/wst/werkstuecke.h"
 #include "Funktionen/funktionen_prgtext.h"
 #include "Dialoge/dialog_einstellung_pfade.h"
+#include "Dialoge/dialog_einstellung_dxf.h"
+#include "Dialoge/dialog_einstellung_dxf_klassen.h"
 #include "Dialoge/dialog_maschinen.h"
 #include "Klassen/wkz/maschinen.h"
 #include "Dialoge/bearb/dialog_bearb_pkopf.h"
@@ -23,6 +25,7 @@
 #include "Dialoge/bearb/dialog_bearb_fbogen.h"
 #include "Dialoge/bearb/dialog_bearb_verschieben.h"
 #include "Funktionen/import/ewx.h"
+#include "Funktionen/import/dxf.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -60,6 +63,8 @@ private:
     werkstuecke Wste;
     maschinen Maschinen;
     einstellung Einstellung;
+    einstellung_dxf Einstellung_dxf;
+    einstellung_dxf_klassen Einstellung_dxf_klassen;
     prgpfade PrgPfade;
     QString KopierterEintrag;
     QString Pfad_letzte_geoeffnete_datei;
@@ -67,6 +72,8 @@ private:
     //Dialoge:
     Dialog_Einstellung_pfade dlg_Einstellung_pfade;
     Dialog_maschinen dlg_Einstellung_maschinen;
+    Dialog_einstellung_dxf dlg_einstellung_dxf;
+    Dialog_einstellung_dxf_klassen dlg_einstellung_dxf_klassen;
 
 private slots:
     //Grafik und UI:
@@ -96,10 +103,17 @@ private slots:
     void on_actionKopieren_triggered();
     void on_actionEinfuegen_triggered();
     void on_action_schliessen_triggered();
-    void on_action_importieren_triggered();
+    void on_action_importieren_triggered();    
+    void on_action_import_dxf_triggered();    
+    void on_actionDXF_Grundeinstellung_triggered();
+    void on_actionDXF_Klasseneinstellung_triggered();
+
+    void on_actionEntfernen_triggered();
 
 public slots:
     void getEinstellung(einstellung e);
+    void getEinstellungDxf(einstellung_dxf e);
+    void getEinstellungDxfKlassen(einstellung_dxf_klassen e);
     void getMaschinen(maschinen m);
     //Bearbeiten
     void zeile_aendern(int index_bearb, QString bearb, bool unredor_verwenden);
@@ -119,6 +133,8 @@ public slots:
 
 signals:
     void sendEinstellungPfade(einstellung e);
+    void sendEinstellungDxf(einstellung_dxf e);
+    void sendEinstellungDxfKlassen(einstellung_dxf eg, einstellung_dxf_klassen ek);
     void sendMaschinen(maschinen m);
 };
 #endif // MAINWINDOW_H
