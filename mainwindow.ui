@@ -128,6 +128,7 @@
     <addaction name="actionVerschieben"/>
     <addaction name="actionKopieren"/>
     <addaction name="actionEinfuegen"/>
+    <addaction name="actionEntfernen"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
@@ -252,6 +253,14 @@
   <action name="actionDXF_Klasseneinstellung">
    <property name="text">
     <string>DXF-Klasseneinstellung</string>
+   </property>
+  </action>
+  <action name="actionEntfernen">
+   <property name="text">
+    <string>Entfernen</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
  </widget>

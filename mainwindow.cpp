@@ -801,6 +801,8 @@ void MainWindow::on_action_import_dxf_triggered()
                         werkstueck *w = Wste.wst(wstindex);//Zeiger auf wst innerhalb von wste
                         //Bearbeitungen ergänzen im bereits vorhandenne wst:
                         import_dxf(w, ist_oberseite, aktueller_pfad, Einstellung_dxf, Einstellung_dxf_klassen);
+                        Wste.wst(wstindex)->unredo_clear();
+                        Wste.wst(wstindex)->unredo_neu();
                     }
                 }else
                 {
@@ -1547,8 +1549,7 @@ void MainWindow::on_actionVerschieben_triggered()
             int zeile_dannach = auswahl_letzter();//index von QListwidget
             text_zw bearb;
             bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_dannach),TRENNZ_BEARB_PARAM);
-            if(bearb.at(0) == BEARBART_FRAESERGERADE  || \
-               bearb.at(0) == BEARBART_FRAESERBOGEN)
+            if(bearb.at(0) == BEARBART_FRAESERGERADE  ||  bearb.at(0) == BEARBART_FRAESERBOGEN)
             {
                 gesund = false;
             }
@@ -1575,6 +1576,7 @@ void MainWindow::on_actionVerschieben_triggered()
         if(gesund == false)
         {
             QMessageBox mb;
+            mb.setWindowTitle("Bearbeitung verschieben");
             mb.setText("Das Verschieben dieser Zeilenauswahl ist nicht möglich weil eine Fräsbahn nur vollständig verschoben werden kann!");
             mb.exec();
             return;
@@ -1587,7 +1589,8 @@ void MainWindow::on_actionVerschieben_triggered()
     }else
     {
         QMessageBox mb;
-        mb.setText("Sie haben noch nichts ausgewaelt was verschoben werden kann!");
+        mb.setWindowTitle("Bearbeitung verschieben");
+        mb.setText("Sie haben noch keine Bearbeitung ausgewält die verschoben werden kann!");
         mb.exec();
     }
 }
@@ -1638,6 +1641,7 @@ void MainWindow::on_actionKopieren_triggered()
         }else
         {
             QMessageBox mb;
+            mb.setWindowTitle("Bearbeitung kopieren");
             mb.setText("Sie haben noch nichts ausgewaelt was kopiert werden kann!");
             mb.exec();
         }
@@ -1647,7 +1651,7 @@ void MainWindow::on_actionKopieren_triggered()
         msg = "Es ist kein Bauteil ausgewählt!";
         QMessageBox mb;
         mb.setText(msg);
-        mb.setWindowTitle("Werkstück umbenennen");
+        mb.setWindowTitle("Bearbeitung kopieren");
         mb.exec();
     }
 }
@@ -1694,7 +1698,76 @@ void MainWindow::on_actionEinfuegen_triggered()
         msg = "Es ist kein Bauteil ausgewählt!";
         QMessageBox mb;
         mb.setText(msg);
-        mb.setWindowTitle("Werkstück umbenennen");
+        mb.setWindowTitle("Bearbeitung einfügen");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionEntfernen_triggered()
+{
+    if((ui->listWidget_bearb->currentIndex().isValid())  &&  \
+        (ui->listWidget_bearb->currentItem()->isSelected())    )
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+        //Prüfen ob Fräsbahnen durch das entfernen geteilt werden:
+        bool gesund = true;
+        //--Prüfen ob eine Fräsbahn nach der Auswahl weiter geht:
+        if(auswahl_letzter() < ui->listWidget_bearb->count())
+        {
+            int zeile_dannach = auswahl_letzter();//index von QListwidget
+            text_zw bearb;
+            bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_dannach),TRENNZ_BEARB_PARAM);
+            if(bearb.at(0) == BEARBART_FRAESERGERADE  ||  bearb.at(0) == BEARBART_FRAESERBOGEN)
+            {
+                gesund = false;
+            }
+        }
+        //---Prüfen ob eine Fräsbahn vor der Auswahl beginnt:
+        if(auswahl_erster() >= 2)
+        {
+            int zeile_davor = auswahl_erster()-1;//index von QListwidget
+            text_zw bearb;
+            bearb.set_text(Wste.wst(index_wst)->bearb_ptr()->at(zeile_davor),TRENNZ_BEARB_PARAM);
+            text_zw bearb_erster;
+            bearb_erster.set_text(Wste.wst(index_wst)->bearb_ptr()->at(auswahl_erster()-1),TRENNZ_BEARB_PARAM);
+            if(bearb_erster.at(0) != BEARBART_FRAESERAUFRUF)
+            {
+                if(bearb.at(0) == BEARBART_FRAESERAUFRUF  || \
+                                                                 bearb.at(0) == BEARBART_FRAESERGERADE  || \
+                           bearb.at(0) == BEARBART_FRAESERBOGEN)
+                {
+                    gesund = false;
+                }
+            }
+        }
+        //---
+        if(gesund == false)
+        {
+            QMessageBox mb;
+            mb.setWindowTitle("Bearbeitung entfernen");
+            mb.setText("Das Entfernen dieser Zeilenauswahl ist nicht möglich weil eine Fräsbahn nur vollständig gelöscht werden kann!");
+            mb.exec();
+            return;
+        }
+        //---
+        int index_liwid = ui->listWidget_bearb->currentRow();
+        Wste.wst(index_wst)->bearb_ptr()->entf(auswahl_erster()-1, auswahl_menge());
+        Wste.wst(index_wst)->unredo_neu();
+        update_listwidget_bearb(Wste.wst(index_wst));
+        ui->listWidget_bearb->setCurrentRow(index_liwid-1);
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid-1);
+    }else
+    {
+        QMessageBox mb;
+        mb.setWindowTitle("Bearbeitung entfernen");
+        mb.setText("Sie haben noch keine Bearbeitung ausgewält die entfernt werden kann!");
         mb.exec();
     }
 }
@@ -1817,6 +1890,9 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 

@@ -108,6 +108,8 @@ private slots:
     void on_actionDXF_Grundeinstellung_triggered();
     void on_actionDXF_Klasseneinstellung_triggered();
 
+    void on_actionEntfernen_triggered();
+
 public slots:
     void getEinstellung(einstellung e);
     void getEinstellungDxf(einstellung_dxf e);

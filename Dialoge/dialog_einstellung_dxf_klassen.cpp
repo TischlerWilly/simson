@@ -76,9 +76,9 @@ void Dialog_einstellung_dxf_klassen::on_lineEdit_bohr_vert_textChanged(const QSt
 void Dialog_einstellung_dxf_klassen::on_lineEdit_bohr_hori_textChanged(const QString &arg1)
 {
     QString beispiel = arg1;
-    beispiel += "_14";
+    beispiel += "_9";
     beispiel += Einstellung_allgem.dezitren();
-    beispiel += "2";
+    beispiel += "5";
     ui->lineEdit_bohr_hori_beispiel->setText(beispiel);
 }
 void Dialog_einstellung_dxf_klassen::on_lineEdit_nut_vert_textChanged(const QString &arg1)

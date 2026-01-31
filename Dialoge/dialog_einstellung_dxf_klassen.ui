@@ -18,15 +18,15 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>541</width>
-     <height>326</height>
+     <width>546</width>
+     <height>349</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="3" column="2">
      <widget class="QLabel" name="label_17">
       <property name="text">
-       <string>14,2mm tief</string>
+       <string>mit Z-Pos 9,5mm</string>
       </property>
      </widget>
     </item>
@@ -104,7 +104,6 @@
       <property name="font">
        <font>
         <pointsize>12</pointsize>
-        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
@@ -211,7 +210,6 @@
       <property name="font">
        <font>
         <pointsize>12</pointsize>
-        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
