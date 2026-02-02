@@ -1,5 +1,6 @@
 ToDo:
 
-
+- dlg-Schnelländerung aufrufbar machen über Mainwindow
+    > dlg testen (viele Änderungen notwendig gewesen gegenüber iwop)!!!
 
 
