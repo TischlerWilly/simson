@@ -219,7 +219,9 @@ void werkstuecke::sortieren()
     QVector<werkstueck> tmp_Wste;
     text_zw rankingList;
     rankingList.add_hi("Seite_li");
+    rankingList.add_hi("Seite_L");
     rankingList.add_hi("Seite_re");
+    rankingList.add_hi("Seite_R");
     rankingList.add_hi("Seite");
     rankingList.add_hi("MS_li");
     rankingList.add_hi("MS_re");

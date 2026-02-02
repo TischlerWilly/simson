@@ -88,7 +88,8 @@ private slots:
 
     //Dateien/Werkstücke/Bearbeitungen:
     void on_actionNeu_triggered();
-    void on_btn_import_clicked();
+    void on_btn_quick_import_clicked();
+    void on_action_quick_import_triggered();
     void on_action_oeffnen_triggered();
     void on_listWidget_dateien_currentRowChanged(int currentRow);
     void on_listWidget_bearb_currentRowChanged(int currentRow);
@@ -102,12 +103,10 @@ private slots:
     void on_actionRedo_triggered();
     void on_actionKopieren_triggered();
     void on_actionEinfuegen_triggered();
-    void on_action_schliessen_triggered();
-    void on_action_importieren_triggered();    
+    void on_action_schliessen_triggered();       
     void on_action_import_dxf_triggered();    
     void on_actionDXF_Grundeinstellung_triggered();
     void on_actionDXF_Klasseneinstellung_triggered();
-
     void on_actionEntfernen_triggered();
 
 public slots:

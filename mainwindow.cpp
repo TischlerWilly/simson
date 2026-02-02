@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.01.31");
+    this->setWindowTitle("Simson V1-2026.02.02");
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -279,11 +279,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
     //rechter Bereich
     int x = vorschaufenster.pos().rx()+vorschaufenster.width()+5;
-    ui->btn_import->move(x, 5);
+    ui->btn_quick_import->move(x, 5);
 
     int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 25;
     int b = this->width() - x - 5;
-    ui->listWidget_dateien->move(x, ui->btn_import->pos().y()+ui->btn_import->height()+5);
+    ui->listWidget_dateien->move(x, ui->btn_quick_import->pos().y()+ui->btn_quick_import->height()+5);
     ui->listWidget_dateien->setFixedHeight(h);
     ui->listWidget_dateien->setFixedWidth(b);
 
@@ -534,11 +534,11 @@ void MainWindow::on_actionNeu_triggered()
         mb.exec();
     }
 }
-void MainWindow::on_btn_import_clicked()
+void MainWindow::on_btn_quick_import_clicked()
 {
-    on_action_importieren_triggered();
+    on_action_quick_import_triggered();
 }
-void MainWindow::on_action_importieren_triggered()
+void MainWindow::on_action_quick_import_triggered()
 {
     QString ordnerPfad = Einstellung.verzeichnis_quelle();
 
@@ -560,6 +560,7 @@ void MainWindow::on_action_importieren_triggered()
     }
 
     //-----------------------------Dateien einlesen:
+    Wste.clear();
     for(int i=0; i<pfade.size() ;i++)
     {
         QString aktueller_pfad = pfade.at(i);
@@ -601,6 +602,7 @@ void MainWindow::on_action_importieren_triggered()
             }
         }
     }
+    Wste.sortieren();
     //-----------------------------
     //-----------------------------UI aktualisieren:
     if(Wste.wst(0))

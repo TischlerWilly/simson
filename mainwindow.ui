@@ -14,17 +14,17 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="btn_import">
+   <widget class="QPushButton" name="btn_quick_import">
     <property name="geometry">
      <rect>
       <x>540</x>
       <y>10</y>
-      <width>84</width>
+      <width>251</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>importieren</string>
+     <string>Schnell-Import aus Quellverzeichnis</string>
     </property>
    </widget>
    <widget class="QListWidget" name="listWidget_dateien">
@@ -98,7 +98,7 @@
     </property>
     <addaction name="actionNeu"/>
     <addaction name="action_oeffnen"/>
-    <addaction name="action_importieren"/>
+    <addaction name="action_iquick_import"/>
     <addaction name="action_import_dxf"/>
     <addaction name="separator"/>
     <addaction name="actionUmbenennen"/>
@@ -232,9 +232,9 @@
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="action_importieren">
+  <action name="action_iquick_import">
    <property name="text">
-    <string>Importieren aus Quellverzeichniss</string>
+    <string>Schnell-Import aus Quellverzeichnis</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
