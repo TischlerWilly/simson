@@ -17,6 +17,7 @@ SOURCES += \
     Dialoge/bearb/dialog_bearb_pkopf.cpp \
     Dialoge/bearb/dialog_bearb_rta.cpp \
     Dialoge/bearb/dialog_bearb_verschieben.cpp \
+    Dialoge/bearb/dialog_schnellaenderung.cpp \
     Dialoge/dialog_einstellung_dxf.cpp \
     Dialoge/dialog_einstellung_dxf_klassen.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
@@ -83,6 +84,7 @@ HEADERS += \
     Dialoge/bearb/dialog_bearb_pkopf.h \
     Dialoge/bearb/dialog_bearb_rta.h \
     Dialoge/bearb/dialog_bearb_verschieben.h \
+    Dialoge/bearb/dialog_schnellaenderung.h \
     Dialoge/dialog_einstellung_dxf.h \
     Dialoge/dialog_einstellung_dxf_klassen.h \
     Dialoge/dialog_einstellung_pfade.h \
@@ -146,6 +148,7 @@ FORMS += \
     Dialoge/bearb/dialog_bearb_pkopf.ui \
     Dialoge/bearb/dialog_bearb_rta.ui \
     Dialoge/bearb/dialog_bearb_verschieben.ui \
+    Dialoge/bearb/dialog_schnellaenderung.ui \
     Dialoge/dialog_einstellung_dxf.ui \
     Dialoge/dialog_einstellung_dxf_klassen.ui \
     Dialoge/dialog_einstellung_pfade.ui \
