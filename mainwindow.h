@@ -24,6 +24,7 @@
 #include "Dialoge/bearb/dialog_bearb_fgerade.h"
 #include "Dialoge/bearb/dialog_bearb_fbogen.h"
 #include "Dialoge/bearb/dialog_bearb_verschieben.h"
+#include "Dialoge/bearb/dialog_schnellaenderung.h"
 #include "Funktionen/import/ewx.h"
 #include "Funktionen/import/dxf.h"
 
@@ -107,13 +108,16 @@ private slots:
     void on_action_import_dxf_triggered();    
     void on_actionDXF_Grundeinstellung_triggered();
     void on_actionDXF_Klasseneinstellung_triggered();
-    void on_actionEntfernen_triggered();
+    void on_actionEntfernen_triggered();    
+    void on_actionSchnellaenderung_triggered();
 
 public slots:
     void getEinstellung(einstellung e);
     void getEinstellungDxf(einstellung_dxf e);
     void getEinstellungDxfKlassen(einstellung_dxf_klassen e);
     void getMaschinen(maschinen m);
+    void update_vorschau();
+    void update_listwid_bearb();
     //Bearbeiten
     void zeile_aendern(int index_bearb, QString bearb, bool unredor_verwenden);
     void slot_rta(rechtecktasche rta);

@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.02.02");
+    this->setWindowTitle("Simson V1-2026.02.03");
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -497,6 +497,40 @@ void MainWindow::on_actionCNC_Maschinen_triggered()
 
 //------------------------------------------------------
 //Dateien/Werkstücke/Bearbeitungen:
+void MainWindow::update_vorschau()
+{
+    int index_wst = ui->listWidget_dateien->currentRow();
+    int index_liwid = ui->listWidget_bearb->currentRow();
+
+    if(index_wst >= 0)
+    {
+        if(index_liwid < 0)
+        {
+            index_liwid = 0;
+        }
+        Wste.wst(index_wst)->unredo_neu();
+        ui->listWidget_bearb->setCurrentRow(index_liwid);
+
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid);
+    }
+
+}
+void MainWindow::update_listwid_bearb()
+{
+    int index_wst = ui->listWidget_dateien->currentRow();
+    if(index_wst >= 0)
+    {
+        update_listwidget_bearb(Wste.wst(index_wst));
+    }
+}
 void MainWindow::on_actionNeu_triggered()
 {
     QString name = "Unbekannt";
@@ -1773,6 +1807,46 @@ void MainWindow::on_actionEntfernen_triggered()
         mb.exec();
     }
 }
+void MainWindow::on_actionSchnellaenderung_triggered()
+{
+    if((ui->listWidget_bearb->currentIndex().isValid())  &&  \
+        (ui->listWidget_bearb->currentItem()->isSelected())    )
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+
+        int auswahl_erst;// = auswahl_erster()-1;
+        int auswahl_meng;// = auswahl_menge();
+        if(auswahl_erster() == 0)//Programmkopf
+        {
+            auswahl_erst = 0;//index 0 der Bearbeitung
+            auswahl_meng = auswahl_menge()-1;//Zeile mit Programmkopf von der Menge abziehen
+        }else
+        {
+            auswahl_erst = auswahl_erster()-1;//Indexverschiebung listwidget zu bearb
+            auswahl_meng = auswahl_menge();
+        }
+        if(  auswahl_erst >= 0  &&  auswahl_meng > 0  )
+        {
+            Dialog_schnellaenderung dlg;
+            dlg.set_Data(Wste.wst(index_wst), auswahl_erst, auswahl_meng);
+            connect(&dlg, SIGNAL(werte_wurden_angepasst()), this, SLOT(update_listwid_bearb()));
+            connect(&dlg, SIGNAL(werte_wurden_angepasst()), this, SLOT(update_vorschau()));
+            dlg.exec();
+        }else
+        {
+            QMessageBox mb;
+            mb.setWindowTitle("Schnelländerung");
+            mb.setText("Sie haben noch keine Bearbeitungen ausgewält die geändert werden sollen!");
+            mb.exec();
+        }
+    }else
+    {
+        QMessageBox mb;
+        mb.setWindowTitle("Schnelländerung");
+        mb.setText("Sie haben noch keine Bearbeitungen ausgewält die geändert werden sollen!");
+        mb.exec();
+    }
+}
 
 void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
 {
@@ -1892,6 +1966,9 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 

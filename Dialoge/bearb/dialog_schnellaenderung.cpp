@@ -31,12 +31,7 @@ Dialog_schnellaenderung::~Dialog_schnellaenderung()
     delete ui;
 }
 
-void Dialog_schnellaenderung::on_pushButton_ok_clicked()
-{
-    this->close();
-}
-
-void Dialog_schnellaenderung::getData(werkstueck *w, uint start, uint menge)
+void Dialog_schnellaenderung::set_Data(werkstueck *w, uint start, uint menge)
 {
     Wst = w;
     Startzeile = start;
@@ -47,10 +42,7 @@ void Dialog_schnellaenderung::getData(werkstueck *w, uint start, uint menge)
     for(uint i = start; i <= start+menge-1; i++)
     {
         QString programmzeile = Wst->bearb().at(i);
-        if(programmzeile.contains(BEARBART_BOHR) || \
-           programmzeile.contains(BEARBART_RTA) || \
-           programmzeile.contains(BEARBART_NUT) || \
-           programmzeile.contains(BEARBART_FRAESERAUFRUF))
+        if(programmzeile.contains(BEARBART_BOHR))
         {
             if(!Dialoge.text().contains("Bohrungen"))
             {
@@ -86,8 +78,9 @@ void Dialog_schnellaenderung::getData(werkstueck *w, uint start, uint menge)
     this->show();
 }
 
-void Dialog_schnellaenderung::on_comboBox_dlg_currentIndexChanged(const QString &arg1)
+void Dialog_schnellaenderung::on_comboBox_dlg_currentIndexChanged(int index)
 {
+    QString arg1 = ui->comboBox_dlg->itemText(index);
     ui->comboBox_param->clear();
     if(arg1 == "ALLE")
     {
@@ -127,8 +120,9 @@ void Dialog_schnellaenderung::on_comboBox_param_currentIndexChanged()
     werte_ermitteln();
 }
 
-void Dialog_schnellaenderung::on_comboBox_alt_currentIndexChanged(const QString &arg1)
+void Dialog_schnellaenderung::on_comboBox_alt_currentIndexChanged(int index)
 {
+    QString arg1 = ui->comboBox_alt->itemText(index);
     if(arg1 == "ALLE")
     {
         ui->lineEdit_neu->clear();
@@ -136,7 +130,6 @@ void Dialog_schnellaenderung::on_comboBox_alt_currentIndexChanged(const QString 
     {
         ui->lineEdit_neu->setText(arg1);
     }
-
 }
 
 void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
@@ -161,7 +154,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     {
                         bohrung bo(programmzeile);
                         wert = bo.afb();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             bo.set_afb(wert_neu);
                             Wst->bearb_ptr()->edit(i, bo.text());
@@ -170,7 +163,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     {
                         rechtecktasche rta(programmzeile);
                         wert = rta.afb();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             rta.set_afb(wert_neu);
                             Wst->bearb_ptr()->edit(i, rta.text());
@@ -179,7 +172,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     {
                         nut n(programmzeile);
                         wert = n.afb();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             n.set_afb(wert_neu);
                             Wst->bearb_ptr()->edit(i, n.text());
@@ -199,7 +192,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     if(par == "Ausführbedingung")
                     {
                         wert = bo.afb();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             bo.set_afb(wert_neu);
                             Wst->bearb_ptr()->edit(i, bo.text());
@@ -207,7 +200,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Durchmesser")
                     {
                         wert = bo.dm_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             bo.set_dm(wert_neu);
                             Wst->bearb_ptr()->edit(i, bo.text());
@@ -215,7 +208,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Tiefe")
                     {
                         wert = bo.tiefe_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             bo.set_tiefe(wert_neu);
                             Wst->bearb_ptr()->edit(i, bo.text());
@@ -235,7 +228,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     if(par == "Ausführbedingung")
                     {
                         wert = n.afb();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             n.set_afb(wert_neu);
                             Wst->bearb_ptr()->edit(i, n.text());
@@ -243,7 +236,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Breite")
                     {
                         wert = n.breite_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             n.set_breite(wert_neu);
                             Wst->bearb_ptr()->edit(i, n.text());
@@ -251,7 +244,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Tiefe")
                     {
                         wert = n.tiefe_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             n.set_tiefe(wert_neu);
                             Wst->bearb_ptr()->edit(i, n.text());
@@ -271,7 +264,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     if(par == "Ausführbedingung")
                     {
                         wert = rta.afb();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             rta.set_afb(wert_neu);
                             Wst->bearb_ptr()->edit(i, rta.text());
@@ -279,7 +272,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Länge")
                     {
                         wert = rta.laenge_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             rta.set_laenge(wert_neu);
                             Wst->bearb_ptr()->edit(i, rta.text());
@@ -287,7 +280,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Breite")
                     {
                         wert = rta.breite_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             rta.set_breite(wert_neu);
                             Wst->bearb_ptr()->edit(i, rta.text());
@@ -295,7 +288,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Tiefe")
                     {
                         wert = rta.tiefe_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             rta.set_tiefe(wert_neu);
                             Wst->bearb_ptr()->edit(i, rta.text());
@@ -315,7 +308,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     if(par == "Anfahrtyp")
                     {
                         wert = fa.anfahrtyp();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             fa.set_anfahrtyp(wert_neu);
                             Wst->bearb_ptr()->edit(i, fa.text());
@@ -323,7 +316,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Abfahrtyp")
                     {
                         wert = fa.abfahrtyp();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             fa.set_abfahrtyp(wert_neu);
                             Wst->bearb_ptr()->edit(i, fa.text());
@@ -331,7 +324,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Anfahrwert")
                     {
                         wert = fa.anfahrweg_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             fa.set_anfahrweg(wert_neu);
                             Wst->bearb_ptr()->edit(i, fa.text());
@@ -339,7 +332,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
                     }else if(par == "Abfahrwert")
                     {
                         wert = fa.abfahrweg_qstring();
-                        if(wert == wert_alt)
+                        if(wert == wert_alt  ||  wert_alt == "ALLE")
                         {
                             fa.set_abfahrweg(wert_neu);
                             Wst->bearb_ptr()->edit(i, fa.text());
@@ -350,6 +343,7 @@ void Dialog_schnellaenderung::on_pushButton_werte_aendern_clicked()
         }
 
         werte_ermitteln();
+        emit werte_wurden_angepasst();
     }else
     {
         QString msg;
@@ -556,6 +550,12 @@ void Dialog_schnellaenderung::werte_ermitteln()
         ui->comboBox_alt->addItem(werte_alt.at(i));
     }
 }
+
+void Dialog_schnellaenderung::on_pushButton_schliessen_clicked()
+{
+    this->close();
+}
+
 
 
 

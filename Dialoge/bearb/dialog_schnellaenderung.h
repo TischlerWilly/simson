@@ -21,14 +21,17 @@ public:
     ~Dialog_schnellaenderung();
 
 private slots:
-    void on_pushButton_ok_clicked();
-    void on_comboBox_dlg_currentIndexChanged(const QString &arg1);
+    void on_comboBox_dlg_currentIndexChanged(int index);
     void on_comboBox_param_currentIndexChanged();
-    void on_comboBox_alt_currentIndexChanged(const QString &arg1);
     void on_pushButton_werte_aendern_clicked();
+    void on_pushButton_schliessen_clicked();
+    void on_comboBox_alt_currentIndexChanged(int index);
 
 public slots:
-    void getData(werkstueck *w, uint start, uint menge);
+    void set_Data(werkstueck *w, uint start, uint menge);
+
+signals:
+    void werte_wurden_angepasst();
 
 
 private:

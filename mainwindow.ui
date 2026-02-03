@@ -129,6 +129,8 @@
     <addaction name="actionKopieren"/>
     <addaction name="actionEinfuegen"/>
     <addaction name="actionEntfernen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSchnellaenderung"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
@@ -261,6 +263,11 @@
    </property>
    <property name="shortcut">
     <string>Del</string>
+   </property>
+  </action>
+  <action name="actionSchnellaenderung">
+   <property name="text">
+    <string>Schnelländerung</string>
    </property>
   </action>
  </widget>

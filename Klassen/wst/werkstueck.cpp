@@ -211,10 +211,31 @@ void werkstueck::redo()
 }
 void werkstueck::unredo_neu()
 {
-    UnReDo_L.neu(Laenge);
-    UnReDo_B.neu(Breite);
-    UnReDo_D.neu(Dicke);
-    UnReDo.neu(Bearb);
+    bool anders = false;
+    if(UnReDo_L.akt_elem() != Laenge)
+    {
+        anders = true;
+    }
+    if(UnReDo_B.akt_elem() != Breite)
+    {
+        anders = true;
+    }
+    if(UnReDo_D.akt_elem() != Dicke)
+    {
+        anders = true;
+    }
+    if(UnReDo.akt_elem().text() != Bearb.text())
+    {
+        anders = true;
+    }
+
+    if(anders == true)
+    {
+        UnReDo_L.neu(Laenge);
+        UnReDo_B.neu(Breite);
+        UnReDo_D.neu(Dicke);
+        UnReDo.neu(Bearb);
+    }
 }
 void werkstueck::unredo_clear()
 {

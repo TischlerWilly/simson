@@ -66,6 +66,17 @@ public:
     {
         return Anz_aktive_elemente_t.at(Aktuelle_position);
     }
+    T akt_elem()
+    {
+        if(Aktuelle_position >= 0)
+        {
+            return Vector_t.at(Aktuelle_position);
+        }else
+        {
+            T ein_leeres_etwas;
+            return ein_leeres_etwas;
+        }
+    }
 
     //----------------------------------------Manipulationen:
     void             clear()
