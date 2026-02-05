@@ -39,6 +39,8 @@ public:
     void set_bezug(QString bezugsflaeche);
     void set_afb(QString ausfuehrbedingung);
     void set_wkznum(QString nummer);
+    void set_zapfen(bool ist_zapfen);
+    void set_zapfen(QString ist_zapfen);
 
     double  laenge();
     QString laenge_qstring();
@@ -64,6 +66,8 @@ public:
     QString bezug();
     QString afb();
     QString wkznum();
+    bool istZapfen();
+    QString istZapfen_qstring();
 
     QString text();
     void set_text(QString text);
@@ -80,6 +84,7 @@ private:
     QString Bezug;
     QString Afb;
     QString Werkzeugnummer;
+    bool IstZapfen; //Zapfen fräsen statt Loch Bohren
 
     void setup();
 

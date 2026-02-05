@@ -18,6 +18,7 @@ void bohrung::setup()
     Afb = "1";
     Zustellmass = 0;
     Werkzeugnummer = "void";
+    IstZapfen = false;
 }
 
 void bohrung::set_dm(double dm)
@@ -93,6 +94,20 @@ void bohrung::set_wkznum(QString nummer)
 {
     Werkzeugnummer = nummer;
 }
+void bohrung::set_zapfen(bool ist_zapfen)
+{
+    IstZapfen = ist_zapfen;
+}
+void bohrung::set_zapfen(QString ist_zapfen)
+{
+    if(ist_zapfen == "ja")
+    {
+        IstZapfen = true;
+    }else
+    {
+        IstZapfen = false;
+    }
+}
 
 double bohrung::dm()
 {
@@ -158,28 +173,44 @@ QString bohrung::wkznum()
 {
     return Werkzeugnummer;
 }
+bool bohrung::istZapfen()
+{
+    return IstZapfen;
+}
+QString bohrung::istZapfen_qstring()
+{
+    if(IstZapfen == true)
+    {
+        return "ja";
+    }else
+    {
+        return "nein";
+    }
+}
 
 QString bohrung::text()
 {
-    QString msg = BEARBART_BOHR;    //Zeile 0
+    QString msg = BEARBART_BOHR;    //Wert 0
     msg += TRENNZ_BEARB_PARAM_;
-    msg += bezug();             //Zeile 1
+    msg += bezug();             //Wert 1
     msg += TRENNZ_BEARB_PARAM_;
-    msg += dm_qstring();        //Zeile 2
+    msg += dm_qstring();        //Wert 2
     msg += TRENNZ_BEARB_PARAM_;
-    msg += tiefe_qstring();     //Zeile 3
+    msg += tiefe_qstring();     //Wert 3
     msg += TRENNZ_BEARB_PARAM_;
-    msg += x_qstring();         //Zeile 4
+    msg += x_qstring();         //Wert 4
     msg += TRENNZ_BEARB_PARAM_;
-    msg += y_qstring();         //Zeile 5
+    msg += y_qstring();         //Wert 5
     msg += TRENNZ_BEARB_PARAM_;
-    msg += z_qstring();         //Zeile 6
+    msg += z_qstring();         //Wert 6
     msg += TRENNZ_BEARB_PARAM_;
-    msg += afb();               //Zeile 7
+    msg += afb();               //Wert 7
     msg += TRENNZ_BEARB_PARAM_;
-    msg += zustellmass_qstring();               //Zeile 8
+    msg += zustellmass_qstring();//Wert 8
     msg += TRENNZ_BEARB_PARAM_;
-    msg += wkznum();            //Zeile 9
+    msg += wkznum();            //Wert 9
+    msg += TRENNZ_BEARB_PARAM_;
+    msg += istZapfen_qstring(); //Wert 10
 
     return msg;
 }
@@ -198,6 +229,7 @@ void bohrung::set_text(QString text)
         set_afb(tz.at(7));
         set_zustellmass(tz.at(8));
         set_wkznum(tz.at(9));
+        set_zapfen(tz.at(10));
     }
 }
 

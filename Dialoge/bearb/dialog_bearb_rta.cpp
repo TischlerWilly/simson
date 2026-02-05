@@ -69,6 +69,7 @@ void Dialog_bearb_rta::set_data(QString d, werkstueck *w, text_zw wkzmag)
     //---------
     ui->lineEdit_afb->setText(rta.afb());
     ui->lineEdit_wkz->setText(rta.wkznum());
+    ui->checkBox_zapfen->setChecked(rta.istZapfen());
 }
 
 void Dialog_bearb_rta::on_btn_abbrechen_clicked()
@@ -127,6 +128,7 @@ void Dialog_bearb_rta::on_btn_ok_clicked()
     }
     rta.set_afb(ui->lineEdit_afb->text());
     rta.set_wkznum(ui->lineEdit_wkz->text());
+    rta.set_zapfen(ui->checkBox_zapfen->isChecked());
 
     emit signal_rta(rta);
     this->close();

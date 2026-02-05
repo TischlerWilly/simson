@@ -60,6 +60,7 @@ void Dialog_bearb_bohrung::set_data(QString d, werkstueck *w, text_zw wkzmag)
     //---------
     ui->lineEdit_afb->setText(bo.afb());
     ui->lineEdit_wkz->setText(bo.wkznum());
+    ui->checkBox_zapfen->setChecked(bo.istZapfen());
 }
 
 QString Dialog_bearb_bohrung::var_zu_wert(QString term)
@@ -114,6 +115,7 @@ void Dialog_bearb_bohrung::on_btn_ok_clicked()
         wkznr = "void";
     }
     bo.set_wkznum(wkznr);
+    bo.set_zapfen(ui->checkBox_zapfen->isChecked());
 
     emit signal_bo(bo);
     this->close();

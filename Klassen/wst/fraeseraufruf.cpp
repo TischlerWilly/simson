@@ -40,7 +40,6 @@ void fraeseraufruf::set_y(QString y)
 {
     Pos.set_y(y);
 }
-
 void fraeseraufruf::set_z(double z)
 {
     Pos.set_z(z);
@@ -49,7 +48,6 @@ void fraeseraufruf::set_z(QString z)
 {
     Pos.set_z(z);
 }
-
 void fraeseraufruf::set_pos(punkt3d p)
 {
     Pos = p;
@@ -129,7 +127,6 @@ QString fraeseraufruf::y_qstring()
 {
     return Pos.y_QString();
 }
-
 double fraeseraufruf::z()
 {
     return Pos.z();
@@ -138,7 +135,6 @@ QString fraeseraufruf::z_qstring()
 {
     return Pos.z_QString();
 }
-
 double fraeseraufruf::tiefe()
 {
     return Tiefe;
@@ -223,6 +219,8 @@ QString fraeseraufruf::text()
     msg += anfahrweg_qstring();          //Zeile 11
     msg += TRENNZ_BEARB_PARAM_;
     msg += abfahrweg_qstring();          //Zeile 12
+    msg += TRENNZ_BEARB_PARAM_;
+    msg += zust_qstring();               //Zeile 13
 
     return msg;
 }
@@ -244,6 +242,7 @@ void fraeseraufruf::set_text(QString text)
         set_abfahrtyp(tz.at(10));
         set_anfahrweg(tz.at(11));
         set_abfahrweg(tz.at(12));
+        set_zust(tz.at(13));
     }
 }
 

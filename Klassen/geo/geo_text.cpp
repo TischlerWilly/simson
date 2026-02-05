@@ -535,24 +535,43 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             bohrung bo(zeile.text());
             if(bo.bezug() == WST_BEZUG_OBSEI)
             {
-                kreis k;
-                k.set_farbe(FARBE_SCHWARZ);
+                kreis k;                
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(bo.mipu());
                 k.verschieben_um(versatz_x, versatz_y);
-                if(bo.tiefe() > wst_d)
+                double wkzdm = wkzm.dm(bo.wkznum()).toDouble();
+                if(bo.istZapfen() == false)
                 {
-                    k.set_farbe_fuellung(FARBE_WEISS);
+                    k.set_farbe(FARBE_SCHWARZ);
+                    if(bo.tiefe() > wst_d)
+                    {
+                        k.set_farbe_fuellung(FARBE_WEISS);
+                    }else
+                    {
+                        k.set_farbe_fuellung(FARBE_HELLBLAU);
+                    }
                 }else
                 {
-                    k.set_farbe_fuellung(FARBE_HELLBLAU);
+                    k.set_farbe(FARBE_BLAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                    if(wkzdm > 0)
+                    {
+                        kreis k_au = k;
+                        k_au.set_rad(k.radius()+wkzdm);
+                        gt.add_kreis(k_au);
+                    }
                 }
+
                 gt.add_kreis(k);
                 strecke s;
                 s.set_farbe(k.farbe());
                 s.set_stapu(bo.x() - bo.dm()/2 - 2, bo.y(), bo.z());
                 s.set_endpu(bo.x() + bo.dm()/2 + 2, bo.y(), bo.z());
                 s.verschieben_um(versatz_x, versatz_y);
+                if(bo.istZapfen() && wkzdm > 0)
+                {
+                    s.set_laenge(bo.dm()+wkzdm*2);
+                }
                 gt.add_strecke(s);
                 s.drenen_um_mipu_2d(degToRad(90));
                 gt.add_strecke(s);
@@ -562,13 +581,27 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 k.set_farbe(farbe_unterseite);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(bo.mipu());
-                if(bo.tiefe() > wst_d)
+                double wkzdm = wkzm.dm(bo.wkznum()).toDouble();
+                if(bo.istZapfen() == false)
                 {
-                    k.set_farbe_fuellung(FARBE_WEISS);
+                    if(bo.tiefe() > wst_d)
+                    {
+                        k.set_farbe_fuellung(FARBE_WEISS);
+                    }else
+                    {
+                        k.set_farbe_fuellung(FARBE_HELLBLAU);
+                    }
                 }else
                 {
-                    k.set_farbe_fuellung(FARBE_HELLBLAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                    if(wkzdm > 0)
+                    {
+                        kreis k_au = k;
+                        k_au.set_rad(k.radius()+wkzdm);
+                        gt.add_kreis(k_au);
+                    }
                 }
+
                 k.verschieben_um(versatz_x, versatz_y);
                 gt.add_kreis(k);
                 strecke s;
@@ -577,6 +610,10 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 s.set_endpu(bo.x() + bo.dm()/2 + 2, bo.y(), bo.z());
                 s.drenen_um_mipu_2d(degToRad(45));
                 s.verschieben_um(versatz_x, versatz_y);
+                if(bo.istZapfen() && wkzdm > 0)
+                {
+                    s.set_laenge(bo.dm()+wkzdm*2);
+                }
                 gt.add_strecke(s);
                 s.drenen_um_mipu_2d(degToRad(90));
                 gt.add_strecke(s);
@@ -912,14 +949,33 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                         r.set_stil(STIL_GESTRICHELT);
                     }
                 }
+                if(rt.istZapfen() == true)
+                {
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                    if(rt.bezug() == WST_BEZUG_OBSEI)
+                    {
+                        r.set_farbe(FARBE_BLAU);
+                    }else
+                    {
+                        r.set_farbe(farbe_unterseite);
+                    }
+                }
                 r.set_laenge(rt.laenge());
                 r.set_breite(rt.breite());
                 r.set_mipu(rt.x(), rt.y(), rt.z());
                 r.set_drewi(rt.drewi());
                 r.verschieben_um(versatz_x, versatz_y);
                 r.set_rad(eckenrad);
+                if(rt.istZapfen() && wkzdm > 0)
+                {
+                    rechteck r_au = r;
+                    r_au.set_laenge(r.l()+wkzdm*2);
+                    r_au.set_breite(r.b()+wkzdm*2);
+                    r_au.set_rad(r.rad()+wkzdm);
+                    gt.add_rechteck(r_au);
+                }
                 gt.add_rechteck(r);
-                if(rt.ausraeumen() == false)
+                if(rt.ausraeumen() == false  && rt.istZapfen() == false)
                 {
                     r.set_laenge(r.l()-wkzdm);
                     r.set_breite(r.b()-wkzdm);

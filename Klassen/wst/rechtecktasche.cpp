@@ -23,6 +23,7 @@ void rechtecktasche::setup()
     Bezug = WST_BEZUG_OBSEI;
     Afb = "1";
     Werkzeugnummer = "void";
+    IstZapfen = false;
 }
 
 void rechtecktasche::set_laenge(double l)
@@ -146,6 +147,21 @@ void rechtecktasche::set_wkznum(QString nummer)
 {
     Werkzeugnummer = nummer;
 }
+void rechtecktasche::set_zapfen(bool ist_zapfen)
+{
+    IstZapfen = ist_zapfen;
+}
+void rechtecktasche::set_zapfen(QString ist_zapfen)
+{
+    if(ist_zapfen == "ja")
+    {
+        IstZapfen = true;
+    }else
+    {
+        IstZapfen = false;
+    }
+}
+
 
 double rechtecktasche::laenge()
 {
@@ -249,36 +265,52 @@ QString rechtecktasche::wkznum()
 {
     return Werkzeugnummer;
 }
+bool rechtecktasche::istZapfen()
+{
+    return IstZapfen;
+}
+QString rechtecktasche::istZapfen_qstring()
+{
+    if(IstZapfen == true)
+    {
+        return "ja";
+    }else
+    {
+        return "nein";
+    }
+}
 
 QString rechtecktasche::text()
 {
-    QString msg = BEARBART_RTA;    //Zeile 1
+    QString msg = BEARBART_RTA;  //Wert 0
     msg += TRENNZ_BEARB_PARAM_;
-    msg += bezug();             //Zeile 2
+    msg += bezug();             //Wert 1
     msg += TRENNZ_BEARB_PARAM_;
-    msg += laenge_qstring();    //Zeile 3
+    msg += laenge_qstring();    //Wert 2
     msg += TRENNZ_BEARB_PARAM_;
-    msg += breite_qstring();    //Zeile 4
+    msg += breite_qstring();    //Wert 3
     msg += TRENNZ_BEARB_PARAM_;
-    msg += tiefe_qstring();     //Zeile 5
+    msg += tiefe_qstring();     //Wert 4
     msg += TRENNZ_BEARB_PARAM_;
-    msg += x_qstring();         //Zeile 6
+    msg += x_qstring();         //Wert 5
     msg += TRENNZ_BEARB_PARAM_;
-    msg += y_qstring();         //Zeile 7
+    msg += y_qstring();         //Wert 6
     msg += TRENNZ_BEARB_PARAM_;
-    msg += z_qstring();         //Zeile 8
+    msg += z_qstring();         //Wert 7
     msg += TRENNZ_BEARB_PARAM_;
-    msg += drewi_qstring();     //Zeile 9
+    msg += drewi_qstring();     //Wert 8
     msg += TRENNZ_BEARB_PARAM_;
-    msg += rad_qstring();       //Zeile 10
+    msg += rad_qstring();       //Wert 9
     msg += TRENNZ_BEARB_PARAM_;
-    msg += ausraeumen_qstring();//Zeile 11
+    msg += ausraeumen_qstring();//Wert 10
     msg += TRENNZ_BEARB_PARAM_;
-    msg += afb();               //Zeile 12
+    msg += afb();               //Wert 11
     msg += TRENNZ_BEARB_PARAM_;
-    msg += zustellmass_qstring();//Zeile 13
+    msg += zustellmass_qstring();//Wert 12
     msg += TRENNZ_BEARB_PARAM_;
-    msg += wkznum();            //Zeile 14
+    msg += wkznum();            //Wert 13
+    msg += TRENNZ_BEARB_PARAM_;
+    msg += istZapfen_qstring(); //Wert 14
 
     return msg;
 }
@@ -301,6 +333,7 @@ void rechtecktasche::set_text(QString text)
         set_afb(tz.at(11));
         set_zustellmass(tz.at(12));
         set_wkznum(tz.at(13));
+        set_zapfen(tz.at(14));
     }
 }
 
