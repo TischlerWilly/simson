@@ -17,6 +17,7 @@ void fraeseraufruf::setup()
     Afb = "1";
     Korrektur = "M";
     Werkzeugnummer = "void";
+    Zustellung = "AUTO";
     Anfahrtyp = FAUFRUF_ANABTYP_NDEF;
     Abfahrtyp = FAUFRUF_ANABTYP_NDEF;
     Anfahrweg = FAUFRUF_ANABWEG_AUTO;
@@ -60,6 +61,10 @@ void fraeseraufruf::set_tiefe(double ti)
 void fraeseraufruf::set_tiefe(QString ti)
 {
     set_tiefe(ti.toDouble());
+}
+void fraeseraufruf::set_zust(QString zust)
+{
+    Zustellung = zust;
 }
 void fraeseraufruf::set_bezug(QString bezugsflaeche)
 {
@@ -141,6 +146,10 @@ double fraeseraufruf::tiefe()
 QString fraeseraufruf::tiefe_qstring()
 {
     return double_to_qstring(Tiefe);
+}
+QString fraeseraufruf::zust_qstring()
+{
+    return Zustellung;
 }
 QString fraeseraufruf::bezug()
 {
