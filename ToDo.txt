@@ -1,3 +1,7 @@
 ToDo:
 
+--> zapfen aus dxf importieren
+    > aus Kreisen
+    > aus Rechtecken
+
 -> vieleck-Tasche
