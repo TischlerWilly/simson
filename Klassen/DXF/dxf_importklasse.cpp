@@ -82,13 +82,29 @@ void dxf_importklasse::addCircle(const DRW_Circle& data)
     {
         QString klasse = QString::fromUtf8(data.layer.c_str());
 
-        if(  klasse.contains(Einst_klassen.bohr_vert())  )
+        if(  klasse.contains(Einst_klassen.bohr_vert())     ||
+            klasse.contains(Einst_klassen.zapfen())          )
         {
             bohrung bo;
             bo.set_afb("1");
+            //Tiefe und wkz einlesen:
             QString ti;
-            ti = text_rechts(klasse, Einst_klassen.bohr_vert());
+            if(klasse.contains(Einst_klassen.zapfen()))
+            {
+                bo.set_zapfen(true);
+                ti = text_rechts(klasse, Einst_klassen.zapfen());
+            }else
+            {
+                bo.set_zapfen(false);
+                ti = text_rechts(klasse, Einst_klassen.bohr_vert());
+            }
             ti = text_rechts(ti, Einst_allgem.paramtren());
+            if(ti.contains(Einst_allgem.kenWKZnr()))
+            {
+                QString wkznr = text_rechts(ti, Einst_allgem.kenWKZnr());
+                bo.set_wkznum(wkznr);
+                ti = text_links(ti, Einst_allgem.kenWKZnr());
+            }
             ti.replace(Einst_allgem.dezitren(),".");
             double ti_double = ti.toDouble();
             if(ti_double == Wst->dicke())
@@ -123,7 +139,7 @@ void dxf_importklasse::addCircle(const DRW_Circle& data)
                 }
             }
 
-            bo.set_dm(data.radious*2);
+            bo.set_dm(data.radious*2);            
             Wst->bearb_ptr()->add_hi(bo.text());
         }else
         {
@@ -191,7 +207,8 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
 
         QString klasse = QString::fromUtf8(data.layer.c_str());
 
-        if(  klasse.contains(Einst_klassen.rta())  )
+        if(  klasse.contains(Einst_klassen.rta())     ||
+             klasse.contains(Einst_klassen.zapfen())   )
         {
             size_t anz_punkte = data.vertlist.size();
             if(anz_punkte == 4)
@@ -264,7 +281,15 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
 
                         //Tiefe und wkz einlesen:
                         QString ti;
-                        ti = text_rechts(klasse, Einst_klassen.rta());
+                        if(klasse.contains(Einst_klassen.zapfen()))
+                        {
+                            rta.set_zapfen(true);
+                            ti = text_rechts(klasse, Einst_klassen.zapfen());
+                        }else
+                        {
+                            rta.set_zapfen(false);
+                            ti = text_rechts(klasse, Einst_klassen.rta());
+                        }
                         ti = text_rechts(ti, Einst_allgem.paramtren());
                         if(ti.contains(Einst_allgem.kenWKZnr()))
                         {
@@ -400,7 +425,15 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
 
                     //Tiefe und wkz einlesen:
                     QString ti;
-                    ti = text_rechts(klasse, Einst_klassen.rta());
+                    if(klasse.contains(Einst_klassen.zapfen()))
+                    {
+                        rta.set_zapfen(true);
+                        ti = text_rechts(klasse, Einst_klassen.zapfen());
+                    }else
+                    {
+                        rta.set_zapfen(false);
+                        ti = text_rechts(klasse, Einst_klassen.rta());
+                    }
                     ti = text_rechts(ti, Einst_allgem.paramtren());
                     if(ti.contains(Einst_allgem.kenWKZnr()))
                     {

@@ -4,12 +4,14 @@ maschine::maschine()
 {
     Laenge  = 700;
     Breite  = 700;
+    Ausgabeformat = "kein";
 }
 maschine::maschine(QString neuer_name)
 {
     Name    = neuer_name;
     Laenge  = 700;
     Breite  = 700;
+    Ausgabeformat = "kein";
 }
 
 //--------------------------------------------------set_xy:
@@ -27,6 +29,9 @@ void maschine::set_text(QString t)
         }else if(spalten.at(0) == "Breite:")
         {
             set_breite(spalten.at(1));
+        }else if(spalten.at(0) == "Ausgabeformat:")
+        {
+            set_ausgabeformat(spalten.at(1));
         }
     }
 }
@@ -52,6 +57,10 @@ void maschine::set_breite(QString b)
 {
     set_breite(b.toDouble());
 }
+void maschine::set_ausgabeformat(QString f)
+{
+    Ausgabeformat = f;
+}
 void maschine::set_name(QString neuer_name)
 {
     Name = neuer_name;
@@ -74,6 +83,11 @@ QString maschine::text()
     text += "Breite:";
     text += "\t";
     text += breite_qstring();
+    text += "\n";
+
+    text += "Ausgabeformat:";
+    text += "\t";
+    text += ausgabeformat();
     text += "\n";
 
     return text;

@@ -18,6 +18,7 @@ public:
     void set_laenge(QString l);
     void set_breite(double b);
     void set_breite(QString b);
+    void set_ausgabeformat(QString f);
     void set_name(QString neuer_name);
     void set_wkzmag(wkz_magazin wkzmag);
 
@@ -40,6 +41,10 @@ public:
     {
         return double_to_qstring(Breite);
     }
+    inline QString  ausgabeformat() const
+    {
+        return Ausgabeformat;
+    }
     inline QString  name()
     {
         return Name;
@@ -54,6 +59,7 @@ private:
     QString Name;
     double Laenge;  //X-Wert
     double Breite;  //Y-Wert
+    QString Ausgabeformat; //kein|emc2
     wkz_magazin Wkzmag;
 
 };

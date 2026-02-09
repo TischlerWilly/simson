@@ -38,6 +38,10 @@ private slots:
     void on_pushButton_neue_maschine_clicked();
     void on_pushButton_wkz_clicked();
 
+    void on_radioButton_ausgabe_emc2_toggled(bool checked);
+
+    void on_radioButton_ausgabe_kein_toggled(bool checked);
+
 private:
     Ui::Dialog_maschinen *ui;
     maschinen Maschinen;

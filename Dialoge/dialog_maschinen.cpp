@@ -74,6 +74,26 @@ void Dialog_maschinen::on_pushButton_breite_ok_clicked()
         Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_breite(breite);
     }
 }
+void Dialog_maschinen::on_radioButton_ausgabe_kein_toggled(bool checked)
+{
+    if(checked == true)
+    {
+        if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+        {
+            Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_ausgabeformat("kein");
+        }
+    }
+}
+void Dialog_maschinen::on_radioButton_ausgabe_emc2_toggled(bool checked)
+{
+    if(checked == true)
+    {
+        if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+        {
+            Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_ausgabeformat("emc2");
+        }
+    }
+}
 void Dialog_maschinen::on_pushButton_ok_clicked()
 {
     this->close();
@@ -85,6 +105,13 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
     {
         ui->lineEdit_tischlaenge->setText(Maschinen.masch(currentRow)->laenge_qstring());
         ui->lineEdit_tischbreite->setText(Maschinen.masch(currentRow)->breite_qstring());
+        if(Maschinen.masch(currentRow)->ausgabeformat() == "emc2")
+        {
+            ui->radioButton_ausgabe_emc2->setChecked(true);
+        }else
+        {
+            ui->radioButton_ausgabe_kein->setChecked(true);
+        }
         prgpfade pf;
         ui->label_speierort->setText(pf.path_masch_dir(Maschinen.masch(currentRow)->name()));
     }
@@ -128,4 +155,8 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
+
+
+
+
 
