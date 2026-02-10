@@ -24,6 +24,8 @@ void Dialog_maschinen::slot_maschinen(maschinen m)
     ui->listWidget_maschinen->clear();
     ui->lineEdit_tischlaenge->clear();
     ui->lineEdit_tischbreite->clear();
+    ui->checkBox_manWkzWechsel->setChecked(false);
+    ui->checkBox_drehzExportieren->setChecked(false);
     for(uint i=0; i<m.anzahl();i++)
     {
         ui->listWidget_maschinen->addItem(m.masch(i)->name());
@@ -94,6 +96,22 @@ void Dialog_maschinen::on_radioButton_ausgabe_emc2_toggled(bool checked)
         }
     }
 }
+void Dialog_maschinen::on_checkBox_manWkzWechsel_stateChanged(int arg1)
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        bool jn = ui->checkBox_manWkzWechsel->isChecked();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_manWkzWechsel(jn);
+    }
+}
+void Dialog_maschinen::on_checkBox_drehzExportieren_stateChanged(int arg1)
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        bool jn = ui->checkBox_drehzExportieren->isChecked();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_drehzExportieren(jn);
+    }
+}
 void Dialog_maschinen::on_pushButton_ok_clicked()
 {
     this->close();
@@ -112,6 +130,8 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
         {
             ui->radioButton_ausgabe_kein->setChecked(true);
         }
+        ui->checkBox_manWkzWechsel->setChecked(Maschinen.masch(currentRow)->manWkzWechsel());
+        ui->checkBox_drehzExportieren->setChecked(Maschinen.masch(currentRow)->drehzExportieren());
         prgpfade pf;
         ui->label_speierort->setText(pf.path_masch_dir(Maschinen.masch(currentRow)->name()));
     }
@@ -155,6 +175,9 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
+
+
+
 
 
 

@@ -37,10 +37,10 @@ private slots:
     void on_pushButton_breite_ok_clicked();
     void on_pushButton_neue_maschine_clicked();
     void on_pushButton_wkz_clicked();
-
     void on_radioButton_ausgabe_emc2_toggled(bool checked);
-
     void on_radioButton_ausgabe_kein_toggled(bool checked);
+    void on_checkBox_manWkzWechsel_stateChanged(int arg1);
+    void on_checkBox_drehzExportieren_stateChanged(int arg1);
 
 private:
     Ui::Dialog_maschinen *ui;

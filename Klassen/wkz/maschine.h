@@ -21,6 +21,10 @@ public:
     void set_ausgabeformat(QString f);
     void set_name(QString neuer_name);
     void set_wkzmag(wkz_magazin wkzmag);
+    void set_manWkzWechsel(bool jn);
+    void set_manWkzWechsel(QString jn);
+    void set_drehzExportieren(bool jn);
+    void set_drehzExportieren(QString jn);
 
     //--------------------------------------------------get_xy:
     QString text();
@@ -53,6 +57,14 @@ public:
     {
         return Wkzmag;
     }
+    inline bool manWkzWechsel()
+    {
+        return ManWkzWechsel;
+    }
+    inline bool drehzExportieren()
+    {
+        return DrehzExportieren;
+    }
 
 private:
     //Variabeln:
@@ -60,6 +72,8 @@ private:
     double Laenge;  //X-Wert
     double Breite;  //Y-Wert
     QString Ausgabeformat; //kein|emc2
+    bool ManWkzWechsel; //Wkz wird von Hand gewechselt | Hat Wechselteller
+    bool DrehzExportieren; //Drehzahlen exportieren | Händisch an der Spindel einstellen
     wkz_magazin Wkzmag;
 
 };

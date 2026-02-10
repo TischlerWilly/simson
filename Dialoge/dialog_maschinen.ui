@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
+    <width>747</width>
     <height>382</height>
    </rect>
   </property>
@@ -26,7 +26,7 @@
   <widget class="QPushButton" name="pushButton_wkz">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>550</x>
      <y>250</y>
      <width>161</width>
      <height>71</height>
@@ -41,13 +41,17 @@
     <rect>
      <x>271</x>
      <y>51</y>
-     <width>241</width>
-     <height>81</height>
+     <width>251</width>
+     <height>261</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_tischbreite"/>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_tischbreite">
+      <property name="text">
+       <string>Tischbreite</string>
+      </property>
+     </widget>
     </item>
     <item row="0" column="0">
      <widget class="QLabel" name="label_tischlaenge">
@@ -56,15 +60,18 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_tischbreite">
+    <item row="1" column="2">
+     <widget class="QPushButton" name="pushButton_breite_ok">
       <property name="text">
-       <string>Tischbreite</string>
+       <string>übernehmen</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
      <widget class="QLineEdit" name="lineEdit_tischlaenge"/>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_tischbreite"/>
     </item>
     <item row="0" column="2">
      <widget class="QPushButton" name="pushButton_laenge_ok">
@@ -73,10 +80,17 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="2">
-     <widget class="QPushButton" name="pushButton_breite_ok">
+    <item row="2" column="0" colspan="3">
+     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
       <property name="text">
-       <string>übernehmen</string>
+       <string>Manueller Werkzeugwechsel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="3">
+     <widget class="QCheckBox" name="checkBox_drehzExportieren">
+      <property name="text">
+       <string>Spindeldrehzahl exportieren</string>
       </property>
      </widget>
     </item>
@@ -146,21 +160,21 @@
   <widget class="QGroupBox" name="groupBox_ausgabe">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>140</y>
-     <width>241</width>
+     <x>530</x>
+     <y>30</y>
+     <width>211</width>
      <height>101</height>
     </rect>
    </property>
    <property name="title">
     <string>Ausgabeformat</string>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>221</width>
+      <width>191</width>
       <height>81</height>
      </rect>
     </property>

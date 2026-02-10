@@ -1,13 +1,5 @@
 ToDo:
 
-->maschine.cpp
-    > Parameter ergänzen
-        >> wkz-Wechsel von Hand (bool)
-        >> Manuelle Spindeldrehzal (Oberfräse) (bool)
-->dialog_maschinen.ui
-    > Parameter ergänzen
-        >> wkz-Wechsel von Hand (bool)
-        >> Manuelle Spindeldrehzal (Oberfräse) (bool)
 
 ->Programmende (Parkposition) im pkopf ergänzen
 -> vieleck-Tasche

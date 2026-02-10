@@ -5,6 +5,8 @@ maschine::maschine()
     Laenge  = 700;
     Breite  = 700;
     Ausgabeformat = "kein";
+    ManWkzWechsel = true;
+    DrehzExportieren = false;
 }
 maschine::maschine(QString neuer_name)
 {
@@ -12,6 +14,8 @@ maschine::maschine(QString neuer_name)
     Laenge  = 700;
     Breite  = 700;
     Ausgabeformat = "kein";
+    ManWkzWechsel = true;
+    DrehzExportieren = false;
 }
 
 //--------------------------------------------------set_xy:
@@ -32,6 +36,12 @@ void maschine::set_text(QString t)
         }else if(spalten.at(0) == "Ausgabeformat:")
         {
             set_ausgabeformat(spalten.at(1));
+        }else if(spalten.at(0) == "ManWkzWechsl:")
+        {
+            set_manWkzWechsel(spalten.at(1));
+        }else if(spalten.at(0) == "DrehzExportieren:")
+        {
+            set_drehzExportieren(spalten.at(1));
         }
     }
 }
@@ -69,6 +79,34 @@ void maschine::set_wkzmag(wkz_magazin wkzmag)
 {
     Wkzmag = wkzmag;
 }
+void maschine::set_manWkzWechsel(bool jn)
+{
+    ManWkzWechsel = jn;
+}
+void maschine::set_manWkzWechsel(QString jn)
+{
+    if(jn == "ja")
+    {
+        ManWkzWechsel = true;
+    }else
+    {
+        ManWkzWechsel = false;
+    }
+}
+void maschine::set_drehzExportieren(bool jn)
+{
+    DrehzExportieren = jn;
+}
+void maschine::set_drehzExportieren(QString jn)
+{
+    if(jn == "ja")
+    {
+        DrehzExportieren = true;
+    }else
+    {
+        DrehzExportieren = false;
+    }
+}
 
 //--------------------------------------------------get_xy:
 QString maschine::text()
@@ -88,6 +126,28 @@ QString maschine::text()
     text += "Ausgabeformat:";
     text += "\t";
     text += ausgabeformat();
+    text += "\n";
+
+    text += "ManWkzWechsl:";
+    text += "\t";
+    if(manWkzWechsel() == true)
+    {
+        text += "ja";
+    }else
+    {
+        text += "nein";
+    }
+    text += "\n";
+
+    text += "DrehzExportieren:";
+    text += "\t";
+    if(drehzExportieren() == true)
+    {
+        text += "ja";
+    }else
+    {
+        text += "nein";
+    }
     text += "\n";
 
     return text;
