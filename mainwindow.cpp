@@ -6,14 +6,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.02.04");
+    this->setWindowTitle("Simson V1-2026.02.11");
     PrgPfade.ordner_erstellen();
     setup();
 
     set_vorschaufenster_default();
 
-    connect(&vorschaufenster, SIGNAL(sende_maus_pos(QPoint)),\
-            this, SLOT(getMausPosXY(QPoint)));
+    connect(&vorschaufenster, SIGNAL(sende_maus_pos(punkt3d)),\
+            this, SLOT(getMausPosXY(punkt3d)));
     connect(&vorschaufenster, SIGNAL(sende_zeilennummer(uint, bool)),\
             this, SLOT(get_zeilennummer_bearb(uint, bool)));
 
@@ -322,10 +322,10 @@ void MainWindow::set_vorschaufenster_default()
 
     vorschaufenster.slot_aktualisieren(gt, fkon, 0);
 }
-void MainWindow::getMausPosXY(QPoint p)
+void MainWindow::getMausPosXY(punkt3d p)
 {
-    QString x = int_to_qstring(p.x());
-    QString y = int_to_qstring(p.y());
+    QString x = double_to_qstring(p.x(), 1);
+    QString y = double_to_qstring(p.y(), 1);
     QString msg;
     msg  = "X: ";
     msg += x;

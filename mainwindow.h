@@ -80,7 +80,7 @@ private slots:
     //Grafik und UI:
     void resizeEvent(QResizeEvent *event);
     void set_vorschaufenster_default();
-    void getMausPosXY(QPoint p);
+    void getMausPosXY(punkt3d p);
     void get_zeilennummer_bearb(uint nr, bool bearbeiten);
 
     //Einstellungen:

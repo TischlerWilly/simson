@@ -54,3 +54,9 @@ QString double_to_qstring(double zahl)
     returnstring = ss.str();
     return QString::fromStdString(returnstring);
 }
+QString double_to_qstring(double zahl, int anz_nachkommastellen)
+{
+    // 'f' steht für das Fixed-Point Format (kein wissenschaftliches E+0x)
+    // Die 3 steht für die Anzahl der Nachkommastellen
+    return QString::number(zahl, 'f', anz_nachkommastellen);
+}

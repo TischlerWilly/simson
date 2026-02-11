@@ -24,7 +24,7 @@ protected:
     void paintEvent(QPaintEvent *);
 
 private:
-    void zeichneGeotext(QString geometrieElement, int i);
+    void zeichneGeotext(QPainter &painter, QString geometrieElement, int i);
     void update_cad();
     float sf();
     void set_sf(float neuer_faktor);
@@ -53,7 +53,7 @@ private:
     bool        Mrg;  //Mausrad gedrückt
     
 signals:
-    void sende_maus_pos(QPoint p);
+    void sende_maus_pos(punkt3d p);
     void sende_zeilennummer(uint nr, bool bearbeiten);
 
 public slots:
