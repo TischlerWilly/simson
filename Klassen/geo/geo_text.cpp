@@ -1350,7 +1350,7 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
             }else
             {
                 strecke stmp = s;
-                stmp.drenen_um_mipu_2d(radToDeg(90), false);
+                stmp.drenen_um_mipu_2d(degToRad(90), true);
                 stmp.set_laenge(fraeserdm, strecke_bezugspunkt_mitte);
                 if(radkor == FRKOR_L)
                 {
