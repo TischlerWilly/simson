@@ -131,11 +131,29 @@ void vorschau::zeichneGeotext(QPainter &painter, QString geometrieElement, int i
                     b.rad() * 2,
                     b.rad() * 2);
 
-        double stawi16 = b.swi() * (180.0 / M_PI) * 16.0;
-        double bogwi16 = (b.ewi() - b.swi()) * (180.0 / M_PI) * 16.0;
+        // Spannwinkel berechnen
+        double spanRad = b.ewi() - b.swi();
+        double absSpanDeg = std::abs(spanRad * (180.0 / M_PI));
 
-        // Durch scale(1, -1) müssen wir den Winkel umkehren
-        painter.drawArc(rect, static_cast<int>(stawi16), static_cast<int>(bogwi16));
+        // 1. Prüfung auf Vollkreis (nahe 360 Grad)
+        if (absSpanDeg >= 359.99)
+        {
+            painter.drawEllipse(rect);
+        }
+        // 2. Prüfung auf "Nichts" (nahe 0 Grad)
+        else if (absSpanDeg < 0.01)
+        {
+            // Zeichne nichts oder nur einen Punkt
+        }
+        // 3. Normaler Bogen
+        else
+        {
+            double stawi16 = b.swi() * (180.0 / M_PI) * 16.0;
+            double bogwi16 = spanRad * (180.0 / M_PI) * 16.0;
+
+            // Winkel negieren wegen painter.scale(1, -1)
+            painter.drawArc(rect, static_cast<int>(-stawi16), static_cast<int>(-bogwi16));
+        }
         painter.restore();
     }else if(element.text().contains(KREIS))
     {
@@ -396,7 +414,7 @@ void vorschau::mouseMoveEvent(QMouseEvent *event)
         int dy = event->pos().y() - Maus_pos_alt_y;
 
         Npv.set_x(Npv.x() - dx);
-        Npv.set_y(Npv.y() + dy);
+        Npv.set_y(Npv.y() - dy);
 
         Maus_pos_alt_x = event->pos().x();
         Maus_pos_alt_y = event->pos().y();
