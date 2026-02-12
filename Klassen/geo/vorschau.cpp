@@ -260,29 +260,31 @@ void vorschau::slot_aktualisieren()
 {
     //Zoomfakrotr berechnen:
     int randabstand = 20;
-    float maximallaenge = Geotext.max_x() - Geotext.min_x();
-    float maximalbreite = Geotext.max_y() - Geotext.min_y();
+    double maximallaenge = Geotext.max_x() - Geotext.min_x();
+    double maximalbreite = Geotext.max_y() - Geotext.min_y();
 
-    float bildlaenge = width()-randabstand*2;
-    float bildbreite = height()-randabstand*2;
-
-    float faktor_laenge = bildlaenge/maximallaenge;
-    float faktor_breite = bildbreite/maximalbreite;
-
-    if(faktor_laenge < faktor_breite)
+    if(maximallaenge > 0.001 && maximalbreite > 0.001)
     {
-        set_sf(faktor_laenge);
-    }else
+        double bildlaenge = width()-randabstand*2;
+        double bildbreite = height()-randabstand*2;
+
+        double faktor_laenge = bildlaenge/maximallaenge;
+        double faktor_breite = bildbreite/maximalbreite;
+
+        if(faktor_laenge < faktor_breite)
+        {
+            set_sf(faktor_laenge);
+        }else
+        {
+            set_sf(faktor_breite);
+        }
+    }
+    else
     {
-        set_sf(faktor_breite);
+        set_sf(1.0); // Standardwert
     }
 
-    double basispunkt_x = randabstand;
-    double basispunkt_y = height()-randabstand;
-
-    N.set_x( basispunkt_x - Geotext.min_x()*Sf * Zf );
-    N.set_y( basispunkt_y + Geotext.min_y()*Sf * Zf );
-
+    slot_zf_gleich_eins();
     this->update();
 }
 
@@ -311,16 +313,8 @@ void vorschau::zoom(bool dichter)
         Zf = Zf + Zf/25;
     }else
     {
-        if(Zf > 1)
-        {
-            Zf = Zf - Zf/25;
-        }else
-        {
-            //Npv.x = 0;
-            //Npv.y = 0;
-        }
+        Zf = Zf - Zf/25;
     }
-
 }
 punkt3d vorschau::mauspos_vom_np()
 {
@@ -445,17 +439,23 @@ void vorschau::mouseMoveEvent(QMouseEvent *event)
 }
 void vorschau::wheelEvent(QWheelEvent *event)
 {
-    // 1. Mausposition im Widget holen
     QPointF mauspos = event->position();
+    bool istHerauszoomen = (event->angleDelta().y() < 0);
+    double idealZf = get_ideal_zf();
 
-    // 2. CAD-Position VOR dem Zoom berechnen
-    // Entspricht der Umkehrung von: N.x() - Npv.x() + cadX * Sf * Zf
+    // 1. Wenn wir schon am Limit sind und weiter raus wollen -> Fixieren
+    if (istHerauszoomen && Zf <= (idealZf + 0.0001))
+    {
+        slot_zf_gleich_eins();
+        return;
+    }
+
+    // 2. CAD-Position VOR dem Zoom
     double wstX_alt = (mauspos.x() - N.x() + Npv.x()) / (Sf * Zf);
-    // Entspricht der Umkehrung von: N.y() - Npv.y() - cadY * Sf * Zf
     double wstY_alt = (N.y() - Npv.y() - mauspos.y()) / (Sf * Zf);
 
     // 3. Zoom ausführen
-    if(event->angleDelta().y() < 0)
+    if (istHerauszoomen)
     {
         zoom(false);
     }
@@ -464,26 +464,38 @@ void vorschau::wheelEvent(QWheelEvent *event)
         zoom(true);
     }
 
-    // 4. CAD-Position NACH dem Zoom berechnen (mit neuem Zf)
+    // 4. Nach dem Zoom: Prüfen ob wir das Limit unterschritten haben
+    if (istHerauszoomen && Zf < idealZf)
+    {
+        slot_zf_gleich_eins();
+        return;
+    }
+
+    // 5. Fokus-Panning (nur wenn nicht zentriert wurde)
     double wstX_neu = (mauspos.x() - N.x() + Npv.x()) / (Sf * Zf);
     double wstY_neu = (N.y() - Npv.y() - mauspos.y()) / (Sf * Zf);
 
-    // 5. Versatz in Millimetern bestimmen
-    double dx_mm = wstX_neu - wstX_alt;
-    double dy_mm = wstY_neu - wstY_alt;
-
-    // 6. Npv anpassen (Pixel-Versatz)
-    // Wir multiplizieren die mm-Differenz mit dem aktuellen Maßstab
-    Npv.set_x(Npv.x() - (dx_mm * Sf * Zf));
-    Npv.set_y(Npv.y() + (dy_mm * Sf * Zf));
-
-    if(Zf <= 1)
-    {
-        Npv.set_x(0);
-        Npv.set_y(0);
-    }
+    Npv.set_x(Npv.x() - (wstX_neu - wstX_alt) * Sf * Zf);
+    Npv.set_y(Npv.y() - (wstY_neu - wstY_alt) * Sf * Zf);
 
     this->update();
+}
+double vorschau::get_ideal_zf()
+{
+    double minX = Geotext.min_x();
+    double minY = Geotext.min_y();
+    double maxX = Geotext.max_x();
+    double maxY = Geotext.max_y();
+
+    if(minX >= maxX || minY >= maxY) return 1.0 / Sf;
+
+    double breite = maxX - minX;
+    double hoehe = maxY - minY;
+
+    double scaleX = (this->width() * 0.9) / breite;
+    double scaleY = (this->height() * 0.9) / hoehe;
+
+    return std::min(scaleX, scaleY) / Sf;
 }
 void vorschau::mousePressEvent(QMouseEvent *event)
 {
@@ -536,9 +548,40 @@ void vorschau::mouseReleaseEvent(QMouseEvent *event)
 }
 void vorschau::slot_zf_gleich_eins()
 {
-    Zf = 1;
-    Npv.set_x(0);
-    Npv.set_y(0);
+    // Aktuelle Widget-Mitte
+    N.set_x(this->width() / 2.0);
+    N.set_y(this->height() / 2.0);
+
+    double minX = Geotext.min_x();
+    double minY = Geotext.min_y();
+    double maxX = Geotext.max_x();
+    double maxY = Geotext.max_y();
+
+    if(minX > maxX) { minX = 0; maxX = 100; minY = 0; maxY = 100; }
+
+    double breite = maxX - minX;
+    double hoehe = maxY - minY;
+
+    // Puffer hinzufügen (10% Rand)
+    if(breite < 0.1) breite = 1.0;
+    if(hoehe < 0.1) hoehe = 1.0;
+
+    double scaleX = (this->width() * 0.9) / breite;
+    double scaleY = (this->height() * 0.9) / hoehe;
+
+    Zf = std::min(scaleX, scaleY) / Sf;
+
+    // Mitte des Werkstücks
+    double mitteX = (minX + maxX) / 2.0;
+    double mitteY = (minY + maxY) / 2.0;
+
+    // Npv setzen:
+    // Der Punkt (mitteX, mitteY) soll auf (N.x, N.y) landen.
+    // In update_cad: PainterX = N.x - Npv.x + mitteX * Sf * Zf
+    // Damit PainterX = N.x, muss Npv.x = mitteX * Sf * Zf sein.
+    Npv.set_x(mitteX * Sf * Zf);
+    Npv.set_y(-mitteY * Sf * Zf);
+
     this->update();
 }
 void vorschau::slot_tunix()

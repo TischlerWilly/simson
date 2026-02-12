@@ -30,6 +30,7 @@ private:
     void set_sf(float neuer_faktor);
     void mouseMoveEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
+    double get_ideal_zf();
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void zoom(bool dichter);
