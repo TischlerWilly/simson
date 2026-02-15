@@ -166,6 +166,11 @@ void werkstueck::set_prgend_z(QString endpos)
 {
     Prgend_z = endpos;
 }
+void werkstueck::wurde_gespeichert()
+{
+    unredo_clear();
+    unredo_neu();
+}
 //--------------------------------------------------get_xy:
 
 QString werkstueck::text()

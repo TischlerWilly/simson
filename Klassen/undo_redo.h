@@ -16,23 +16,36 @@ public:
     }
     void neu(T t_neu)
     {
-        if((uint)Aktuelle_position+1 == Vector_t.size())
+        // Falls wir nach einem Undo in der Mitte des Stacks sind:
+        // Alles löschen, was nach der aktuellen Position kommt
+        if ((uint)Aktuelle_position + 1 < Vector_t.size())
         {
-            if(Vector_t.size() < Max_anzahl)
-            {
-                Vector_t.push_back(t_neu);
-                Aktuelle_position++;
-            }else
-            {
-                Vector_t.erase(Vector_t.begin());
-                Vector_t.push_back(t_neu);
-            }
-        }else
-        {
-            Vector_t.erase(Vector_t.begin()+Aktuelle_position+1, Vector_t.end());
-            Vector_t.push_back(t_neu);
-            Aktuelle_position = Vector_t.size()-1;
+            Vector_t.erase(Vector_t.begin() + Aktuelle_position + 1, Vector_t.end());
+            Erstes_aktives_element_t.erase(Erstes_aktives_element_t.begin() + Aktuelle_position + 1, Erstes_aktives_element_t.end());
+            Anz_aktive_elemente_t.erase(Anz_aktive_elemente_t.begin() + Aktuelle_position + 1, Anz_aktive_elemente_t.end());
         }
+
+        // Wenn Maximum erreicht: Erstes Element entfernen
+        if (Vector_t.size() >= Max_anzahl && Max_anzahl > 0)
+        {
+            Vector_t.erase(Vector_t.begin());
+            Erstes_aktives_element_t.erase(Erstes_aktives_element_t.begin());
+            Anz_aktive_elemente_t.erase(Anz_aktive_elemente_t.begin());
+        }
+
+        // Neuen Wert hinzufügen
+        Vector_t.push_back(t_neu);
+
+        // WICHTIG: Die Index-Vektoren müssen immer befüllt werden!
+        Erstes_aktives_element_t.push_back(0);
+        Anz_aktive_elemente_t.push_back(1);
+
+        Aktuelle_position = Vector_t.size() - 1;
+    }
+
+    int pos() // Neue Hilfsfunktion für den Dirty-Check
+    {
+        return Aktuelle_position;
     }
 
     //----------------------------------------set_xy:
@@ -64,7 +77,7 @@ public:
     }
     int  anz_aktive_elemente()
     {
-        return Anz_aktive_elemente_t.at(Aktuelle_position);
+        return Vector_t.size(); // Gibt die Anzahl der gespeicherten Schritte zurück
     }
     T akt_elem()
     {

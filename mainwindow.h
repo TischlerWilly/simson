@@ -80,6 +80,7 @@ private:
 private slots:
     //Grafik und UI:
     void resizeEvent(QResizeEvent *event);
+    void closeEvent(QCloseEvent *event);
     void set_vorschaufenster_default();
     void getMausPosXY(punkt3d p);
     void get_zeilennummer_bearb(uint nr, bool bearbeiten);
@@ -104,6 +105,7 @@ private slots:
     void on_actionVerschieben_triggered();
     void on_actionUndo_triggered();
     void on_actionRedo_triggered();
+    void process_undo_redo(bool isUndo);
     void on_actionKopieren_triggered();
     void on_actionEinfuegen_triggered();
     void on_action_schliessen_triggered();       

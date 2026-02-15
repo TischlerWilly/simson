@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Programmversion_simson = "Simson V1-2026.02.12";
+    Programmversion_simson = "Simson V1-2026.02.15";
     aktualisiere_fendtertitel();
     PrgPfade.ordner_erstellen();
     setup();
@@ -101,6 +101,7 @@ void MainWindow::setup()
         }else
         {
             Einstellung.set_text(file.readAll());
+            Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_zuletzt_geoefnet();
         }
         file.close();
     }
@@ -301,6 +302,40 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     ui->comboBox_maschinen->move(x+b+10, y);
     ui->comboBox_maschinen->setFixedWidth(b);
     ui->comboBox_maschinen->setFixedHeight(20);
+}
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    bool abbrechen = false;
+
+    for (int i = 0; i < Wste.anzahl(); i++)
+    {
+        werkstueck* wst = Wste.wst(i);
+        if (wst->hat_aenderungen())
+        {
+            QString msg = "Das Bauteil '" + wst->name() + "' wurde geändert. Möchten Sie speichern?";
+            QMessageBox::StandardButton res = QMessageBox::warning(this, "Beenden", msg,
+                                                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+
+            if (res == QMessageBox::Save)
+            {
+                // Wir wählen das Element im Listwidget aus, damit die Speicher-Funktion weiß, wen sie speichern soll
+                ui->listWidget_dateien->setCurrentRow(i);
+                on_actionSpeichern_triggered();
+            }else if (res == QMessageBox::Cancel)
+            {
+                abbrechen = true;
+                break;
+            }
+        }
+    }
+
+    if (abbrechen)
+    {
+        event->ignore(); // Programm bleibt offen
+    }else
+    {
+        event->accept(); // Programm schließt
+    }
 }
 void MainWindow::set_vorschaufenster_default()
 {
@@ -676,7 +711,6 @@ void MainWindow::on_action_quick_import_triggered()
 }
 void MainWindow::on_action_oeffnen_triggered()
 {
-    Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_zuletzt_geoefnet();
     QDir d(Pfad_letzte_geoeffnete_datei);
     if(!d.exists())//z.B. wenn der ordner zwischenzeitlich umbenannt wurde
     {
@@ -740,7 +774,6 @@ void MainWindow::on_action_oeffnen_triggered()
     //-----------------------------UI aktualisieren:
     if(Wste.wst(0))
     {
-        //werkstueck *w = Wste.wst(0);
         ui->listWidget_dateien->clear();
         for(uint i=0; i<Wste.anzahl();i++)
         {
@@ -769,6 +802,9 @@ void MainWindow::on_actionSpeichern_triggered()
             fileName = validiere_dateipfad(fileName);
             if (!fileName.isEmpty())
             {
+                QFileInfo info(fileName);
+                Pfad_letzte_geoeffnete_datei = info.absolutePath();
+
                 if(speichern(fileName, Wste.wst(ui->listWidget_dateien->currentRow())))
                 {
                     Wste.wst(ui->listWidget_dateien->currentRow())->set_dateipfad(fileName);
@@ -892,18 +928,46 @@ void MainWindow::aktualisiere_listwidget_dateien(int akt_index)
 }
 void MainWindow::on_action_schliessen_triggered()
 {
-    if(ui->listWidget_dateien->selectedItems().count())
+    if (ui->listWidget_dateien->selectedItems().count())
     {
-        QString name = ui->listWidget_dateien->currentItem()->text();
-        Wste.entf(name);
-        aktualisiere_listwidget_dateien(0);
+        int index = ui->listWidget_dateien->currentRow();
+        werkstueck* wst = Wste.wst(index);
+
+        if (wst->hat_aenderungen())
+        {
+            QString msg = "Das Bauteil '" + wst->name() + "' wurde geändert. Möchten Sie vor dem Schließen speichern?";
+            QMessageBox::StandardButton res = QMessageBox::warning(this, "Datei schließen", msg,
+                                                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+
+            if (res == QMessageBox::Save)
+            {
+                on_actionSpeichern_triggered();
+                // Falls speichern() fehlschlug oder abgebrochen wurde, darf nicht gelöscht werden
+                if (Wste.wst(index)->hat_aenderungen())
+                {
+                    return;
+                }
+            }else if (res == QMessageBox::Cancel)
+            {
+                return;
+            }
+        }
+
+        Wste.entf_at(index);
+
+        // Nach dem Löschen Index 0 wählen, falls noch Dateien da sind
+        int neuerIndex = 0;
+        if(Wste.anzahl() == 0)
+        {
+            neuerIndex = -1;
+        }
+        aktualisiere_listwidget_dateien(neuerIndex);
     }else
     {
-        QString msg;
-        msg = "Es ist kein Bauteil ausgewählt!";
+        QString msg = "Es ist kein Bauteil ausgewählt!";
         QMessageBox mb;
         mb.setText(msg);
-        mb.setWindowTitle("Datei/Bautreil schließen");
+        mb.setWindowTitle("Datei/Bauteil schließen");
         mb.exec();
     }
 }
@@ -1111,6 +1175,7 @@ void MainWindow::on_actionUmbenennen_triggered()
 
 void MainWindow::on_actionUndo_triggered()
 {
+    /*
     if(ui->listWidget_dateien->selectedItems().count())
     {
         int index_wst = ui->listWidget_dateien->currentRow();
@@ -1135,9 +1200,12 @@ void MainWindow::on_actionUndo_triggered()
         mb.setWindowTitle("Werkstück umbenennen");
         mb.exec();
     }
+    */
+    process_undo_redo(true);
 }
 void MainWindow::on_actionRedo_triggered()
 {
+    /*
     if(ui->listWidget_dateien->selectedItems().count())
     {
         int index_wst = ui->listWidget_dateien->currentRow();
@@ -1161,6 +1229,39 @@ void MainWindow::on_actionRedo_triggered()
         mb.setText(msg);
         mb.setWindowTitle("Werkstück umbenennen");
         mb.exec();
+    }
+    */
+    process_undo_redo(false);
+}
+void MainWindow::process_undo_redo(bool isUndo)
+{
+    if (ui->listWidget_dateien->selectedItems().count())
+    {
+        int index_wst = ui->listWidget_dateien->currentRow();
+        werkstueck* wst = Wste.wst(index_wst);
+
+        if (isUndo)
+        {
+            wst->undo();
+        }else
+        {
+            wst->redo();
+        }
+
+        // UI aktualisieren
+        update_listwidget_bearb(wst);
+
+        wkz_magazin wkz;
+        if (ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            wkz = Maschinen.masch(Maschinen.get_index(masch_bez))->wkzmag();
+        }
+
+        vorschaufenster.slot_aktualisieren(wst->geo(wkz), wst->geo_aktfkon(wkz), 0);
+    }else
+    {
+        QMessageBox::information(this, "Rückgängig", "Es ist kein Bauteil ausgewählt!");
     }
 }
 void MainWindow::on_listWidget_bearb_itemDoubleClicked(QListWidgetItem *item)

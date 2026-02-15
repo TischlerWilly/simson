@@ -14,6 +14,7 @@ public:
     //--------------------------------------------------set_xy:
     bool neu(werkstueck w);
     bool entf(QString werkstueckname);
+    bool entf_at(uint index);
 
     inline void set_name(uint zeilennummer,  QString neuer_name)
     {

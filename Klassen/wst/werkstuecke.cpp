@@ -35,6 +35,18 @@ bool werkstuecke::entf(QString werkstueckname)
         return false;
     }
 }
+bool werkstuecke::entf_at(uint index)
+{
+    if(index < (uint)Wste.size())
+    {
+        Namen.entf(index, 1);
+        Wste.erase(Wste.begin() + index);
+        return true;
+    }else
+    {
+        return false;
+    }
+}
 
 //--------------------------------------------------get_xy:
 bool werkstuecke::ist_bekannt(QString werkstueckname)

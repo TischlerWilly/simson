@@ -47,6 +47,7 @@ public:
     void set_prgend_x(QString endpos);
     void set_prgend_y(QString endpos);
     void set_prgend_z(QString endpos);
+    void wurde_gespeichert();
 
     //--------------------------------------------------get_xy:
     QString text();
@@ -129,7 +130,16 @@ public:
     {
         return &Bearb;
     }
-
+    inline bool hat_aenderungen()
+    {
+        if(UnReDo.anz_aktive_elemente() > 1)
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
     //--------------------------------------------------Manipulationen:
     void undo();
     void redo();
