@@ -25,6 +25,9 @@ void Dialog_bearb_pkopf::set_data(werkstueck *w)
     ui->lineEdit_ax->setText(Wst->versatz_x_qstring());
     ui->lineEdit_ay->setText(Wst->versatz_y_qstring());
     ui->lineEdit_az->setText(Wst->versatz_z_qstring());
+    ui->lineEdit_prgend_x->setText(Wst->prgend_x());
+    ui->lineEdit_prgend_y->setText(Wst->prgend_y());
+    ui->lineEdit_prgend_z->setText(Wst->prgend_z());
 }
 
 void Dialog_bearb_pkopf::on_pushButton_ok_clicked()
@@ -35,6 +38,9 @@ void Dialog_bearb_pkopf::on_pushButton_ok_clicked()
     Wst->set_versatz_x(ui->lineEdit_ax->text().toDouble());
     Wst->set_versatz_y(ui->lineEdit_ay->text().toDouble());
     Wst->set_versatz_z(ui->lineEdit_az->text().toDouble());
+    Wst->set_prgend_x(ui->lineEdit_prgend_x->text());
+    Wst->set_prgend_y(ui->lineEdit_prgend_y->text());
+    Wst->set_prgend_z(ui->lineEdit_prgend_z->text());
     this->close();
 }
 

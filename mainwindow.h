@@ -110,6 +110,11 @@ private slots:
     void on_actionDXF_Klasseneinstellung_triggered();
     void on_actionEntfernen_triggered();    
     void on_actionSchnellaenderung_triggered();
+    void on_actionSpeichern_triggered();
+    void on_actionSpeichern_unter_triggered();
+    bool speichern(QString dateipfad, werkstueck *wst);
+    QString validiere_dateipfad(QString pfad);
+    void aktualisiere_listwidget_dateien(int akt_index);
 
 public slots:
     void getEinstellung(einstellung e);

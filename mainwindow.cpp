@@ -692,8 +692,8 @@ void MainWindow::on_action_oeffnen_triggered()
         {
             QString inhalt = datei.readAll();
             QString wstname = finfo.fileName();
-            QString dateiendung = finfo.suffix();
-            wstname = wstname.left(wstname.length()-dateiendung.length());
+            QString dateiendung =  finfo.suffix();
+            wstname = finfo.baseName();
             if(dateiendung == "ewx")
             {
                 if(Wste.ist_bekannt(wstname))
@@ -738,19 +738,153 @@ void MainWindow::on_action_oeffnen_triggered()
     }
     //-----------------------------
 }
+void MainWindow::on_actionSpeichern_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        QString fileName;
+        fileName = Wste.wst(ui->listWidget_dateien->currentRow())->dateipfat();
+        if(fileName.isEmpty())
+        {
+            QString vorschlagName = Pfad_letzte_geoeffnete_datei;
+            vorschlagName += QDir::separator();
+            vorschlagName += Wste.wst(ui->listWidget_dateien->currentRow())->name();
+            vorschlagName += DATEIENDUNG_EIGENE;
+            //Dialog öffnen zum Wählen des Speicherortes und des Namens:
+            fileName = QFileDialog::getSaveFileName(this, tr("Datei Speichern"), \
+                                                    vorschlagName, tr("sim Dateien (*.sim)"));
+
+            fileName = validiere_dateipfad(fileName);
+            if (!fileName.isEmpty())
+            {
+                if(speichern(fileName, Wste.wst(ui->listWidget_dateien->currentRow())))
+                {
+                    Wste.wst(ui->listWidget_dateien->currentRow())->set_dateipfad(fileName);
+                    aktualisiere_listwidget_dateien(ui->listWidget_dateien->currentRow());
+                }
+            }
+        }else
+        {
+            speichern(fileName, Wste.wst(ui->listWidget_dateien->currentRow()));
+        }
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Speichern");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionSpeichern_unter_triggered()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        QString fileName;
+        //Dialog öffnen zum Wählen des Speicherortes und des Namens:
+        fileName = QFileDialog::getSaveFileName(this, tr("Datei Speichern"), \
+                                                Pfad_letzte_geoeffnete_datei, tr("sim Dateien (*.sim)"));
+        fileName = validiere_dateipfad(fileName);
+        if (!fileName.isEmpty())
+        {
+            if(speichern(fileName, Wste.wst(ui->listWidget_dateien->currentRow())))
+            {
+                Wste.wst(ui->listWidget_dateien->currentRow())->set_dateipfad(fileName);
+                aktualisiere_listwidget_dateien(ui->listWidget_dateien->currentRow());
+            }
+        }
+    }else
+    {
+        QString msg;
+        msg = "Es ist kein Bauteil ausgewählt!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Speichern unter");
+        mb.exec();
+    }
+}
+bool MainWindow::speichern(QString dateipfad, werkstueck *wst)
+{
+    // 1. Validitätsprüfung
+    if (dateipfad.isEmpty() || wst == nullptr)
+    {
+        return false;
+    }
+
+    // 2. Datei zum Schreiben öffnen
+    QFile file(dateipfad);
+
+    // QIODevice::WriteOnly | QIODevice::Text reicht völlig aus.
+    // Wenn die Datei existiert, wird sie automatisch überschrieben (Truncate).
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QMessageBox::critical(this, tr("Fehler"), tr("Datei konnte nicht zum Schreiben geöffnet werden."));
+        return false;
+    }
+
+    // 3. Inhalt schreiben
+    QString dateiInhalt = wst->text();
+
+    // Prüfen, ob das Schreiben erfolgreich war
+    if (file.write(dateiInhalt.toUtf8()) == -1)
+    {
+        QMessageBox::critical(this, tr("Fehler"), tr("Inhalt konnte nicht geschrieben werden."));
+        file.close();
+        return false;
+    }
+
+    file.close();
+    return true; // Erfolgreich gespeichert
+}
+QString MainWindow::validiere_dateipfad(QString pfad)
+{
+    if (pfad.isEmpty())
+    {
+        return "";
+    }
+
+    QFileInfo info(pfad);
+    // 1. Prüfen ob überhaupt ein Name vor dem Punkt steht
+    if (info.baseName().isEmpty())
+    {
+        QMessageBox::warning(this, "Speichern", "Bitte geben Sie einen gültigen Dateinamen ein.");
+        return "";
+    }
+
+    // 2. Endung prüfen (case-insensitive)
+    // endsWith ist hier am sichersten
+    if (!pfad.endsWith(DATEIENDUNG_EIGENE, Qt::CaseInsensitive))
+    {
+        // Wenn gar keine Endung da ist, einfach anhängen
+        if (info.suffix().isEmpty())
+        {
+            pfad += DATEIENDUNG_EIGENE;
+        }else
+        {
+            // Wenn eine falsche Endung da ist (z.B. .txt)
+            QMessageBox::warning(this, "Speichern", "Die angegebene Dateiendung ist ungültig!");
+            return "";
+        }
+    }
+    return pfad;
+}
+void MainWindow::aktualisiere_listwidget_dateien(int akt_index)
+{
+    ui->listWidget_dateien->clear();
+    for(uint i=0; i<Wste.anzahl();i++)
+    {
+        ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
+        ui->listWidget_dateien->setCurrentRow(akt_index);
+    }
+}
 void MainWindow::on_action_schliessen_triggered()
 {
     if(ui->listWidget_dateien->selectedItems().count())
     {
         QString name = ui->listWidget_dateien->currentItem()->text();
         Wste.entf(name);
-        int index_dat = ui->listWidget_dateien->currentRow();
-        ui->listWidget_dateien->clear();
-        for(uint i=0; i<Wste.anzahl();i++)
-        {
-            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
-            ui->listWidget_dateien->setCurrentRow(0);
-        }
+        aktualisiere_listwidget_dateien(0);
     }else
     {
         QString msg;
@@ -1966,6 +2100,12 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
+
+
+
 
 
 
