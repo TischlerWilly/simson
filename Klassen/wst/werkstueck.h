@@ -30,6 +30,7 @@ public:
     werkstueck(QString neuer_name);
 
     //--------------------------------------------------set_xy:
+    void set_text(QString text);
     void set_laenge(double l);
     void set_laenge(QString l);
     void set_breite(double b);
@@ -116,7 +117,7 @@ public:
     {
         return Name;
     }
-    inline QString dateipfat()
+    inline QString dateipfad()
     {
         return Dateipfad;
     }

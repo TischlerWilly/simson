@@ -1,7 +1,5 @@
 ToDo:
 
--> Dateien speichern im eigenen Format
--> Dateien önnen im eigenen Format
 -> G-Code export emc2
 -> Verschiebe n Kopien
 -> vieleck-Tasche

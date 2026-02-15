@@ -6,7 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Simson V1-2026.02.12");
+    Programmversion_simson = "Simson V1-2026.02.12";
+    aktualisiere_fendtertitel();
     PrgPfade.ordner_erstellen();
     setup();
 
@@ -423,6 +424,28 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
         ui->listWidget_bearb->setCurrentRow(currentRow);
     }
 }
+void MainWindow::aktualisiere_fendtertitel()
+{
+    if(ui->listWidget_dateien->selectedItems().count())
+    {
+        if(Wste.wst(ui->listWidget_dateien->currentRow()) != nullptr)
+        {
+            if(!Wste.wst(ui->listWidget_dateien->currentRow())->dateipfad().isEmpty())
+            {
+                this->setWindowTitle(Wste.wst(ui->listWidget_dateien->currentRow())->dateipfad());
+            }else
+            {
+                this->setWindowTitle(Programmversion_simson);
+            }
+        }else
+        {
+            this->setWindowTitle(Programmversion_simson);
+        }
+    }else
+    {
+        this->setWindowTitle(Programmversion_simson);
+    }
+}
 
 //------------------------------------------------------
 //Einstellungen:
@@ -641,21 +664,13 @@ void MainWindow::on_action_quick_import_triggered()
     //-----------------------------UI aktualisieren:
     if(Wste.wst(0))
     {
-        werkstueck *w = Wste.wst(0);
         ui->listWidget_dateien->clear();
         for(uint i=0; i<Wste.anzahl();i++)
         {
             ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
-            ui->listWidget_dateien->setCurrentRow(0);
+
         }
-        wkz_magazin wkz;
-        if(ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index_masch = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index_masch)->wkzmag();
-        }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+        ui->listWidget_dateien->setCurrentRow(0);
     }
     //-----------------------------
 }
@@ -667,8 +682,9 @@ void MainWindow::on_action_oeffnen_triggered()
     {
         Pfad_letzte_geoeffnete_datei = Einstellung.verzeichnis_quelle();
     }
+    QString filter = tr("Alle unterstützten Dateien (*.ewx *.sim);;ewx Dateien (*.ewx);;sim Dateien (*.sim)");
     QStringList pfade = QFileDialog::getOpenFileNames(this, tr("Wähle Datei(en)"), \
-                                                      Pfad_letzte_geoeffnete_datei, tr("ewx Dateien (*.ewx)"), \
+                                                      Pfad_letzte_geoeffnete_datei, filter, \
                                                       nullptr, QFileDialog::DontUseNativeDialog);
 
     //-----------------------------Dateien einlesen:
@@ -694,25 +710,29 @@ void MainWindow::on_action_oeffnen_triggered()
             QString wstname = finfo.fileName();
             QString dateiendung =  finfo.suffix();
             wstname = finfo.baseName();
-            if(dateiendung == "ewx")
+
+            if(Wste.ist_bekannt(wstname))
             {
-                if(Wste.ist_bekannt(wstname))
-                {
-                    QString msg;
-                    msg  = "Die Datei \"";
-                    msg += wstname;
-                    msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
-                    msg += "Arbeitsliste vorhanden ist.";
-                    QMessageBox mb;
-                    mb.setWindowTitle("Datei öffnen");
-                    mb.setText(msg);
-                    mb.exec();
-                }else
-                {
-                    werkstueck w = import_ewx(inhalt);
-                    w.set_name(wstname);
-                    Wste.neu(w);
-                }
+                QString msg;
+                msg  = "Die Datei \"";
+                msg += wstname;
+                msg += "\" konnte nich geöffnet werden, weil bereits ein Bauteil mit diesem Namen in der ";
+                msg += "Arbeitsliste vorhanden ist.";
+                QMessageBox mb;
+                mb.setWindowTitle("Datei öffnen");
+                mb.setText(msg);
+                mb.exec();
+            }else if(dateiendung == "ewx")
+            {
+                werkstueck w = import_ewx(inhalt);
+                w.set_name(wstname);
+                Wste.neu(w);
+            }else if(dateiendung == "sim")
+            {
+                werkstueck w;
+                w.set_text(inhalt);
+                w.set_dateipfad(aktueller_pfad);//setzt auch den wst-namen
+                Wste.neu(w);
             }
         }
     }
@@ -720,21 +740,13 @@ void MainWindow::on_action_oeffnen_triggered()
     //-----------------------------UI aktualisieren:
     if(Wste.wst(0))
     {
-        werkstueck *w = Wste.wst(0);
+        //werkstueck *w = Wste.wst(0);
         ui->listWidget_dateien->clear();
         for(uint i=0; i<Wste.anzahl();i++)
         {
-            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
-            ui->listWidget_dateien->setCurrentRow(0);
+            ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));            
         }
-        wkz_magazin wkz;
-        if(ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index_masch = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index_masch)->wkzmag();
-        }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+        ui->listWidget_dateien->setCurrentRow(Wste.anzahl()-1);
     }
     //-----------------------------
 }
@@ -743,7 +755,7 @@ void MainWindow::on_actionSpeichern_triggered()
     if(ui->listWidget_dateien->selectedItems().count())
     {
         QString fileName;
-        fileName = Wste.wst(ui->listWidget_dateien->currentRow())->dateipfat();
+        fileName = Wste.wst(ui->listWidget_dateien->currentRow())->dateipfad();
         if(fileName.isEmpty())
         {
             QString vorschlagName = Pfad_letzte_geoeffnete_datei;
@@ -1035,6 +1047,7 @@ void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
         ui->listWidget_bearb->clear();
         set_vorschaufenster_default();
     }
+    aktualisiere_fendtertitel();
 }
 void MainWindow::on_listWidget_bearb_currentRowChanged(int currentRow)
 {

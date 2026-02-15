@@ -29,6 +29,48 @@ werkstueck::werkstueck(QString neuer_name)
 //Public:
 //#######################################################################
 //--------------------------------------------------set_xy:
+void werkstueck::set_text(QString text)
+{
+    text_zw pkopf;
+    pkopf.set_text(text_mitte(text, "[Programmkopf]\n", "[ENDE_Programmkopf]"),'\n');
+    for(uint i=0 ; i< pkopf.count() ;i++)
+    {
+        QString zeile = pkopf.at(i);
+        if(zeile.contains("Name:"))
+        {
+            set_name(text_rechts(zeile, "Name:"));
+        }else if(zeile.contains("WST-Laenge:"))
+        {
+            set_laenge(text_rechts(zeile, "WST-Laenge:"));
+        }else if(zeile.contains("WST-Breite:"))
+        {
+            set_breite(text_rechts(zeile, "WST-Breite:"));
+        }else if(zeile.contains("WST-Dicke:"))
+        {
+            set_dicke(text_rechts(zeile, "WST-Dicke:"));
+        }else if(zeile.contains("Versatz X:"))
+        {
+            set_versatz_x(text_rechts(zeile, "Versatz X:").toDouble());
+        }else if(zeile.contains("Versatz Y:"))
+        {
+            set_versatz_y(text_rechts(zeile, "Versatz Y:").toDouble());
+        }else if(zeile.contains("Versatz Z:"))
+        {
+            set_versatz_z(text_rechts(zeile, "Versatz Z:").toDouble());
+        }else if(zeile.contains("Programmende X:"))
+        {
+            set_prgend_x(text_rechts(zeile, "Programmende X:"));
+        }else if(zeile.contains("Programmende Y:"))
+        {
+            set_prgend_y(text_rechts(zeile, "Programmende Y:"));
+        }else if(zeile.contains("Programmende Z:"))
+        {
+            set_prgend_z(text_rechts(zeile, "Programmende Z:"));
+        }
+    }
+
+    Bearb.set_text(text_mitte(text, "[Bearbeitungen]\n", "[ENDE_Bearbeitungen]"),'\n');
+}
 void werkstueck::set_laenge(double l)
 {
     if(l>0 && l<5000)
@@ -97,7 +139,7 @@ void werkstueck::set_dateipfad(QString pfad)
     {
         Dateipfad = pfad;
         QFileInfo info(pfad);
-        set_name(info.fileName());
+        set_name(info.baseName());
     }
 }
 void werkstueck::set_versatz_x(double versatz)
@@ -129,6 +171,8 @@ void werkstueck::set_prgend_z(QString endpos)
 QString werkstueck::text()
 {
     QString msg;
+
+    msg += "[Programmkopf]\n";
 
     msg += "Name:";
     msg += name();
@@ -170,12 +214,16 @@ QString werkstueck::text()
     msg += prgend_z();
     msg += "\n";
 
+    msg += "[ENDE_Programmkopf]";
+
+    msg += "\n";
     msg += "---------------------------------------------------";
     msg += "\n";
-    msg += "Bearbeitungen:";
-    msg += "\n\n";
 
+    msg += "[Bearbeitungen]\n";
     msg += bearb().text();
+    msg += "\n";
+    msg += "[ENDE_Bearbeitungen]";
 
     return msg;
 }

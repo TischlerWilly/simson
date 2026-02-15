@@ -59,7 +59,8 @@ private:
     int auswahl_menge();
 
     //Variablen:
-    Ui::MainWindow *ui;    
+    Ui::MainWindow *ui;
+    QString Programmversion_simson;
     vorschau vorschaufenster;
     werkstuecke Wste;
     maschinen Maschinen;
@@ -82,6 +83,7 @@ private slots:
     void set_vorschaufenster_default();
     void getMausPosXY(punkt3d p);
     void get_zeilennummer_bearb(uint nr, bool bearbeiten);
+    void aktualisiere_fendtertitel();
 
     //Einstellungen:
     void on_actionPfade_triggered();
