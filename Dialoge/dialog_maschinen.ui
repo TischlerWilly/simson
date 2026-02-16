@@ -46,10 +46,57 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="8" column="0" colspan="3">
+     <widget class="QCheckBox" name="checkBox_drehzExportieren">
+      <property name="text">
+       <string>Spindeldrehzahl exportieren</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="2">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>500.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="pushButton_laenge_ok">
+      <property name="text">
+       <string>übernehmen</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="3">
+     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
+      <property name="text">
+       <string>Manueller Werkzeugwechsel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="lineEdit_tischlaenge"/>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_tischbreite"/>
+    </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_tischbreite">
       <property name="text">
        <string>Tischbreite</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="2">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
       </property>
      </widget>
     </item>
@@ -67,30 +114,34 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_tischlaenge"/>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_tischbreite"/>
-    </item>
-    <item row="0" column="2">
-     <widget class="QPushButton" name="pushButton_laenge_ok">
-      <property name="text">
-       <string>übernehmen</string>
+    <item row="4" column="2">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="3">
-     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
+    <item row="4" column="0" colspan="2">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string>Manueller Werkzeugwechsel</string>
+       <string>Parkposition in X</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="0" colspan="3">
-     <widget class="QCheckBox" name="checkBox_drehzExportieren">
+    <item row="5" column="0" colspan="2">
+     <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>Spindeldrehzahl exportieren</string>
+       <string>Parkposition in Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="2">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Parkposition in Z</string>
       </property>
      </widget>
     </item>

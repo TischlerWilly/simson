@@ -5,6 +5,8 @@
 
 #include "Funktionen/umwandeln.h"
 #include "wkz_magazin.h"
+#include "Klassen/geo/punkt3d.h"
+#include "Funktionen/myfunktion.h"
 
 class maschine
 {
@@ -18,6 +20,12 @@ public:
     void set_laenge(QString l);
     void set_breite(double b);
     void set_breite(QString b);
+    void set_prgenpos_x(double pos);
+    void set_prgenpos_x(QString pos);
+    void set_prgenpos_y(double pos);
+    void set_prgenpos_y(QString pos);
+    void set_prgenpos_z(double pos);
+    void set_prgenpos_z(QString pos);
     void set_ausgabeformat(QString f);
     void set_name(QString neuer_name);
     void set_wkzmag(wkz_magazin wkzmag);
@@ -45,6 +53,30 @@ public:
     {
         return double_to_qstring(Breite);
     }
+    inline double   prgenpos_x()
+    {
+        return Prgendpos.x();
+    }
+    inline QString   prgenpos_x_qstring()
+    {
+        return Prgendpos.x_QString();
+    }
+    inline double   prgenpos_y()
+    {
+        return Prgendpos.y();
+    }
+    inline QString   prgenpos_y_qstring()
+    {
+        return Prgendpos.y_QString();
+    }
+    inline double   prgenpos_z()
+    {
+        return Prgendpos.z();
+    }
+    inline QString   prgenpos_z_qstring()
+    {
+        return Prgendpos.z_QString();
+    }
     inline QString  ausgabeformat() const
     {
         return Ausgabeformat;
@@ -71,6 +103,7 @@ private:
     QString Name;
     double Laenge;  //X-Wert
     double Breite;  //Y-Wert
+    punkt3d Prgendpos;
     QString Ausgabeformat; //kein|emc2
     bool ManWkzWechsel; //Wkz wird von Hand gewechselt | Hat Wechselteller
     bool DrehzExportieren; //Drehzahlen exportieren | Händisch an der Spindel einstellen

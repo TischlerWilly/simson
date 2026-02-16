@@ -7,6 +7,9 @@ maschine::maschine()
     Ausgabeformat = "kein";
     ManWkzWechsel = true;
     DrehzExportieren = false;
+    Prgendpos.set_x(100);
+    Prgendpos.set_y(100);
+    Prgendpos.set_z(100);
 }
 maschine::maschine(QString neuer_name)
 {
@@ -16,6 +19,9 @@ maschine::maschine(QString neuer_name)
     Ausgabeformat = "kein";
     ManWkzWechsel = true;
     DrehzExportieren = false;
+    Prgendpos.set_x(100);
+    Prgendpos.set_y(100);
+    Prgendpos.set_z(100);
 }
 
 //--------------------------------------------------set_xy:
@@ -54,7 +60,7 @@ void maschine::set_laenge(double l)
 }
 void maschine::set_laenge(QString l)
 {
-    set_laenge(l.toDouble());
+    set_breite(ausdruck_auswerten(l).toDouble());
 }
 void maschine::set_breite(double b)
 {
@@ -65,7 +71,40 @@ void maschine::set_breite(double b)
 }
 void maschine::set_breite(QString b)
 {
-    set_breite(b.toDouble());
+    set_breite(ausdruck_auswerten(b).toDouble());
+}
+void maschine::set_prgenpos_x(double pos)
+{
+    if(pos>0 && pos<5000)
+    {
+        Prgendpos.set_x(pos);
+    }
+}
+void maschine::set_prgenpos_x(QString pos)
+{
+    set_prgenpos_x(ausdruck_auswerten(pos).toDouble());
+}
+void maschine::set_prgenpos_y(double pos)
+{
+    if(pos>0 && pos<5000)
+    {
+        Prgendpos.set_y(pos);
+    }
+}
+void maschine::set_prgenpos_y(QString pos)
+{
+    set_prgenpos_y(ausdruck_auswerten(pos).toDouble());
+}
+void maschine::set_prgenpos_z(double pos)
+{
+    if(pos>0 && pos<500)
+    {
+        Prgendpos.set_z(pos);
+    }
+}
+void maschine::set_prgenpos_z(QString pos)
+{
+    set_prgenpos_z(ausdruck_auswerten(pos).toDouble());
 }
 void maschine::set_ausgabeformat(QString f)
 {

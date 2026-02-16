@@ -76,6 +76,30 @@ void Dialog_maschinen::on_pushButton_breite_ok_clicked()
         Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_breite(breite);
     }
 }
+void Dialog_maschinen::on_doubleSpinBox_prgendpos_x_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double pos = ui->doubleSpinBox_prgendpos_x->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_x(pos);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_prgendpos_y_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double pos = ui->doubleSpinBox_prgendpos_y->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_y(pos);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_prgendpos_z_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double pos = ui->doubleSpinBox_prgendpos_z->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_z(pos);
+    }
+}
 void Dialog_maschinen::on_radioButton_ausgabe_kein_toggled(bool checked)
 {
     if(checked == true)
@@ -123,6 +147,9 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
     {
         ui->lineEdit_tischlaenge->setText(Maschinen.masch(currentRow)->laenge_qstring());
         ui->lineEdit_tischbreite->setText(Maschinen.masch(currentRow)->breite_qstring());
+        ui->doubleSpinBox_prgendpos_x->setValue(Maschinen.masch(currentRow)->prgenpos_x());
+        ui->doubleSpinBox_prgendpos_y->setValue(Maschinen.masch(currentRow)->prgenpos_y());
+        ui->doubleSpinBox_prgendpos_z->setValue(Maschinen.masch(currentRow)->prgenpos_z());
         if(Maschinen.masch(currentRow)->ausgabeformat() == "emc2")
         {
             ui->radioButton_ausgabe_emc2->setChecked(true);
@@ -175,10 +202,6 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
-
-
-
-
 
 
 

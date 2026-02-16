@@ -1,50 +1,135 @@
 #include "emc2.h"
 
-emc2::emc2()
+emc2::emc2(maschine *m, werkstueck *w)
 {
+    //Default-Wert:
+    Sicherheitsabstand = 20;
 
+    set_maschine(m);
+    set_wst(w);
+    setup();
 }
-QString emc2::header()
+void emc2::set_maschine(maschine *m)
 {
-    QString h;
-    QTextStream stream(&h);
-
-    stream << "( GEGENERIERTER G-CODE - MANUELLER WECHSEL )\n";
-
-    // G21: Millimeter
-    // G90: Absolut-Koordinaten
-    // G64 P0.1: Flüssige Bewegungen (Path Blending)
-    // G17: XY-Ebene
-    stream << "G21 G90 G64 P0.1 G17\n";
-
-    // Sicherheitsabstand beim Start anfahren
-    // Wir gehen davon aus, dass Z=0 die Werkstück-Unterseite (Tisch) ist
-    stream << "G0 Z" << (Wst->dicke() + 20.0) << " (SICHERHEITSHOEHE)\n";
-
-    // Hinweis für den Bediener
-    stream << "( BITTE SPINDEL MANUELL EINSCHALTEN )\n";
-    stream << "M0 (PROGRAMM PAUSE - START DRUECKEN WENN SPINDEL LAEUFT)\n";
-
-    return h;
+    Maschine = m;
+    setup();
+}
+void emc2::set_wst(werkstueck *w)
+{
+    Wst = w;
+    setup();
+}
+void emc2::setup()
+{
+    if(Maschine != nullptr && Wst != nullptr)
+    {
+        Sicherheitsabstand = 20;//Später noch als Parameter in maschine und wst ergänzen
+        //Wenn bei wst AUTO dann nimm den Wert von der Maschine
+    }
 }
 
-QString emc2::footer()
+QString emc2::gcode()
 {
-    QString f;
-    QTextStream stream(&f);
+    QString code;
 
-    // 1. Fräser sicher aus dem Material fahren
-    stream << "G0 Z" << (Wst->dicke() + 20.0) << "\n";
+    if(Maschine != nullptr && Wst != nullptr)
+    {
+        QTextStream stream(&code);
 
-    // 2. Parkposition anfahren (z.B. X0 Y-Maximum, damit das Bett frei ist)
-    // Hier kannst du Werte wählen, die für deine Maschine passen
-    stream << "G0 X0 Y0\n";
+        stream << prgkopf();
 
-    // 3. Programm-Ende
-    // M2 oder M30 setzt die Steuerung zurück
-    stream << "M30\n";
+        for(uint i=0; i<Wst->bearb().count() ;i++)
+        {
 
-    return f;
+        }
+
+        stream << prgende();
+    }
+
+    return code;
+}
+QString emc2::prgkopf()
+{
+    QString prgkopf;
+
+    if(Maschine != nullptr && Wst != nullptr)
+    {
+        QTextStream stream(&prgkopf);
+
+        stream << "( --- Ausgabeformat: emc2 --- )\n";
+        if(Maschine->manWkzWechsel() == true)
+        {
+            stream << "(   -> Manueller Werkzeugwechsel )\n";
+        }
+        if(Maschine->drehzExportieren() == false)
+        {
+            stream << "(   -> Export ohne Spindeldrehzahlen )\n";
+        }
+
+        stream << "\n( --- Programmkopf --- )\n";
+
+        // G21: Millimeter
+        // G90: Absolut-Koordinaten
+        // G64 P0.1: Flüssige Bewegungen (Path Blending)
+        // G17: XY-Ebene
+        stream << "G21 G90 G64 P0.1 G17\n";
+
+        // Sicherheitsabstand beim Start anfahren
+        // Wir gehen davon aus, dass Z=0 die Werkstück-Unterseite (Tisch) ist
+        stream << "G0 Z" << (Wst->dicke() + Sicherheitsabstand) << " (SICHERHEITSHOEHE)\n";
+
+        // Hinweis für den Bediener
+        stream << "( BITTE SPINDEL MANUELL EINSCHALTEN )\n";
+        stream << "M0 (PROGRAMM PAUSE - START DRUECKEN WENN SPINDEL LAEUFT)\n\n";
+    }
+
+    return prgkopf;
+}
+
+QString emc2::prgende()
+{
+    QString prgende;
+
+    if(Maschine != nullptr && Wst != nullptr)
+    {
+        QTextStream stream(&prgende);
+
+        stream << "\n( --- Programmende --- )\n";
+
+        // 1. Fräser sicher aus dem Material fahren
+        stream << "G0 Z" << (Wst->dicke() + Sicherheitsabstand) << "\n";
+
+        // 2. Parkposition anfahren
+        double x,y,z;
+        if(Wst->prgend_x() == "AUTO")
+        {
+            x = Maschine->prgenpos_x();
+        }else
+        {
+            x = ausdruck_auswerten(Wst->prgend_x()).toDouble();
+        }
+        if(Wst->prgend_y() == "AUTO")
+        {
+            y = Maschine->prgenpos_y();
+        }else
+        {
+            y = ausdruck_auswerten(Wst->prgend_y()).toDouble();
+        }
+        if(Wst->prgend_z() == "AUTO")
+        {
+            z = Maschine->prgenpos_z();
+        }else
+        {
+            z = ausdruck_auswerten(Wst->prgend_z()).toDouble();
+        }
+        stream << "G0 X" << x << " Y" << y << " Z" << z << "\n";
+
+        // 3. Programm-Ende
+        // M2 oder M30 setzt die Steuerung zurück
+        stream << "M30\n";
+    }
+
+    return prgende;
 }
 
 QString emc2::bohr(bohrung bo)

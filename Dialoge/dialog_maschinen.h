@@ -42,6 +42,12 @@ private slots:
     void on_checkBox_manWkzWechsel_stateChanged(int arg1);
     void on_checkBox_drehzExportieren_stateChanged(int arg1);
 
+    void on_doubleSpinBox_prgendpos_x_editingFinished();
+
+    void on_doubleSpinBox_prgendpos_y_editingFinished();
+
+    void on_doubleSpinBox_prgendpos_z_editingFinished();
+
 private:
     Ui::Dialog_maschinen *ui;
     maschinen Maschinen;

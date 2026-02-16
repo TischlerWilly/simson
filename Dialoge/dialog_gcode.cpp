@@ -22,3 +22,16 @@ void Dialog_GCode::set_wst(werkstueck *w)
     Wst = w;
     ui->lineEdit_datei->setText(Wst->dateipfad());
 }
+void Dialog_GCode::on_pushButton_erstellen_clicked()
+{
+    if(Maschine->ausgabeformat() == "emc2")
+    {
+        emc2 gcode(Maschine, Wst);
+        ui->plainTextEdit->setPlainText(gcode.gcode());
+    }
+}
+void Dialog_GCode::on_pushButton_speichern_clicked()
+{
+
+}
+
