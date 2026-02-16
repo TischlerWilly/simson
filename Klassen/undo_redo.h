@@ -90,6 +90,10 @@ public:
             return ein_leeres_etwas;
         }
     }
+    int akt_pos()
+    {
+        return Aktuelle_position;
+    }
 
     //----------------------------------------Manipulationen:
     void             clear()

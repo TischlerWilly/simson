@@ -132,7 +132,7 @@ public:
     }
     inline bool hat_aenderungen()
     {
-        if(UnReDo.anz_aktive_elemente() > 1)
+        if(UnReDo.anz_aktive_elemente() > 1 && UnReDo.akt_pos() > 0)
         {
             return true;
         }else

@@ -21,6 +21,7 @@ SOURCES += \
     Dialoge/dialog_einstellung_dxf.cpp \
     Dialoge/dialog_einstellung_dxf_klassen.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
+    Dialoge/dialog_gcode.cpp \
     Dialoge/dialog_maschinen.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
     Dialoge/wkz/dialog_fraeser.cpp \
@@ -88,6 +89,7 @@ HEADERS += \
     Dialoge/dialog_einstellung_dxf.h \
     Dialoge/dialog_einstellung_dxf_klassen.h \
     Dialoge/dialog_einstellung_pfade.h \
+    Dialoge/dialog_gcode.h \
     Dialoge/dialog_maschinen.h \
     Dialoge/wkz/dialog_bohrer.h \
     Dialoge/wkz/dialog_fraeser.h \
@@ -152,6 +154,7 @@ FORMS += \
     Dialoge/dialog_einstellung_dxf.ui \
     Dialoge/dialog_einstellung_dxf_klassen.ui \
     Dialoge/dialog_einstellung_pfade.ui \
+    Dialoge/dialog_gcode.ui \
     Dialoge/dialog_maschinen.ui \
     Dialoge/wkz/dialog_bohrer.ui \
     Dialoge/wkz/dialog_fraeser.ui \

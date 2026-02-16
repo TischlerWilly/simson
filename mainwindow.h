@@ -27,6 +27,7 @@
 #include "Dialoge/bearb/dialog_schnellaenderung.h"
 #include "Funktionen/import/ewx.h"
 #include "Funktionen/import/dxf.h"
+#include "Dialoge/dialog_gcode.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -118,7 +119,8 @@ private slots:
     void on_actionSpeichern_unter_triggered();
     bool speichern(QString dateipfad, werkstueck *wst);
     QString validiere_dateipfad(QString pfad);
-    void aktualisiere_listwidget_dateien(int akt_index);
+    void aktualisiere_listwidget_dateien(int akt_index);    
+    void on_actionGCode_Export_triggered();
 
 public slots:
     void getEinstellung(einstellung e);

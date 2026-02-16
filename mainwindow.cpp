@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Programmversion_simson = "Simson V1-2026.02.15";
+    Programmversion_simson = "Simson V1-2026.02.16";
     aktualisiere_fendtertitel();
     PrgPfade.ordner_erstellen();
     setup();
@@ -467,7 +467,13 @@ void MainWindow::aktualisiere_fendtertitel()
         {
             if(!Wste.wst(ui->listWidget_dateien->currentRow())->dateipfad().isEmpty())
             {
-                this->setWindowTitle(Wste.wst(ui->listWidget_dateien->currentRow())->dateipfad());
+                QString titel;
+                titel = Wste.wst(ui->listWidget_dateien->currentRow())->dateipfad();
+                if(Wste.wst(ui->listWidget_dateien->currentRow())->hat_aenderungen())
+                {
+                    titel += "*";
+                }
+                this->setWindowTitle(titel);
             }else
             {
                 this->setWindowTitle(Programmversion_simson);
@@ -883,6 +889,8 @@ bool MainWindow::speichern(QString dateipfad, werkstueck *wst)
     }
 
     file.close();
+    wst->wurde_gespeichert();
+    aktualisiere_fendtertitel();
     return true; // Erfolgreich gespeichert
 }
 QString MainWindow::validiere_dateipfad(QString pfad)
@@ -1172,65 +1180,69 @@ void MainWindow::on_actionUmbenennen_triggered()
         mb.exec();
     }
 }
-
-void MainWindow::on_actionUndo_triggered()
+void MainWindow::on_actionGCode_Export_triggered()
 {
-    /*
     if(ui->listWidget_dateien->selectedItems().count())
     {
-        int index_wst = ui->listWidget_dateien->currentRow();
-
-        Wste.wst(index_wst)->undo();
-        update_listwidget_bearb(Wste.wst(index_wst));
-
-        wkz_magazin wkz;
+        int index = ui->listWidget_dateien->currentRow();
+        werkstueck* wst = Wste.wst(index);
+        if(wst->dateipfad().isEmpty())
+        {
+            QString msg;
+            msg = "Das Bauteil muss zuerst gespeichert werden!";
+            QMessageBox mb;
+            mb.setText(msg);
+            mb.setWindowTitle("GCode exportieren");
+            mb.exec();
+            return;
+        }
+        if (wst->hat_aenderungen())
+        {
+            QString msg;
+            msg = "Die Änderungen am Bauteil müssen zuerst gespeichert werden!";
+            QMessageBox mb;
+            mb.setText(msg);
+            mb.setWindowTitle("GCode exportieren");
+            mb.exec();
+            return;
+        }
+        maschine *masch;
         if(ui->comboBox_maschinen->currentIndex() >= 0)
         {
             QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index)->wkzmag();
+            int index_masch = Maschinen.get_index(masch_bez);
+            masch = Maschinen.masch(index_masch);
+        }else
+        {
+            QString msg;
+            msg = "Bitte zuerst eine CNC-Maschine erstellen und auswählen!";
+            QMessageBox mb;
+            mb.setText(msg);
+            mb.setWindowTitle("GCode exportieren");
+            mb.exec();
+            return;
         }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
+        Dialog_GCode dlg;
+        dlg.set_maschine(masch);
+        dlg.set_wst(wst);
+        dlg.exec();
     }else
     {
         QString msg;
         msg = "Es ist kein Bauteil ausgewählt!";
         QMessageBox mb;
         mb.setText(msg);
-        mb.setWindowTitle("Werkstück umbenennen");
+        mb.setWindowTitle("GCode exportieren");
         mb.exec();
     }
-    */
+}
+
+void MainWindow::on_actionUndo_triggered()
+{
     process_undo_redo(true);
 }
 void MainWindow::on_actionRedo_triggered()
 {
-    /*
-    if(ui->listWidget_dateien->selectedItems().count())
-    {
-        int index_wst = ui->listWidget_dateien->currentRow();
-
-        Wste.wst(index_wst)->redo();
-        update_listwidget_bearb(Wste.wst(index_wst));
-
-        wkz_magazin wkz;
-        if(ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index)->wkzmag();
-        }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
-    }else
-    {
-        QString msg;
-        msg = "Es ist kein Bauteil ausgewählt!";
-        QMessageBox mb;
-        mb.setText(msg);
-        mb.setWindowTitle("Werkstück umbenennen");
-        mb.exec();
-    }
-    */
     process_undo_redo(false);
 }
 void MainWindow::process_undo_redo(bool isUndo)
@@ -1250,6 +1262,7 @@ void MainWindow::process_undo_redo(bool isUndo)
 
         // UI aktualisieren
         update_listwidget_bearb(wst);
+        aktualisiere_fendtertitel();
 
         wkz_magazin wkz;
         if (ui->comboBox_maschinen->currentIndex() >= 0)
@@ -1331,6 +1344,7 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         update_listwidget_bearb(Wste.wst(index_wst));
         vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
                                            Wste.wst(index_wst)->geo_aktfkon(wkz), zeile_bearb);
+        aktualisiere_fendtertitel();
         return;
     }
 
@@ -1588,6 +1602,7 @@ void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verw
     update_listwidget_bearb(Wste.wst(index_dat));
     vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), \
                                        Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb+1);
+    aktualisiere_fendtertitel();
 }
 void MainWindow::slot_rta(rechtecktasche rta)
 {
@@ -2214,6 +2229,9 @@ void MainWindow::on_action_make_nut_triggered()
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 
