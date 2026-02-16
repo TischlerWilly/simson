@@ -22,8 +22,6 @@ void Dialog_maschinen::slot_maschinen(maschinen m)
 {
     Maschinen = m;
     ui->listWidget_maschinen->clear();
-    ui->lineEdit_tischlaenge->clear();
-    ui->lineEdit_tischbreite->clear();
     ui->checkBox_manWkzWechsel->setChecked(false);
     ui->checkBox_drehzExportieren->setChecked(false);
     for(uint i=0; i<m.anzahl();i++)
@@ -60,20 +58,20 @@ void Dialog_maschinen::on_pushButton_abbrechen_clicked()
 {
     this->close();
 }
-void Dialog_maschinen::on_pushButton_laenge_ok_clicked()
+void Dialog_maschinen::on_doubleSpinBox_tischlaenge_editingFinished()
 {
     if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
     {
-        QString laenge = ausdruck_auswerten(ui->lineEdit_tischlaenge->text());
+        double laenge = ui->doubleSpinBox_tischlaenge->value();
         Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_laenge(laenge);
     }
 }
-void Dialog_maschinen::on_pushButton_breite_ok_clicked()
+void Dialog_maschinen::on_doubleSpinBox_tischbreite_editingFinished()
 {
     if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
     {
-        QString breite = ausdruck_auswerten(ui->lineEdit_tischbreite->text());
-        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_breite(breite);
+        double breite = ui->doubleSpinBox_tischbreite->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_laenge(breite);
     }
 }
 void Dialog_maschinen::on_doubleSpinBox_prgendpos_x_editingFinished()
@@ -145,8 +143,8 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
 {
     if(Maschinen.masch(currentRow))
     {
-        ui->lineEdit_tischlaenge->setText(Maschinen.masch(currentRow)->laenge_qstring());
-        ui->lineEdit_tischbreite->setText(Maschinen.masch(currentRow)->breite_qstring());
+        ui->doubleSpinBox_tischlaenge->setValue(Maschinen.masch(currentRow)->laenge());
+        ui->doubleSpinBox_tischbreite->setValue(Maschinen.masch(currentRow)->breite());
         ui->doubleSpinBox_prgendpos_x->setValue(Maschinen.masch(currentRow)->prgenpos_x());
         ui->doubleSpinBox_prgendpos_y->setValue(Maschinen.masch(currentRow)->prgenpos_y());
         ui->doubleSpinBox_prgendpos_z->setValue(Maschinen.masch(currentRow)->prgenpos_z());
@@ -202,6 +200,8 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
+
+
 
 
 

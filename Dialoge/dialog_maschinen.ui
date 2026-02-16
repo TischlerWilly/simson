@@ -39,117 +39,6 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>271</x>
-     <y>51</y>
-     <width>251</width>
-     <height>261</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="8" column="0" colspan="3">
-     <widget class="QCheckBox" name="checkBox_drehzExportieren">
-      <property name="text">
-       <string>Spindeldrehzahl exportieren</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="2">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>500.000000000000000</double>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QPushButton" name="pushButton_laenge_ok">
-      <property name="text">
-       <string>übernehmen</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="0" colspan="3">
-     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
-      <property name="text">
-       <string>Manueller Werkzeugwechsel</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_tischlaenge"/>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_tischbreite"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_tischbreite">
-      <property name="text">
-       <string>Tischbreite</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="2">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>5000.000000000000000</double>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_tischlaenge">
-      <property name="text">
-       <string>Tischlänge</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QPushButton" name="pushButton_breite_ok">
-      <property name="text">
-       <string>übernehmen</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="2">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>5000.000000000000000</double>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="2">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Parkposition in X</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="2">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Parkposition in Y</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0" colspan="2">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Parkposition in Z</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
      <x>10</x>
      <y>350</y>
      <width>511</width>
@@ -247,7 +136,134 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>50</y>
+     <width>241</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Parkposition in X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_tischbreite">
+      <property name="text">
+       <string>Tischbreite</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>500.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_tischlaenge">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Parkposition in Z</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Parkposition in Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_tischlaenge">
+      <property name="text">
+       <string>Tischlänge</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_tischbreite">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="2">
+     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
+      <property name="text">
+       <string>Manueller Werkzeugwechsel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="2">
+     <widget class="QCheckBox" name="checkBox_drehzExportieren">
+      <property name="text">
+       <string>Spindeldrehzahl exportieren</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
+ <tabstops>
+  <tabstop>listWidget_maschinen</tabstop>
+  <tabstop>doubleSpinBox_tischlaenge</tabstop>
+  <tabstop>doubleSpinBox_tischbreite</tabstop>
+  <tabstop>doubleSpinBox_prgendpos_x</tabstop>
+  <tabstop>doubleSpinBox_prgendpos_y</tabstop>
+  <tabstop>doubleSpinBox_prgendpos_z</tabstop>
+  <tabstop>checkBox_manWkzWechsel</tabstop>
+  <tabstop>checkBox_drehzExportieren</tabstop>
+  <tabstop>radioButton_ausgabe_kein</tabstop>
+  <tabstop>radioButton_ausgabe_emc2</tabstop>
+  <tabstop>pushButton_wkz</tabstop>
+  <tabstop>pushButton_ok</tabstop>
+  <tabstop>pushButton_abbrechen</tabstop>
+  <tabstop>pushButton_neue_maschine</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

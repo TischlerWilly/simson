@@ -25,6 +25,8 @@ private:
     werkstueck  *Wst;
     maschine    *Maschine;
     double Sicherheitsabstand;
+    double Masszugabe_duboti;//Durchgangsbohrung Tiefenzugabe
+    double Masszugabe_dutati;//Durchgangs-Tasche Tiefenzugabe
 
 };
 

@@ -25,6 +25,8 @@ void emc2::setup()
     {
         Sicherheitsabstand = 20;//Später noch als Parameter in maschine und wst ergänzen
         //Wenn bei wst AUTO dann nimm den Wert von der Maschine
+        Masszugabe_duboti = 0.3;
+        Masszugabe_dutati = 0.3;
     }
 }
 
@@ -38,9 +40,15 @@ QString emc2::gcode()
 
         stream << prgkopf();
 
+        text_zw zeile;
         for(uint i=0; i<Wst->bearb().count() ;i++)
         {
-
+            zeile.set_text(Wst->bearb().at(i),TRENNZ_BEARB_PARAM);
+            if(zeile.at(0) == BEARBART_BOHR)
+            {
+                bohrung bo(zeile.text());
+                stream << bohr(bo);
+            }
         }
 
         stream << prgende();
@@ -134,54 +142,214 @@ QString emc2::prgende()
 
 QString emc2::bohr(bohrung bo)
 {
-    // Parameter definieren
-    double wst_dicke = Wst->dicke();
-    double bohrtiefe = bo.tiefe();
-    double zustellmass = 5.0;
-    double austritt = 0.0;
-    double toleranz = 0.01;
-
-    // Prüfen ob Durchgangsbohrung
-    if (bohrtiefe >= (wst_dicke - toleranz))
-    {
-        // Falls die Bohrung durchgehen soll, 2mm Sicherheitszugabe
-        austritt = 2.0;
-    }
-
-    // Z-Werte berechnen
-    double sicherheits_z = wst_dicke + 5.0;
-    double ziel_z = (wst_dicke - bohrtiefe) - austritt;
-    double rueckzug_r = wst_dicke + 1.0;
-
     QString gcode;
-    QTextStream stream(&gcode);
 
-    // G-Code generieren
-    if (bohrtiefe > 0)
+    if(Maschine != nullptr && Wst != nullptr)
     {
-        // 1. Positionierung
-        stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
-        stream << "G0 Z" << sicherheits_z << "\n";
-
-        // 2. Zyklus wählen
-        // Wenn die Tiefe sehr gering ist, reicht G81 (ohne Spanbrechen)
-        if (bohrtiefe <= zustellmass)
+        QTextStream stream(&gcode);
+        QString bezug = bo.bezug();
+        if(!bo.istZapfen())
         {
-            stream << "G81 Z" << ziel_z
-                   << " R" << rueckzug_r
-                   << " F200" << "\n";
-        }
-        else
-        {
-            // G83 für tiefere Bohrungen mit Entspanen
-            stream << "G83 Z" << ziel_z
-                   << " R" << rueckzug_r
-                   << " Q" << zustellmass
-                   << " F200" << "\n";
-        }
+            QString tnummer = Maschine->wkzmag().wkznummer(WKZ_TYP_BOHRER, bo.dm(), bo.tiefe(), Wst->dicke(), bezug);
+            if(!tnummer.isEmpty())
+            {
+                //Werkzeug wurde gefunden, Bohrung kann gebohrt werden:
+                if(bezug == WST_BEZUG_OBSEI)
+                {
+                    // Parameter definieren
+                    double wst_dicke = Wst->dicke();
+                    double bohrtiefe = bo.tiefe();
+                    double zustellmass = bo.zustellmass();
+                    double austritt = 0.0;
+                    double toleranz = 0.01;
+                    double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
 
-        // 3. Abschluss
-        stream << "G80" << "\n";
-        stream << "G0 Z" << sicherheits_z << "\n";
+                    // Prüfen ob Durchgangsbohrung
+                    if (bohrtiefe >= (wst_dicke - toleranz))
+                    {
+                        // Falls die Bohrung durchgehen soll -> Sicherheitszugabe
+                        austritt = Masszugabe_duboti;
+                    }
+
+                    // Z-Werte berechnen
+                    double sicherheits_z = wst_dicke + Sicherheitsabstand;
+                    double ziel_z = (wst_dicke - bohrtiefe) - austritt;
+                    double rueckzug_r = wst_dicke + 1.0;
+
+                    // G-Code generieren
+                    if (bohrtiefe > 0)
+                    {
+                        stream << "\n";
+                        stream << "( Bohrung: DM" << bo.dm() <<")\n";
+                        // 1. Positionierung
+                        stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
+                        stream << "G0 Z" << sicherheits_z << "\n";
+
+                        // 2. Zyklus wählen
+
+                        if (bohrtiefe <= zustellmass)
+                        {   // Wenn die Tiefe sehr gering ist, reicht G81 (ohne Spanbrechen)
+                            stream << "G81 Z" << ziel_z
+                                   << " R" << rueckzug_r
+                                   << " F"<< vorschub << "\n";
+                        }else
+                        {   // G83 für tiefere Bohrungen mit Entspanen
+                            stream << "G83 Z" << ziel_z
+                                   << " R" << rueckzug_r
+                                   << " Q" << zustellmass
+                                   << " F"<< vorschub << "\n";
+                        }
+
+                        // 3. Abschluss
+                        stream << "G80" << "\n";
+                        stream << "G0 Z" << sicherheits_z << "\n";
+                    }
+                }
+            }else
+            {
+                //Kein Werkzeug wurde gefunden.
+                //Kann Bohrung als Kreistasche gefräst werden?:
+
+                //Ist direkt ein WKZ definiert?:
+                if(bo.bezug() == WST_BEZUG_OBSEI  ||  bo.bezug() == WST_BEZUG_UNSEI)
+                {
+                    tnummer = Maschine->wkzmag().wkznummer_von_alias(bo.wkznum(), WKZ_VERT);
+                }else
+                {
+                    tnummer = Maschine->wkzmag().wkznummer_von_alias(bo.wkznum(), WKZ_HORI);
+                }
+
+                //Oder ist ein geeignetes WKZ verfügbar?:
+                if(tnummer.isEmpty())
+                {
+                    tnummer = Maschine->wkzmag().wkznummer(WKZ_TYP_FRAESER, bo.dm(), bo.tiefe(), Wst->dicke(), bezug);
+                }
+
+                if(!tnummer.isEmpty())
+                {
+                    //Es kann eine Kreistasche verwendet werden:
+                    double wst_dicke = Wst->dicke();
+                    double bohrtiefe = bo.tiefe();
+                    double zustellmass = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
+                    double austritt = 0.0;
+                    double toleranz = 0.01;
+                    double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
+                    double wkzdm = Maschine->wkzmag().dm(tnummer).toDouble();//Durchmesser des Fräsers
+                    double ueberlappung = 1.0;//Überlappung der Fräsbahnen zueinander
+
+                    // Prüfen ob Durchgangs-Tasche
+                    if (bohrtiefe >= (wst_dicke - toleranz))
+                    {
+                        // Falls die Tasche durchgehen soll -> Sicherheitszugabe
+                        austritt = Masszugabe_dutati;
+                    }
+
+                    // Z-Werte berechnen
+                    double sicherheits_z = wst_dicke + Sicherheitsabstand;
+                    double ziel_z = (wst_dicke - bohrtiefe) - austritt;
+                    //double rueckzug_r = wst_dicke + 1.0;
+
+                    // G-Code generieren
+                    if (bohrtiefe > 0)
+                    {
+                        stream << "\n";
+                        stream << "( Kreistasche helikal: " << bo.dm() << " )\n";
+
+                        double schlichtzugabe = 0.5;
+                        double taschen_radius = bo.dm() / 2.0;
+                        double fraeser_radius = wkzdm / 2.0;
+                        double max_ausraeum_radius = taschen_radius - fraeser_radius - schlichtzugabe;
+                        double final_schlicht_radius = taschen_radius - fraeser_radius;
+
+                        if (max_ausraeum_radius < 0.1)
+                        {
+                            max_ausraeum_radius = final_schlicht_radius;
+                            schlichtzugabe = 0;
+                        }
+
+                        // --- SCHRITT 0: Anfahren ---
+                        stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
+                        stream << "G0 Z" << sicherheits_z << "\n";
+
+                        double aktuelle_z = wst_dicke;
+                        // Radius für die Eintauch-Helix (kleiner Kreis, um Platz zu schaffen)
+                        double helix_radius = std::min(max_ausraeum_radius, wkzdm * 0.4);
+
+                        while (aktuelle_z > ziel_z + toleranz)
+                        {
+                            double start_z = aktuelle_z;
+                            aktuelle_z -= zustellmass;
+                            if (aktuelle_z < ziel_z)
+                            {
+                                aktuelle_z = ziel_z;
+                            }
+
+                            // --- SCHRITT 1: Helikales Eintauchen ---
+                            if (helix_radius > 0.1)
+                            {
+                                // 1a. Anfahren auf Startpunkt der Helix (X-Versatz)
+                                stream << "G1 X" << (bo.x() + helix_radius) << " Z" << start_z << " F" << vorschub << "\n";
+
+                                // 1b. Helix fahren (Vollkreis mit Z-Zustellung)
+                                // G2 X... Y... Z... I... J...
+                                stream << "G2 X" << (bo.x() + helix_radius) << " Y" << bo.y()
+                                       << " Z" << aktuelle_z << " I" << -helix_radius << " J0 F" << vorschub / 2.0 << "\n";
+
+                                // 1c. Ein Ebener Kreis auf Ziel-Tiefe, um den Boden zu glätten
+                                stream << "G2 X" << (bo.x() + helix_radius) << " Y" << bo.y()
+                                       << " I" << -helix_radius << " J0\n";
+                            }
+                            else
+                            {
+                                // Falls die Tasche zu klein für eine Helix ist (Notfall: Rampe oder langsames Eintauchen)
+                                stream << "G1 Z" << aktuelle_z << " F" << vorschub / 5.0 << "\n";
+                            }
+
+                            // --- SCHRITT 2: Radiales Räumen auf dieser Ebene ---
+                            double aktueller_radius = helix_radius;
+                            double schrittweite = wkzdm - ueberlappung;
+
+                            while (aktueller_radius < max_ausraeum_radius - toleranz)
+                            {
+                                aktueller_radius += schrittweite;
+                                if (aktueller_radius > max_ausraeum_radius)
+                                {
+                                    aktueller_radius = max_ausraeum_radius;
+                                }
+
+                                stream << "G1 X" << (bo.x() + aktueller_radius) << " F" << vorschub << "\n";
+                                stream << "G2 X" << (bo.x() + aktueller_radius) << " Y" << bo.y()
+                                       << " I" << -aktueller_radius << " J0\n";
+                            }
+
+                            // Zurück zur Mitte
+                            stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
+                        }
+
+                        // --- SCHRITT 3: Finales Schlichten in voller Tiefe ---
+                        if (schlichtzugabe > 0)
+                        {
+                            stream << "( Schlichten Wandung )\n";
+                            stream << "G1 X" << (bo.x() + final_schlicht_radius) << " F" << vorschub * 0.7 << "\n";
+                            stream << "G2 X" << (bo.x() + final_schlicht_radius) << " Y" << bo.y()
+                                   << " I" << -final_schlicht_radius << " J0\n";
+                            stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
+                        }
+
+                        stream << "G0 Z" << sicherheits_z << "\n";
+                    }
+                }else
+                {
+                    //Fehlermeldung:
+                    stream << "\n";
+                    stream << "( >>>>>>>>>> Bohrung übersprungen weil kein geeignetes Werkzeug gefunden wurde! <<<<<<<<<<)\n";
+                    stream << "( " << bo.text() << " )\n\n";
+                }
+            }
+        }else //bo.istZapfen()
+        {
+
+        }
     }
+    return gcode;
 }

@@ -33,8 +33,6 @@ private slots:
     void on_pushButton_abbrechen_clicked();    
     void on_pushButton_ok_clicked();
     void on_listWidget_maschinen_currentRowChanged(int currentRow);
-    void on_pushButton_laenge_ok_clicked();
-    void on_pushButton_breite_ok_clicked();
     void on_pushButton_neue_maschine_clicked();
     void on_pushButton_wkz_clicked();
     void on_radioButton_ausgabe_emc2_toggled(bool checked);
@@ -47,6 +45,10 @@ private slots:
     void on_doubleSpinBox_prgendpos_y_editingFinished();
 
     void on_doubleSpinBox_prgendpos_z_editingFinished();
+
+    void on_doubleSpinBox_tischlaenge_editingFinished();
+
+    void on_doubleSpinBox_tischbreite_editingFinished();
 
 private:
     Ui::Dialog_maschinen *ui;

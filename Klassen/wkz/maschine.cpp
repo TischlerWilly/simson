@@ -39,6 +39,15 @@ void maschine::set_text(QString t)
         }else if(spalten.at(0) == "Breite:")
         {
             set_breite(spalten.at(1));
+        }else if(spalten.at(0) == "PrgEndPos X:")
+        {
+            set_prgenpos_x(spalten.at(1));
+        }else if(spalten.at(0) == "PrgEndPos Y:")
+        {
+            set_prgenpos_y(spalten.at(1));
+        }else if(spalten.at(0) == "PrgEndPos Z:")
+        {
+            set_prgenpos_z(spalten.at(1));
         }else if(spalten.at(0) == "Ausgabeformat:")
         {
             set_ausgabeformat(spalten.at(1));
@@ -160,6 +169,21 @@ QString maschine::text()
     text += "Breite:";
     text += "\t";
     text += breite_qstring();
+    text += "\n";
+
+    text += "PrgEndPos X:";
+    text += "\t";
+    text += prgenpos_x_qstring();
+    text += "\n";
+
+    text += "PrgEndPos Y:";
+    text += "\t";
+    text += prgenpos_y_qstring();
+    text += "\n";
+
+    text += "PrgEndPos Z:";
+    text += "\t";
+    text += prgenpos_z_qstring();
     text += "\n";
 
     text += "Ausgabeformat:";
