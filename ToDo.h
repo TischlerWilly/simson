@@ -5,9 +5,12 @@
 
 /*
 
+-> G-Code als Textdatei speichern
 -> G-Code export emc2
-    > wkz-wechsel berücksichtingen!
-        >> alle wkz erfassen die für im Export verwendet werden
+    > Sicherheitsabstand als Parameter im Wst-Programmkopf ergänzen
+        >> Parameter aus prgkopf verwenden
+    > Masszugabe_duboti und Masszugabe_dutati als Parameter in der Maschine ergänzen
+        >> Parameter aus Maschine verwenden
     > Bohrung Variante Zapfen Fräsen
     > RTAs
     > fkon

@@ -1,6 +1,8 @@
 #ifndef EMC2_H
 #define EMC2_H
 
+#include <QSet>
+
 #include "Klassen/wst/werkstueck.h"
 #include "Klassen/wkz/maschine.h"
 #include "Funktionen/funktionen_prgtext.h"
@@ -16,6 +18,7 @@ public:
     QString gcode();
     QString prgkopf();
     QString prgende();
+    QString wkz_wechsel(QString tnummer);
     QString bohr(bohrung bo);
 
 
@@ -28,6 +31,8 @@ private:
     double Sicherheitsabstand;
     double Masszugabe_duboti;//Durchgangsbohrung Tiefenzugabe
     double Masszugabe_dutati;//Durchgangs-Tasche Tiefenzugabe
+    QString Akt_wkz;
+    QSet<QString> Verwendete_wkz;
 
 };
 

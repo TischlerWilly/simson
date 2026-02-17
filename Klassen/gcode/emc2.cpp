@@ -33,6 +33,8 @@ void emc2::setup()
 QString emc2::gcode()
 {
     QString code;
+    Akt_wkz.clear();
+    Verwendete_wkz.clear();
 
     if(Maschine != nullptr && Wst != nullptr)
     {
@@ -85,10 +87,6 @@ QString emc2::prgkopf()
         // Sicherheitsabstand beim Start anfahren
         // Wir gehen davon aus, dass Z=0 die Werkstück-Unterseite (Tisch) ist
         stream << "G0 Z" << (Wst->dicke() + Sicherheitsabstand) << " (SICHERHEITSHOEHE)\n";
-
-        // Hinweis für den Bediener
-        stream << "( BITTE SPINDEL MANUELL EINSCHALTEN )\n";
-        stream << "M0 (PROGRAMM PAUSE - START DRUECKEN WENN SPINDEL LAEUFT)\n\n";
     }
 
     return prgkopf;
@@ -135,9 +133,34 @@ QString emc2::prgende()
         // 3. Programm-Ende
         // M2 oder M30 setzt die Steuerung zurück
         stream << "M30\n";
+
+        stream << "( Verwendete Werkzeuge: )\n";
+        QStringList sortierteListe = Verwendete_wkz.values();
+        sortierteListe.sort();
+        for (const QString &nr : sortierteListe)
+        {
+            stream << "( " << nr  << " )\n";
+        }
     }
 
     return prgende;
+}
+
+QString emc2::wkz_wechsel(QString tnummer)
+{
+    QString gcode;
+
+    if(Akt_wkz != tnummer)
+    {
+        QTextStream stream(&gcode);
+        stream << "\n" << "M0 (Bitte Werkzeug: \"" << tnummer << "\" einwechseln)\n";
+        stream << "( BITTE SPINDEL MANUELL EINSCHALTEN )\n";
+    }
+
+    Akt_wkz = tnummer;
+    Verwendete_wkz.insert(tnummer);//wird nur eingefügt wenn der Wert nicht bereits vorhanden ist in der Liste
+
+    return gcode;
 }
 
 QString emc2::bohr(bohrung bo)
@@ -158,6 +181,8 @@ QString emc2::bohr(bohrung bo)
             QString tnummer = Maschine->wkzmag().wkznummer(WKZ_TYP_BOHRER, bo.dm(), bo.tiefe(), Wst->dicke(), bezug);
             if(!tnummer.isEmpty())
             {
+                stream << wkz_wechsel(tnummer);
+
                 //Werkzeug wurde gefunden, Bohrung kann gebohrt werden:
                 if(bezug == WST_BEZUG_OBSEI)
                 {
@@ -253,6 +278,8 @@ QString emc2::bohr(bohrung bo)
                     // Z-Werte berechnen
                     double sicherheits_z = wst_dicke + Sicherheitsabstand;
                     double ziel_z = (wst_dicke - bohrtiefe) - austritt;
+
+                    stream << wkz_wechsel(tnummer);
 
                     if(Maschine->wkzmag().kann_bohrend_eintauchen(tnummer))
                     {//bohrendes eintauchen (spart etwas Zeit)
