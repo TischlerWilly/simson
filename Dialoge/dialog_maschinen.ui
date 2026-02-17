@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>747</width>
-    <height>382</height>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,15 +19,15 @@
      <x>10</x>
      <y>50</y>
      <width>251</width>
-     <height>261</height>
+     <height>401</height>
     </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_wkz">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>250</y>
+     <x>540</x>
+     <y>380</y>
      <width>161</width>
      <height>71</height>
     </rect>
@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>350</y>
+     <y>480</y>
      <width>511</width>
      <height>25</height>
     </rect>
@@ -85,7 +85,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>320</y>
+     <y>460</y>
      <width>511</width>
      <height>16</height>
     </rect>
@@ -142,44 +142,10 @@
      <x>270</x>
      <y>50</y>
      <width>241</width>
-     <height>261</height>
+     <height>401</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>5000.000000000000000</double>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Parkposition in X</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_tischbreite">
-      <property name="text">
-       <string>Tischbreite</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>500.000000000000000</double>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1">
      <widget class="QDoubleSpinBox" name="doubleSpinBox_tischlaenge">
       <property name="decimals">
@@ -190,17 +156,30 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Parkposition in Z</string>
+    <item row="2" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_2">
+    <item row="5" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_zugabe_DuBoTi">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maßzugabe für Durchgangs-Bohrungen&lt;/p&gt;&lt;p&gt;Wenn eine Bohrung genau so tief ist wie&lt;/p&gt;&lt;p&gt;das Bauteil dick ist wir die Tiefe um dieses&lt;/p&gt;&lt;p&gt;Maß erhöht.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="maximum">
+       <double>5.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="2">
+     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
       <property name="text">
-       <string>Parkposition in Y</string>
+       <string>Manueller Werkzeugwechsel</string>
       </property>
      </widget>
     </item>
@@ -221,8 +200,32 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
+    <item row="8" column="0" colspan="2">
+     <widget class="QCheckBox" name="checkBox_drehzExportieren">
+      <property name="text">
+       <string>Spindeldrehzahl exportieren</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>500.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_tischbreite">
+      <property name="text">
+       <string>Tischbreite</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
       <property name="decimals">
        <number>0</number>
       </property>
@@ -231,17 +234,48 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0" colspan="2">
-     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
+    <item row="2" column="0">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string>Manueller Werkzeugwechsel</string>
+       <string>Parkposition in X</string>
       </property>
      </widget>
     </item>
-    <item row="6" column="0" colspan="2">
-     <widget class="QCheckBox" name="checkBox_drehzExportieren">
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_3">
       <property name="text">
-       <string>Spindeldrehzahl exportieren</string>
+       <string>Parkposition in Z</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Parkposition in Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_zugabe_DuTaTi">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maßzugabe für Durchgangs-Taschen&lt;/p&gt;&lt;p&gt;Wenn eine Tasche genau so tief ist wie&lt;/p&gt;&lt;p&gt;das Bauteil dick ist wir die Tiefe um dieses&lt;/p&gt;&lt;p&gt;Maß erhöht.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="maximum">
+       <double>5.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Maßzugabe DuBo</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Maßzugabe DuTa</string>
       </property>
      </widget>
     </item>
@@ -255,14 +289,16 @@
   <tabstop>doubleSpinBox_prgendpos_x</tabstop>
   <tabstop>doubleSpinBox_prgendpos_y</tabstop>
   <tabstop>doubleSpinBox_prgendpos_z</tabstop>
+  <tabstop>doubleSpinBox_zugabe_DuBoTi</tabstop>
+  <tabstop>doubleSpinBox_zugabe_DuTaTi</tabstop>
   <tabstop>checkBox_manWkzWechsel</tabstop>
   <tabstop>checkBox_drehzExportieren</tabstop>
   <tabstop>radioButton_ausgabe_kein</tabstop>
   <tabstop>radioButton_ausgabe_emc2</tabstop>
   <tabstop>pushButton_wkz</tabstop>
+  <tabstop>pushButton_neue_maschine</tabstop>
   <tabstop>pushButton_ok</tabstop>
   <tabstop>pushButton_abbrechen</tabstop>
-  <tabstop>pushButton_neue_maschine</tabstop>
  </tabstops>
  <resources/>
  <connections/>

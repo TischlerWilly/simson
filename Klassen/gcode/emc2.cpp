@@ -24,8 +24,8 @@ void emc2::setup()
     if(Maschine != nullptr && Wst != nullptr)
     {
         Sicherheitsabstand = Wst->sichabst();
-        Masszugabe_duboti = 0.3;//Später noch als Parameter in maschine
-        Masszugabe_dutati = 0.3;//Später noch als Parameter in maschine
+        Masszugabe_duboti = Maschine->zugabe_duboti();
+        Masszugabe_dutati = Maschine->zugabe_dutati();
     }
 }
 

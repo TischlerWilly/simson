@@ -6,8 +6,6 @@
 /*
 
 -> G-Code export emc2
-    > Masszugabe_duboti und Masszugabe_dutati als Parameter in der Maschine ergänzen
-        >> Parameter aus Maschine verwenden
     > Bohrung Variante Zapfen Fräsen
     > RTAs
     > fkon

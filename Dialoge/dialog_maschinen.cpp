@@ -98,6 +98,22 @@ void Dialog_maschinen::on_doubleSpinBox_prgendpos_z_editingFinished()
         Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_z(pos);
     }
 }
+void Dialog_maschinen::on_doubleSpinBox_zugabe_DuBoTi_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double zugabe = ui->doubleSpinBox_zugabe_DuBoTi->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_zugabe_duboti(zugabe);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_zugabe_DuTaTi_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double zugabe = ui->doubleSpinBox_zugabe_DuTaTi->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_zugabe_dutati(zugabe);
+    }
+}
 void Dialog_maschinen::on_radioButton_ausgabe_kein_toggled(bool checked)
 {
     if(checked == true)
@@ -148,6 +164,8 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
         ui->doubleSpinBox_prgendpos_x->setValue(Maschinen.masch(currentRow)->prgenpos_x());
         ui->doubleSpinBox_prgendpos_y->setValue(Maschinen.masch(currentRow)->prgenpos_y());
         ui->doubleSpinBox_prgendpos_z->setValue(Maschinen.masch(currentRow)->prgenpos_z());
+        ui->doubleSpinBox_zugabe_DuBoTi->setValue(Maschinen.masch(currentRow)->zugabe_duboti());
+        ui->doubleSpinBox_zugabe_DuTaTi->setValue(Maschinen.masch(currentRow)->zugabe_dutati());
         if(Maschinen.masch(currentRow)->ausgabeformat() == "emc2")
         {
             ui->radioButton_ausgabe_emc2->setChecked(true);
@@ -200,6 +218,12 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
+
+
+
+
+
+
 
 
 

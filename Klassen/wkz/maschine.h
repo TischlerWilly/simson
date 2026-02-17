@@ -26,6 +26,10 @@ public:
     void set_prgenpos_y(QString pos);
     void set_prgenpos_z(double pos);
     void set_prgenpos_z(QString pos);
+    void set_zugabe_duboti(double zugabe);
+    void set_zugabe_duboti(QString zugabe);
+    void set_zugabe_dutati(double zugabe);
+    void set_zugabe_dutati(QString zugabe);
     void set_ausgabeformat(QString f);
     void set_name(QString neuer_name);
     void set_wkzmag(wkz_magazin wkzmag);
@@ -77,6 +81,22 @@ public:
     {
         return Prgendpos.z_QString();
     }
+    inline double   zugabe_duboti()
+    {
+        return Zugabe_DuBoTi;
+    }
+    inline QString   zugabe_duboti_qstring()
+    {
+        return double_to_qstring(Zugabe_DuBoTi);
+    }
+    inline double   zugabe_dutati()
+    {
+        return Zugabe_DuTaTi;
+    }
+    inline QString   zugabe_dutati_qstring()
+    {
+        return double_to_qstring(Zugabe_DuTaTi);
+    }
     inline QString  ausgabeformat() const
     {
         return Ausgabeformat;
@@ -104,6 +124,8 @@ private:
     double Laenge;  //X-Wert
     double Breite;  //Y-Wert
     punkt3d Prgendpos;
+    double Zugabe_DuBoTi; //Zugabe für Durchgangsbohrungen bei denen gilt BoTi == WST-Dicke
+    double Zugabe_DuTaTi; //Zugabe für Durchgangs-Taschen bei denen gilt TaTi == WST-Dicke
     QString Ausgabeformat; //kein|emc2
     bool ManWkzWechsel; //Wkz wird von Hand gewechselt | Hat Wechselteller
     bool DrehzExportieren; //Drehzahlen exportieren | Händisch an der Spindel einstellen

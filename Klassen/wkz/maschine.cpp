@@ -10,6 +10,8 @@ maschine::maschine()
     Prgendpos.set_x(100);
     Prgendpos.set_y(100);
     Prgendpos.set_z(100);
+    Zugabe_DuBoTi = 0.3;
+    Zugabe_DuTaTi = 0.3;
 }
 maschine::maschine(QString neuer_name)
 {
@@ -22,6 +24,8 @@ maschine::maschine(QString neuer_name)
     Prgendpos.set_x(100);
     Prgendpos.set_y(100);
     Prgendpos.set_z(100);
+    Zugabe_DuBoTi = 0.3;
+    Zugabe_DuTaTi = 0.3;
 }
 
 //--------------------------------------------------set_xy:
@@ -48,6 +52,12 @@ void maschine::set_text(QString t)
         }else if(spalten.at(0) == "PrgEndPos Z:")
         {
             set_prgenpos_z(spalten.at(1));
+        }else if(spalten.at(0) == "Zugabe DuBoTi:")
+        {
+            set_zugabe_duboti(spalten.at(1));
+        }else if(spalten.at(0) == "Zugabe DuTaTi:")
+        {
+            set_zugabe_dutati(spalten.at(1));
         }else if(spalten.at(0) == "Ausgabeformat:")
         {
             set_ausgabeformat(spalten.at(1));
@@ -114,6 +124,28 @@ void maschine::set_prgenpos_z(double pos)
 void maschine::set_prgenpos_z(QString pos)
 {
     set_prgenpos_z(ausdruck_auswerten(pos).toDouble());
+}
+void maschine::set_zugabe_duboti(double zugabe)
+{
+    if(zugabe>0 && zugabe<10)
+    {
+        Zugabe_DuBoTi = zugabe;
+    }
+}
+void maschine::set_zugabe_duboti(QString zugabe)
+{
+    set_zugabe_duboti(ausdruck_auswerten(zugabe).toDouble());
+}
+void maschine::set_zugabe_dutati(double zugabe)
+{
+    if(zugabe>0 && zugabe<10)
+    {
+        Zugabe_DuTaTi = zugabe;
+    }
+}
+void maschine::set_zugabe_dutati(QString zugabe)
+{
+    set_zugabe_dutati(ausdruck_auswerten(zugabe).toDouble());
 }
 void maschine::set_ausgabeformat(QString f)
 {
@@ -184,6 +216,16 @@ QString maschine::text()
     text += "PrgEndPos Z:";
     text += "\t";
     text += prgenpos_z_qstring();
+    text += "\n";
+
+    text += "Zugabe DuBoTi:";
+    text += "\t";
+    text += zugabe_duboti_qstring();
+    text += "\n";
+
+    text += "Zugabe DuTaTi:";
+    text += "\t";
+    text += zugabe_dutati_qstring();
     text += "\n";
 
     text += "Ausgabeformat:";

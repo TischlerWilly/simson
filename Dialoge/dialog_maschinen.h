@@ -39,16 +39,15 @@ private slots:
     void on_radioButton_ausgabe_kein_toggled(bool checked);
     void on_checkBox_manWkzWechsel_stateChanged(int arg1);
     void on_checkBox_drehzExportieren_stateChanged(int arg1);
-
     void on_doubleSpinBox_prgendpos_x_editingFinished();
-
     void on_doubleSpinBox_prgendpos_y_editingFinished();
-
     void on_doubleSpinBox_prgendpos_z_editingFinished();
-
     void on_doubleSpinBox_tischlaenge_editingFinished();
-
     void on_doubleSpinBox_tischbreite_editingFinished();
+
+    void on_doubleSpinBox_zugabe_DuBoTi_editingFinished();
+
+    void on_doubleSpinBox_zugabe_DuTaTi_editingFinished();
 
 private:
     Ui::Dialog_maschinen *ui;
