@@ -5,7 +5,6 @@
 
 /*
 
--> G-Code als Textdatei speichern
 -> G-Code export emc2
     > Sicherheitsabstand als Parameter im Wst-Programmkopf ergänzen
         >> Parameter aus prgkopf verwenden

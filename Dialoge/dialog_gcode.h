@@ -22,7 +22,6 @@ public:
 
 private slots:
     void on_pushButton_erstellen_clicked();
-
     void on_pushButton_speichern_clicked();
 
 private:

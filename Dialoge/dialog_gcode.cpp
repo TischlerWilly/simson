@@ -32,6 +32,51 @@ void Dialog_GCode::on_pushButton_erstellen_clicked()
 }
 void Dialog_GCode::on_pushButton_speichern_clicked()
 {
+    QString dateipfad = Wst->dateipfad();
 
+    if(dateipfad.isEmpty())
+    {
+        return;
+    }
+
+    dateipfad.replace( DATEIENDUNG_EIGENE, ".gc");
+    QFile file(dateipfad);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QMessageBox::critical(this, tr("Fehler"), tr("Datei konnte nicht zum Schreiben geöffnet werden."));
+        return;
+    }
+
+    QString dateiInhalt = ui->plainTextEdit->toPlainText();
+    if (dateiInhalt.isEmpty())
+    {
+        on_pushButton_erstellen_clicked();
+        dateiInhalt = ui->plainTextEdit->toPlainText();
+
+        if (dateiInhalt.isEmpty())
+        {
+            QMessageBox::critical(this, tr("Fehler"), tr("Kein GCode vorhanden der gespeichert werden kann."));
+            return;
+        }
+    }
+
+    if (file.write(dateiInhalt.toUtf8()) == -1)
+    {
+        QMessageBox::critical(this, tr("Fehler"), tr("Inhalt konnte nicht geschrieben werden."));
+        file.close();
+        return;
+    }
+
+    file.close();
+
+    QString msg;
+    msg  = "Die Datei \"";
+    msg += dateipfad;
+    msg += "\" wurde erfolgreich gespeichert.";
+    QMessageBox mb;
+    mb.setText(msg);
+    mb.setWindowTitle("GCode speichern");
+    mb.exec();
 }
 
