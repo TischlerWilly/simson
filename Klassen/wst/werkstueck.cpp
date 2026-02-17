@@ -11,6 +11,7 @@ werkstueck::werkstueck()
     Prgend_x = "AUTO";
     Prgend_y = "AUTO";
     Prgend_z = "AUTO";
+    SichAbst = 40;
 }
 werkstueck::werkstueck(QString neuer_name)
 {
@@ -24,6 +25,7 @@ werkstueck::werkstueck(QString neuer_name)
     Prgend_x = "AUTO";
     Prgend_y = "AUTO";
     Prgend_z = "AUTO";
+    SichAbst = 40;
 }
 //#######################################################################
 //Public:
@@ -66,6 +68,9 @@ void werkstueck::set_text(QString text)
         }else if(zeile.contains("Programmende Z:"))
         {
             set_prgend_z(text_rechts(zeile, "Programmende Z:"));
+        }else if(zeile.contains("Sicherheitsabstand:"))
+        {
+            set_sichabst(text_rechts(zeile, "Sicherheitsabstand:"));
         }
     }
 
@@ -166,6 +171,17 @@ void werkstueck::set_prgend_z(QString endpos)
 {
     Prgend_z = endpos;
 }
+void werkstueck::set_sichabst(double abst)
+{
+    if(abst>0 && abst<300)
+    {
+        SichAbst = abst;
+    }
+}
+void werkstueck::set_sichabst(QString abst)
+{
+    set_sichabst(abst.toDouble());
+}
 void werkstueck::wurde_gespeichert()
 {
     unredo_clear();
@@ -217,6 +233,10 @@ QString werkstueck::text()
 
     msg += "Programmende Z:";
     msg += prgend_z();
+    msg += "\n";
+
+    msg += "Sicherheitsabstand:";
+    msg += sichabst_qstring();
     msg += "\n";
 
     msg += "[ENDE_Programmkopf]";
@@ -340,6 +360,7 @@ void werkstueck::undo()
     Prgend_x = UnReDo_prgend_x.undo();
     Prgend_y = UnReDo_prgend_y.undo();
     Prgend_z = UnReDo_prgend_z.undo();
+    SichAbst = UnReDo_sichabst.undo();
 }
 void werkstueck::redo()
 {
@@ -353,6 +374,7 @@ void werkstueck::redo()
     Prgend_x = UnReDo_prgend_x.redo();
     Prgend_y = UnReDo_prgend_y.redo();
     Prgend_z = UnReDo_prgend_z.redo();
+    SichAbst = UnReDo_sichabst.redo();
 }
 void werkstueck::unredo_neu()
 {
@@ -397,6 +419,10 @@ void werkstueck::unredo_neu()
     {
         anders = true;
     }
+    if(UnReDo_sichabst.akt_elem() != SichAbst)
+    {
+        anders = true;
+    }
 
     if(anders == true)
     {
@@ -410,6 +436,7 @@ void werkstueck::unredo_neu()
         UnReDo_prgend_x.neu(Prgend_x);
         UnReDo_prgend_y.neu(Prgend_y);
         UnReDo_prgend_z.neu(Prgend_z);
+        UnReDo_sichabst.neu(SichAbst);
     }
 }
 void werkstueck::unredo_clear()
@@ -424,6 +451,7 @@ void werkstueck::unredo_clear()
     UnReDo_prgend_x.clear();
     UnReDo_prgend_y.clear();
     UnReDo_prgend_z.clear();
+    UnReDo_sichabst.clear();
 }
 
 //#######################################################################

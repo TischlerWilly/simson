@@ -10,9 +10,7 @@
 class emc2
 {
 public:
-    emc2(maschine *m, werkstueck *w);
-    void set_maschine(maschine *m);
-    void set_wst(werkstueck *w);
+    emc2(maschine *m, werkstueck *w);    
     void setup();
 
     QString gcode();
@@ -26,6 +24,9 @@ public:
 
 
 private:
+    void set_maschine(maschine *m);
+    void set_wst(werkstueck *w);
+
     werkstueck  *Wst;
     maschine    *Maschine;
     double Sicherheitsabstand;

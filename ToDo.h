@@ -6,8 +6,6 @@
 /*
 
 -> G-Code export emc2
-    > Sicherheitsabstand als Parameter im Wst-Programmkopf ergänzen
-        >> Parameter aus prgkopf verwenden
     > Masszugabe_duboti und Masszugabe_dutati als Parameter in der Maschine ergänzen
         >> Parameter aus Maschine verwenden
     > Bohrung Variante Zapfen Fräsen

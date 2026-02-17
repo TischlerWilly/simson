@@ -4,6 +4,8 @@ emc2::emc2(maschine *m, werkstueck *w)
 {
     //Default-Wert:
     Sicherheitsabstand = 20;
+    Masszugabe_duboti = 0.3;
+    Masszugabe_dutati = 0.3;
 
     set_maschine(m);
     set_wst(w);
@@ -12,21 +14,18 @@ emc2::emc2(maschine *m, werkstueck *w)
 void emc2::set_maschine(maschine *m)
 {
     Maschine = m;
-    setup();
 }
 void emc2::set_wst(werkstueck *w)
 {
     Wst = w;
-    setup();
 }
 void emc2::setup()
 {
     if(Maschine != nullptr && Wst != nullptr)
     {
-        Sicherheitsabstand = 20;//Später noch als Parameter in maschine und wst ergänzen
-        //Wenn bei wst AUTO dann nimm den Wert von der Maschine
-        Masszugabe_duboti = 0.3;
-        Masszugabe_dutati = 0.3;
+        Sicherheitsabstand = Wst->sichabst();
+        Masszugabe_duboti = 0.3;//Später noch als Parameter in maschine
+        Masszugabe_dutati = 0.3;//Später noch als Parameter in maschine
     }
 }
 

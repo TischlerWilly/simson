@@ -47,6 +47,8 @@ public:
     void set_prgend_x(QString endpos);
     void set_prgend_y(QString endpos);
     void set_prgend_z(QString endpos);
+    void set_sichabst(double abst);
+    void set_sichabst(QString abst);
     void wurde_gespeichert();
 
     //--------------------------------------------------get_xy:
@@ -114,6 +116,14 @@ public:
     {
         return Prgend_z;
     }
+    inline double   sichabst() const
+    {
+        return SichAbst;
+    }
+    inline QString  sichabst_qstring() const
+    {
+        return double_to_qstring(SichAbst);
+    }
     inline QString  name()
     {
         return Name;
@@ -159,6 +169,7 @@ private:
     QString Prgend_x;
     QString Prgend_y;
     QString Prgend_z;
+    double SichAbst; //Sicherheitsabstand
     text_zw Bearb;
     QString Name;
     QString Dateipfad;
@@ -173,6 +184,7 @@ private:
     undo_redo<QString> UnReDo_prgend_x;
     undo_redo<QString> UnReDo_prgend_y;
     undo_redo<QString> UnReDo_prgend_z;
+    undo_redo<double> UnReDo_sichabst;
 
 };
 
