@@ -1,7 +1,0 @@
-ToDo:
-
--> G-Code export emc2
-    > Vorschub für Bohrer
-    > Bohrung Zustellmaß 0 abfangen!
--> Verschiebe n Kopien
--> vieleck-Tasche

@@ -3,6 +3,7 @@
 
 #include "Klassen/wst/werkstueck.h"
 #include "Klassen/wkz/maschine.h"
+#include "Funktionen/funktionen_prgtext.h"
 
 class emc2
 {

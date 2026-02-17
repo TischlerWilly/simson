@@ -28,6 +28,7 @@ void Dialog_bohrer::set_Data(text_zw msg, bool ist_neues_wkz)
     ui->checkBox_hori->setChecked(wkz.isthori());
     ui->checkBox_verti->setChecked(wkz.istverti());
     ui->checkBox_ist_aktiv->setChecked(wkz.istaktiv());
+    ui->lineEdit_vorschub->setText(double_to_qstring(wkz.vorschub()));
     this->show();
 }
 
@@ -50,6 +51,7 @@ void Dialog_bohrer::clear()
     ui->checkBox_verti->setChecked(false);
     ui->checkBox_hori->setChecked(false);
     ui->checkBox_ist_aktiv->setChecked(true);
+    ui->lineEdit_vorschub->clear();
 }
 
 void Dialog_bohrer::on_pushButton_abbrechen_clicked()
@@ -89,6 +91,18 @@ void Dialog_bohrer::on_pushButton_ok_clicked()
         mb.setText("Bitte zuerst eine vertikales Zustellmaß eintragen!");
         mb.setWindowTitle("Daten unvollständig");
         mb.exec();
+    }else if(ui->lineEdit_vorschub->text().isEmpty())
+    {
+        QMessageBox mb;
+        mb.setText("Bitte zuerst den Vorschub eintragen!");
+        mb.setWindowTitle("Daten unvollständig");
+        mb.exec();
+    }else if(berechnen(ui->lineEdit_vorschub->text()).toDouble() <= 0)
+    {
+        QMessageBox mb;
+        mb.setText("Der Vorschub muss größer als 0 sein");
+        mb.setWindowTitle("Daten fehlerhaft");
+        mb.exec();
     }else
     {
         this->hide();
@@ -103,6 +117,7 @@ void Dialog_bohrer::on_pushButton_ok_clicked()
         bohrer.set_istdubo(ui->checkBox_istdubo->isChecked());
         bohrer.set_isthori(ui->checkBox_hori->isChecked());
         bohrer.set_istverti(ui->checkBox_verti->isChecked());
+        bohrer.set_vorschub(berechnen(ui->lineEdit_vorschub->text()).toDouble());
 
         emit Data(bohrer.daten(), Wkz_ist_neu);
     }

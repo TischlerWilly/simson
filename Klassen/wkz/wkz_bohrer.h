@@ -23,6 +23,7 @@ public:
     void set_istdubo(bool ja);
     void set_isthori(bool ja);
     void set_istverti(bool ja);
+    void set_vorschub(double f);
     //----------------------------------get:
     text_zw daten();
     QString wkznr();
@@ -35,6 +36,7 @@ public:
     bool istdubo();
     bool isthori();
     bool istverti();
+    double vorschub();
 
 private:
     //Werkzeugtyp           //0: WKZ-Typ
@@ -47,7 +49,8 @@ private:
     bool    IstDuBo;        //7: Ist Durchgangsbohrer
     bool    IstHori;        //8: Ist Horizontalbohrer / kann horizontal bohren
     bool    IstVerti;       //9: Ist Vertikalbohrer / kann vertikal bohren
-    double  ZustMasHori;     //10: Zustellmaß horizontal
+    double  ZustMasHori;    //10: Zustellmaß horizontal
+    double  Vorschub;       //11: Vorschub
 
 
 };

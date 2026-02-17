@@ -144,6 +144,11 @@ QString emc2::bohr(bohrung bo)
 {
     QString gcode;
 
+    if(ausdruck_auswerten(bo.afb()).toDouble() <= 0)
+    {
+        return gcode;//leerer String
+    }
+
     if(Maschine != nullptr && Wst != nullptr)
     {
         QTextStream stream(&gcode);
@@ -180,7 +185,7 @@ QString emc2::bohr(bohrung bo)
                     if (bohrtiefe > 0)
                     {
                         stream << "\n";
-                        stream << "( Bohrung: DM" << bo.dm() <<")\n";
+                        stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n";
                         // 1. Positionierung
                         stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
                         stream << "G0 Z" << sicherheits_z << "\n";
@@ -227,7 +232,8 @@ QString emc2::bohr(bohrung bo)
 
                 if(!tnummer.isEmpty())
                 {
-                    //Es kann eine Kreistasche verwendet werden:
+                    //Es kann eine Kreistasche verwendet werden
+
                     double wst_dicke = Wst->dicke();
                     double bohrtiefe = bo.tiefe();
                     double zustellmass = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
@@ -247,103 +253,182 @@ QString emc2::bohr(bohrung bo)
                     // Z-Werte berechnen
                     double sicherheits_z = wst_dicke + Sicherheitsabstand;
                     double ziel_z = (wst_dicke - bohrtiefe) - austritt;
-                    //double rueckzug_r = wst_dicke + 1.0;
 
-                    // G-Code generieren
-                    if (bohrtiefe > 0)
-                    {
-                        stream << "\n";
-                        stream << "( Kreistasche helikal: " << bo.dm() << " )\n";
-
-                        double schlichtzugabe = 0.5;
-                        double taschen_radius = bo.dm() / 2.0;
-                        double fraeser_radius = wkzdm / 2.0;
-                        double max_ausraeum_radius = taschen_radius - fraeser_radius - schlichtzugabe;
-                        double final_schlicht_radius = taschen_radius - fraeser_radius;
-
-                        if (max_ausraeum_radius < 0.1)
+                    if(Maschine->wkzmag().kann_bohrend_eintauchen(tnummer))
+                    {//bohrendes eintauchen (spart etwas Zeit)
+                        if (bohrtiefe > 0)
                         {
-                            max_ausraeum_radius = final_schlicht_radius;
-                            schlichtzugabe = 0;
-                        }
+                            stream << "\n";
+                            stream << "( Kreistasche bohrend eintauchen: )\n";
+                            stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n";
 
-                        // --- SCHRITT 0: Anfahren ---
-                        stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
-                        stream << "G0 Z" << sicherheits_z << "\n";
+                            double schlichtzugabe = 0.5;
+                            double taschen_radius = bo.dm() / 2.0;
+                            double fraeser_radius = wkzdm / 2.0;
 
-                        double aktuelle_z = wst_dicke;
-                        // Radius für die Eintauch-Helix (kleiner Kreis, um Platz zu schaffen)
-                        double helix_radius = std::min(max_ausraeum_radius, wkzdm * 0.4);
+                            // Radius für das grobe Ausräumen (mit Aufmaß)
+                            double max_ausraeum_radius = taschen_radius - fraeser_radius - schlichtzugabe;
+                            // Radius für das finale Schlichten
+                            double final_schlicht_radius = taschen_radius - fraeser_radius;
 
-                        while (aktuelle_z > ziel_z + toleranz)
-                        {
-                            double start_z = aktuelle_z;
-                            aktuelle_z -= zustellmass;
-                            if (aktuelle_z < ziel_z)
+                            // Sicherheitscheck: Ist die Tasche groß genug für Schlichten?
+                            if (max_ausraeum_radius < 0.1)
                             {
-                                aktuelle_z = ziel_z;
+                                max_ausraeum_radius = final_schlicht_radius;
+                                schlichtzugabe = 0;
                             }
 
-                            // --- SCHRITT 1: Helikales Eintauchen ---
-                            if (helix_radius > 0.1)
+                            stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
+                            stream << "G0 Z" << sicherheits_z << "\n";
+
+                            // --- SCHRITT 1: Räumen der Tasche mit Z-Zustellungen ---
+                            double aktuelle_z = wst_dicke;
+                            while (aktuelle_z > ziel_z + toleranz)
                             {
-                                // 1a. Anfahren auf Startpunkt der Helix (X-Versatz)
-                                stream << "G1 X" << (bo.x() + helix_radius) << " Z" << start_z << " F" << vorschub << "\n";
-
-                                // 1b. Helix fahren (Vollkreis mit Z-Zustellung)
-                                // G2 X... Y... Z... I... J...
-                                stream << "G2 X" << (bo.x() + helix_radius) << " Y" << bo.y()
-                                       << " Z" << aktuelle_z << " I" << -helix_radius << " J0 F" << vorschub / 2.0 << "\n";
-
-                                // 1c. Ein Ebener Kreis auf Ziel-Tiefe, um den Boden zu glätten
-                                stream << "G2 X" << (bo.x() + helix_radius) << " Y" << bo.y()
-                                       << " I" << -helix_radius << " J0\n";
-                            }
-                            else
-                            {
-                                // Falls die Tasche zu klein für eine Helix ist (Notfall: Rampe oder langsames Eintauchen)
-                                stream << "G1 Z" << aktuelle_z << " F" << vorschub / 5.0 << "\n";
-                            }
-
-                            // --- SCHRITT 2: Radiales Räumen auf dieser Ebene ---
-                            double aktueller_radius = helix_radius;
-                            double schrittweite = wkzdm - ueberlappung;
-
-                            while (aktueller_radius < max_ausraeum_radius - toleranz)
-                            {
-                                aktueller_radius += schrittweite;
-                                if (aktueller_radius > max_ausraeum_radius)
+                                aktuelle_z -= zustellmass;
+                                if (aktuelle_z < ziel_z)
                                 {
-                                    aktueller_radius = max_ausraeum_radius;
+                                    aktuelle_z = ziel_z;
                                 }
 
-                                stream << "G1 X" << (bo.x() + aktueller_radius) << " F" << vorschub << "\n";
-                                stream << "G2 X" << (bo.x() + aktueller_radius) << " Y" << bo.y()
-                                       << " I" << -aktueller_radius << " J0\n";
+                                // Zustellung in Z
+                                stream << "G1 Z" << aktuelle_z << " F" << vorschub / 2.0 << "\n";
+
+                                // Radiales Räumen bis zum Schlichtaufmaß
+                                double aktueller_radius = 0.0;
+                                double schrittweite = wkzdm - ueberlappung;
+
+                                while (aktueller_radius < max_ausraeum_radius - toleranz)
+                                {
+                                    aktueller_radius += schrittweite;
+                                    if (aktueller_radius > max_ausraeum_radius)
+                                    {
+                                        aktueller_radius = max_ausraeum_radius;
+                                    }
+
+                                    stream << "G1 X" << (bo.x() + aktueller_radius) << " F" << vorschub << "\n";
+                                    stream << "G2 X" << (bo.x() + aktueller_radius) << " Y" << bo.y()
+                                           << " I" << -aktueller_radius << " J0" << "\n";
+                                }
+
+                                // Nach jeder Z-Ebene kurz zur Mitte zurück, um Freiraum zu schaffen
+                                stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
                             }
 
-                            // Zurück zur Mitte
-                            stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
-                        }
+                            // --- SCHRITT 2: Finales Schlichten in voller Tiefe ---
+                            if (schlichtzugabe > 0)
+                            {
+                                stream << "( Finales Schlichten der Wandung in voller Tiefe )\n";
+                                // Der Fräser steht bereits auf ziel_z in der Mitte
+                                stream << "G1 X" << (bo.x() + final_schlicht_radius) << " F" << vorschub * 0.7 << "\n";
+                                stream << "G2 X" << (bo.x() + final_schlicht_radius) << " Y" << bo.y()
+                                       << " I" << -final_schlicht_radius << " J0" << "\n";
 
-                        // --- SCHRITT 3: Finales Schlichten in voller Tiefe ---
-                        if (schlichtzugabe > 0)
+                                // Nach dem Schlichten wieder zur Mitte fahren
+                                stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
+                            }
+
+                            // --- SCHRITT 3: Rückzug ---
+                            stream << "G0 Z" << sicherheits_z << "\n";
+                        }
+                    }else
+                    {//spiralförmiges eintauchen
+                        if (bohrtiefe > 0)
                         {
-                            stream << "( Schlichten Wandung )\n";
-                            stream << "G1 X" << (bo.x() + final_schlicht_radius) << " F" << vorschub * 0.7 << "\n";
-                            stream << "G2 X" << (bo.x() + final_schlicht_radius) << " Y" << bo.y()
-                                   << " I" << -final_schlicht_radius << " J0\n";
-                            stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
-                        }
+                            stream << "\n";
+                            stream << "( Kreistasche helikal eintauchen: )\n";
+                            stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n";
 
-                        stream << "G0 Z" << sicherheits_z << "\n";
+                            double schlichtzugabe = 0.5;
+                            double taschen_radius = bo.dm() / 2.0;
+                            double fraeser_radius = wkzdm / 2.0;
+                            double max_ausraeum_radius = taschen_radius - fraeser_radius - schlichtzugabe;
+                            double final_schlicht_radius = taschen_radius - fraeser_radius;
+
+                            if (max_ausraeum_radius < 0.1)
+                            {
+                                max_ausraeum_radius = final_schlicht_radius;
+                                schlichtzugabe = 0;
+                            }
+
+                            // --- SCHRITT 0: Anfahren ---
+                            stream << "G0 X" << bo.x() << " Y" << bo.y() << "\n";
+                            stream << "G0 Z" << sicherheits_z << "\n";
+
+                            double aktuelle_z = wst_dicke;
+                            // Radius für die Eintauch-Helix (kleiner Kreis, um Platz zu schaffen)
+                            double helix_radius = std::min(max_ausraeum_radius, wkzdm * 0.4);
+
+                            while (aktuelle_z > ziel_z + toleranz)
+                            {
+                                double start_z = aktuelle_z;
+                                aktuelle_z -= zustellmass;
+                                if (aktuelle_z < ziel_z)
+                                {
+                                    aktuelle_z = ziel_z;
+                                }
+
+                                // --- SCHRITT 1: Helikales Eintauchen ---
+                                if (helix_radius > 0.1)
+                                {
+                                    // 1a. Anfahren auf Startpunkt der Helix (X-Versatz)
+                                    stream << "G1 X" << (bo.x() + helix_radius) << " Z" << start_z << " F" << vorschub << "\n";
+
+                                    // 1b. Helix fahren (Vollkreis mit Z-Zustellung)
+                                    // G2 X... Y... Z... I... J...
+                                    stream << "G2 X" << (bo.x() + helix_radius) << " Y" << bo.y()
+                                           << " Z" << aktuelle_z << " I" << -helix_radius << " J0 F" << vorschub / 2.0 << "\n";
+
+                                    // 1c. Ein Ebener Kreis auf Ziel-Tiefe, um den Boden zu glätten
+                                    stream << "G2 X" << (bo.x() + helix_radius) << " Y" << bo.y()
+                                           << " I" << -helix_radius << " J0\n";
+                                }
+                                else
+                                {
+                                    // Falls die Tasche zu klein für eine Helix ist (Notfall: Rampe oder langsames Eintauchen)
+                                    stream << "G1 Z" << aktuelle_z << " F" << vorschub / 5.0 << "\n";
+                                }
+
+                                // --- SCHRITT 2: Radiales Räumen auf dieser Ebene ---
+                                double aktueller_radius = helix_radius;
+                                double schrittweite = wkzdm - ueberlappung;
+
+                                while (aktueller_radius < max_ausraeum_radius - toleranz)
+                                {
+                                    aktueller_radius += schrittweite;
+                                    if (aktueller_radius > max_ausraeum_radius)
+                                    {
+                                        aktueller_radius = max_ausraeum_radius;
+                                    }
+
+                                    stream << "G1 X" << (bo.x() + aktueller_radius) << " F" << vorschub << "\n";
+                                    stream << "G2 X" << (bo.x() + aktueller_radius) << " Y" << bo.y()
+                                           << " I" << -aktueller_radius << " J0\n";
+                                }
+
+                                // Zurück zur Mitte
+                                stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
+                            }
+
+                            // --- SCHRITT 3: Finales Schlichten in voller Tiefe ---
+                            if (schlichtzugabe > 0)
+                            {
+                                stream << "( Schlichten Wandung )\n";
+                                stream << "G1 X" << (bo.x() + final_schlicht_radius) << " F" << vorschub * 0.7 << "\n";
+                                stream << "G2 X" << (bo.x() + final_schlicht_radius) << " Y" << bo.y()
+                                       << " I" << -final_schlicht_radius << " J0\n";
+                                stream << "G1 X" << bo.x() << " Y" << bo.y() << "\n";
+                            }
+
+                            stream << "G0 Z" << sicherheits_z << "\n";
+                        }
                     }
                 }else
                 {
                     //Fehlermeldung:
                     stream << "\n";
                     stream << "( >>>>>>>>>> Bohrung übersprungen weil kein geeignetes Werkzeug gefunden wurde! <<<<<<<<<<)\n";
-                    stream << "( " << bo.text() << " )\n\n";
+                    stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n\n";
                 }
             }
         }else //bo.istZapfen()

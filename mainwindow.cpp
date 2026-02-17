@@ -1,12 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ToDo.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    Programmversion_simson = "Simson V1-2026.02.16";
+    Programmversion_simson = PROGRAMMVERSION;
     aktualisiere_fendtertitel();
     PrgPfade.ordner_erstellen();
     setup();

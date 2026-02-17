@@ -138,6 +138,7 @@ HEADERS += \
     Klassen/wst/rechtecktasche.h \
     Klassen/wst/werkstueck.h \
     Klassen/wst/werkstuecke.h \
+    ToDo.h \
     mainwin_wkzmagazin.h \
     mainwindow.h
 
@@ -169,7 +170,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    ToDo.txt \
     simson.ico \
     toolbaricons/Fraese 100x100.png \
     toolbaricons/down.png \

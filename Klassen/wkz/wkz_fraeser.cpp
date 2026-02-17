@@ -12,6 +12,7 @@ wkz_fraeser::wkz_fraeser()
     NurDirektZuweisen   = true;
     IstHori             = false;
     IstVerti            = false;
+    KannBohrendEintauchen = false;
 }
 wkz_fraeser::wkz_fraeser(text_zw wkz)
 {
@@ -52,6 +53,13 @@ wkz_fraeser::wkz_fraeser(text_zw wkz)
         IstVerti = false;
     }
     ZustMasHori = wkz.at(13).toDouble();
+    if(wkz.at(14) == "1")
+    {
+        KannBohrendEintauchen = true;
+    }else
+    {
+        KannBohrendEintauchen = false;
+    }
 }
 //----------------------------------set:
 void wkz_fraeser::set_wkznr(QString nr)
@@ -124,6 +132,10 @@ void wkz_fraeser::set_istverti(bool ja)
 {
     IstVerti = ja;
 }
+void wkz_fraeser::set_kann_bohrend_eintauchen(bool ja)
+{
+    KannBohrendEintauchen = ja;
+}
 //----------------------------------get:
 text_zw wkz_fraeser::daten()
 {
@@ -167,6 +179,13 @@ text_zw wkz_fraeser::daten()
         wkz.add_hi("0");
     }
     wkz.add_hi(double_to_qstring(ZustMasHori)); //13: Zustellmaß horizontal
+    if(KannBohrendEintauchen == true)           //14: Kann bohrend eintauchen, hat also eine Grundschneide
+    {
+        wkz.add_hi("1");
+    }else
+    {
+        wkz.add_hi("0");
+    }
     return wkz;
 }
 QString wkz_fraeser::wkznr()
@@ -220,5 +239,9 @@ bool wkz_fraeser::isthori()
 bool wkz_fraeser::istverti()
 {
     return IstVerti;
+}
+bool wkz_fraeser::kann_bohrend_eintauchen()
+{
+    return KannBohrendEintauchen;
 }
 

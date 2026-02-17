@@ -26,6 +26,7 @@ public:
     void set_nurdirektzuw(bool ja);
     void set_isthori(bool ja);
     void set_istverti(bool ja);
+    void set_kann_bohrend_eintauchen(bool ja);
     //----------------------------------get:
     text_zw daten();
     QString wkznr();
@@ -41,6 +42,7 @@ public:
     bool nurdirektzuw();
     bool isthori();
     bool istverti();
+    bool kann_bohrend_eintauchen();
 
 private:
     //Werkzeugtyp               //0: WKZ-Typ
@@ -57,6 +59,7 @@ private:
     bool    IstHori;            //11: Ist horizontaler Fräser / kann horizontal fräsen
     bool    IstVerti;           //12: Ist vertikaler Fräser / kann vertikal fräsen
     double  ZustMasHori;        //13: Zustellmaß vertikal
+    bool    KannBohrendEintauchen; //14: Kann bohrend eintauchen, hat also eine Grundschneide
 
 };
 
