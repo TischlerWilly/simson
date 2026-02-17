@@ -6,7 +6,6 @@
 /*
 
 -> G-Code export emc2
-    > Bohrung Variante Zapfen Fräsen
     > RTAs
     > fkon
 

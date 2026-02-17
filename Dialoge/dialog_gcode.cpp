@@ -39,7 +39,7 @@ void Dialog_GCode::on_pushButton_speichern_clicked()
         return;
     }
 
-    dateipfad.replace( DATEIENDUNG_EIGENE, ".gc");
+    dateipfad.replace( DATEIENDUNG_EIGENE, ".ngc");
     QFile file(dateipfad);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))

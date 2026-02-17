@@ -459,7 +459,127 @@ QString emc2::bohr(bohrung bo)
             }
         }else //bo.istZapfen()
         {
+            //Zapfen fräsen:
 
+            //Ist direkt ein WKZ definiert?:
+            QString tnummer;
+            if(bo.bezug() == WST_BEZUG_OBSEI  ||  bo.bezug() == WST_BEZUG_UNSEI)
+            {
+                tnummer = Maschine->wkzmag().wkznummer_von_alias(bo.wkznum(), WKZ_VERT);
+            }else
+            {
+                tnummer = Maschine->wkzmag().wkznummer_von_alias(bo.wkznum(), WKZ_HORI);
+            }
+
+            if(!tnummer.isEmpty())
+            {
+                double wst_dicke = Wst->dicke();
+                double bohrtiefe = bo.tiefe();
+                double zustellmass = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
+                double austritt = 0.0;
+                double toleranz = 0.01;
+                double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
+                double wkzdm = Maschine->wkzmag().dm(tnummer).toDouble();//Durchmesser des Fräsers
+
+                // Prüfen ob Durchgangs-Tasche
+                if (bohrtiefe >= (wst_dicke - toleranz))
+                {
+                    // Falls die Tasche durchgehen soll -> Sicherheitszugabe
+                    austritt = Masszugabe_dutati;
+                }
+
+                // Z-Werte berechnen
+                double sicherheits_z = wst_dicke + Sicherheitsabstand;
+                double ziel_z = (wst_dicke - bohrtiefe) - austritt;
+
+                stream << wkz_wechsel(tnummer);
+
+                if (bohrtiefe > 0)
+                {
+                    stream << "\n";
+                    stream << "( Zapfen fräsen: )\n";
+                    stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n";
+
+                    double schlichtzugabe = 0.5;
+                    double taschen_radius = bo.dm() / 2.0;
+                    double fraeser_radius = wkzdm / 2.0;
+
+                    // Radien für Außenbearbeitung
+                    double bahn_radius_schlichten = taschen_radius + fraeser_radius;
+                    double bahn_radius_schruppen = bahn_radius_schlichten + schlichtzugabe;
+
+                    // Dynamischer Anfahrradius (z.B. 80% des Fräserradius, mindestens aber 2mm)
+                    double anfahr_radius = fraeser_radius * 0.8;
+                    if(anfahr_radius < 2.0)
+                    {
+                        anfahr_radius = 2.0;
+                    }
+
+                    // 1. Positionierung (Startpunkt außerhalb des Materials)
+                    // Wir starten versetzt für den tangentialen Viertelkreis
+                    double start_x = bo.x() + bahn_radius_schruppen + anfahr_radius;
+                    double start_y = bo.y() - anfahr_radius;
+
+                    stream << "G00 Z" << sicherheits_z << "\n";
+                    stream << "G00 X" << start_x  << " Y" << start_y << "\n";
+
+                    // 2. Absenken auf Werkstückoberfläche
+                    stream << "G01 Z" << wst_dicke + 0.3 << " F" << vorschub << "\n";
+
+                    // 3. Tangentiales Anfahren (Viertelkreis G03)
+                    stream << "G02 X" << bo.x() + bahn_radius_schruppen
+                           << " Y" << bo.y()
+                           << " I0 J" << anfahr_radius << "\n";
+
+                    // 4. Spiralförmiges Eintauchen (Schruppen)
+                    double aktuelle_z = wst_dicke;
+                    while (aktuelle_z > ziel_z)
+                    {
+                        aktuelle_z -= zustellmass;
+                        if (aktuelle_z < ziel_z) aktuelle_z = ziel_z;
+
+                        stream << "G03 X" << bo.x() + bahn_radius_schruppen
+                               << " Y" << bo.y()
+                               << " I" << -bahn_radius_schruppen
+                               << " J0 Z" << aktuelle_z << "\n";
+                    }
+
+                    // 5. Reinigungsrunde auf Endtiefe
+                    stream << "G03 I" << -bahn_radius_schruppen << " J0\n";
+
+                    // 6. Schlichtgang
+                    if (schlichtzugabe > 0)
+                    {
+                        double schlicht_x = bo.x() + bahn_radius_schlichten;
+
+                        // Sanfter Übergang von Schruppbahn auf Schlichtbahn
+                        // Wir nutzen einen kleinen R-Bogen für den Versatz
+                        stream << "G02 X" << schlicht_x
+                               << " Y" << bo.y() + schlichtzugabe
+                               << " R" << schlichtzugabe << "\n";
+
+                        // Die eigentliche Schlichtrunde
+                        stream << "G03 X" << schlicht_x
+                               << " Y" << bo.y()
+                               << " I" << -bahn_radius_schlichten
+                               << " J0\n";
+                    }
+
+                    // 7. Tangentiales Wegfahren (Viertelkreis vom Zapfen weg)
+                    stream << "G02 X" << bo.x() + bahn_radius_schruppen
+                           << " Y" << bo.y() + schlichtzugabe
+                           << " I" << schlichtzugabe << " J0\n";
+
+                    // 8. Freifahren
+                    stream << "G00 Z" << sicherheits_z << "\n";
+                }
+            }else
+            {
+                //Fehlermeldung:
+                stream << "\n";
+                stream << "( >>>>>>>>>> Zapfen übersprungen weil kein geeignetes Werkzeug gefunden wurde! <<<<<<<<<<)\n";
+                stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n\n";
+            }
         }
     }
     return gcode;
