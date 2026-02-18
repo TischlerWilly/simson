@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QDirIterator>
+#include <QKeyEvent>
 
 #include "Klassen/einstellung.h"
 #include "Klassen/prgpfade.h"
@@ -52,6 +53,7 @@ private:
     void schreibe_maschinen();
     void maschinen_einlesen();
     void zeile_bearb_bearbeiten(int zeile_bearb);
+    void zeile_bearb_afb_umkehren(int zeile_bearb);
     QString verschiebe_bearb_einen(QString bearb, double ax, double ay, double az,\
                                    double wst_l_alt, double wst_l_neu,\
                                    double wst_b_alt, double wst_b_ne  );
@@ -121,6 +123,9 @@ private slots:
     QString validiere_dateipfad(QString pfad);
     void aktualisiere_listwidget_dateien(int akt_index);    
     void on_actionGCode_Export_triggered();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 public slots:
     void getEinstellung(einstellung e);

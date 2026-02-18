@@ -38,6 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&dlg_einstellung_dxf_klassen, SIGNAL(send_einstellung(einstellung_dxf_klassen)),\
             this, SLOT(getEinstellungDxfKlassen(einstellung_dxf_klassen )));
 
+    // Installiere den Shortcut-Filter NUR für das spezifische ListWidget
+    ui->listWidget_bearb->installEventFilter(this);
+
     this->setWindowState(Qt::WindowMaximized);
 }
 
@@ -403,12 +406,13 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
         text_zw zeile;
         zeile.set_text(bearb,TRENNZ_BEARB_PARAM);
         QColor farbe;
-        farbe.setRgb(255,255,255);
+        farbe.setRgb(255,255,255);        
         int deckkraft = 160;
         QString bezug = zeile.at(1);
+        double afb = 1;
         if(zeile.at(0) == BEARBART_BOHR)
         {
-            bearb = bohr_zu_prgzei(zeile.text());
+            bearb = bohr_zu_prgzei(zeile.text());            
             if(bezug == WST_BEZUG_OBSEI)
             {
                 farbe.setRgb(0,240,240,deckkraft); //Hellblau
@@ -419,13 +423,19 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
             {
                 farbe.setRgb(185,122,87,deckkraft);//braun
             }
+            bohrung bo(zeile.text());
+            afb = ausdruck_auswerten(bo.afb()).toDouble();
         }else if(zeile.at(0) == BEARBART_BOHRRASTER)
         {
             bearb = bohrRaster_zu_prgzei(zeile.text());
+            bohrraster bora(zeile.text());
+            afb = ausdruck_auswerten(bora.afb()).toDouble();
         }else if(zeile.at(0) == BEARBART_NUT)
         {
             bearb = nut_zu_prgzei(zeile.text());
             farbe.setRgb(145,145,255,deckkraft);//helles lila
+            nut nu(zeile.text());
+            afb = ausdruck_auswerten(nu.afb()).toDouble();
         }else if(zeile.at(0) == BEARBART_RTA)
         {
             bearb = rta_zu_prgzei(zeile.text());
@@ -438,21 +448,41 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
                 farbe = Qt::green;
                 farbe.setAlpha(deckkraft);
             }
+            rechtecktasche rta(zeile.text());
+            afb = ausdruck_auswerten(rta.afb()).toDouble();
         }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
         {
             bearb = fauf_zu_prgzei(zeile.text());
             farbe.setRgb(255,128,0,deckkraft);//orange
+            fraeseraufruf fa(zeile.text());
+            afb = ausdruck_auswerten(fa.afb()).toDouble();
         }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
         {
             bearb = fgerade_zu_prgzei(zeile.text());
             farbe.setRgb(255,155,106,deckkraft);//helles orange
+            fraesergerade fg(zeile.text());
+            afb = ausdruck_auswerten(fg.afb()).toDouble();
         }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
         {
             bearb = fbogen_zu_prgzei(zeile.text());
             farbe.setRgb(255,155,106,deckkraft);//helles orange
+            fraeserbogen fb(zeile.text());
+            afb = ausdruck_auswerten(fb.afb()).toDouble();
         }
+
         ui->listWidget_bearb->addItem(bearb);
         ui->listWidget_bearb->item(i+1)->setBackground(farbe);
+
+        if(afb <= 0)
+        {
+            QColor textfarbe;
+            textfarbe.setRgb(42,110,186);
+            ui->listWidget_bearb->item(i+1)->setForeground(textfarbe);
+            QFont font = ui->listWidget_bearb->item(i+1)->font(); // Aktuelle Schriftart abrufen
+            font.setItalic(true);                                 // Kursiv-Attribut aktivieren
+            ui->listWidget_bearb->item(i+1)->setFont(font);       // Geänderte Schriftart zurückweisen
+        }
+
     }
     ui->listWidget_bearb->addItem("...");
     if(currentRow < ui->listWidget_bearb->count())
@@ -488,7 +518,40 @@ void MainWindow::aktualisiere_fendtertitel()
         this->setWindowTitle(Programmversion_simson);
     }
 }
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+    // 1. Prüfen, ob das Event vom richtigen Widget kommt
+    if (obj == ui->listWidget_bearb)
+    {
+        // 2. Prüfen, ob es ein Tastendruck ist
+        if (event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
 
+            // 3. Prüfen, ob es die Leertaste ist
+            if (keyEvent->key() == Qt::Key_Space)
+            {
+                if(ui->listWidget_dateien->currentRow() >= 0)
+                {
+                    for(int i=auswahl_erster(); i<=auswahl_letzter() ; i++)
+                    {
+                        zeile_bearb_afb_umkehren(i-1);
+                    }
+                }
+                return true; // Event stoppen (nicht an das Widget weiterleiten)
+            }else if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+            {
+                if(ui->listWidget_dateien->currentRow() >= 0)
+                {
+                    int index_bearb = ui->listWidget_bearb->currentRow();
+                    zeile_bearb_bearbeiten(index_bearb);
+                }
+                return true; // Event stoppen (nicht an das Widget weiterleiten)
+            }
+        }
+    }
+    // Andere Events/Widgets normal weiterverarbeiten
+    return QMainWindow::eventFilter(obj, event);
+}
 //------------------------------------------------------
 //Einstellungen:
 void MainWindow::getEinstellung(einstellung e)
@@ -1397,6 +1460,120 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         dlg.exec();
     }
 }
+void MainWindow::zeile_bearb_afb_umkehren(int zeile_bearb)
+{
+    if(ui->listWidget_dateien->currentRow() < 0)
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein Werkstück ausgewählt!");
+        mb.setWindowTitle("Ausführbedingung der Bearbeitung umkehren");
+        mb.exec();
+        return;
+    }
+    if(zeile_bearb < 0)
+    {
+        return;
+    }
+    int index_wst = ui->listWidget_dateien->currentRow();
+    if(Wste.wst(index_wst))
+    {
+        text_zw *alle_bearb = Wste.wst(index_wst)->bearb_ptr();
+        if(alle_bearb)
+        {
+            QString akt_bearb = alle_bearb->at(zeile_bearb);
+            text_zw zeile;
+            zeile.set_text(akt_bearb,TRENNZ_BEARB_PARAM);
+            if(zeile.at(0) == BEARBART_BOHR)
+            {
+                bohrung item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_BOHRRASTER)
+            {
+                bohrraster item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_NUT)
+            {
+                nut item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_RTA)
+            {
+                rechtecktasche item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+            {
+                fraeseraufruf item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
+            {
+                fraesergerade item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
+            {
+                fraeserbogen item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }
+            update_listwid_bearb();
+            update_vorschau();
+        }
+    }
+}
+
 QString MainWindow::verschiebe_bearb_einen(QString bearb, double ax, double ay, double az,\
                                            double wst_l_alt, double wst_l_neu,\
                                            double wst_b_alt, double wst_b_neu  )

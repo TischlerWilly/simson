@@ -533,6 +533,7 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
         if(zeile.at(0) == BEARBART_BOHR)
         {
             bohrung bo(zeile.text());
+            double afb = ausdruck_auswerten(bo.afb()).toDouble();
             if(bo.bezug() == WST_BEZUG_OBSEI)
             {
                 kreis k;                
@@ -558,8 +559,19 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                     {
                         kreis k_au = k;
                         k_au.set_rad(k.radius()+wkzdm);
+                        if(afb <= 0)
+                        {
+                            k_au.set_farbe(FARBE_DUNKELGRAU);
+                            k_au.set_farbe_fuellung(FARBE_KEINE);
+                        }
                         gt.add_kreis(k_au);
                     }
+                }
+
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
                 }
 
                 gt.add_kreis(k);
@@ -598,8 +610,19 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                     {
                         kreis k_au = k;
                         k_au.set_rad(k.radius()+wkzdm);
+                        if(afb <= 0)
+                        {
+                            k_au.set_farbe(FARBE_DUNKELGRAU);
+                            k_au.set_farbe_fuellung(FARBE_KEINE);
+                        }
                         gt.add_kreis(k_au);
                     }
+                }
+
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
                 }
 
                 k.verschieben_um(versatz_x, versatz_y);
@@ -620,63 +643,124 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             }else if(bo.bezug() == WST_BEZUG_LI)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.tiefe());
                 r.set_breite(bo.dm());
                 r.set_li(bo.x(), bo.y(), 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_rechteck(r);
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_li.x()-bo.z(),nullpunkt_li.y()+bo.y(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_kreis(k);
             }else if(bo.bezug() == WST_BEZUG_RE)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.tiefe());
                 r.set_breite(bo.dm());
                 r.set_re(bo.x(), bo.y(), 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_rechteck(r);
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_re.x()+bo.z(),nullpunkt_re.y()+bo.y(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_kreis(k);
             }else if(bo.bezug() == WST_BEZUG_VO)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.dm());
                 r.set_breite(bo.tiefe());
                 r.set_un(bo.x(), bo.y(), 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_rechteck(r);
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_vo.x()+bo.x(),nullpunkt_vo.y()-bo.z(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_kreis(k);
             }else if(bo.bezug() == WST_BEZUG_HI)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.dm());
                 r.set_breite(bo.tiefe());
                 r.set_ob(bo.x(), bo.y(), 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_rechteck(r);
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_hi.x()+bo.x(),nullpunkt_hi.y()+bo.z(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 gt.add_kreis(k);
             }
         }else if(zeile.at(0) == BEARBART_BOHRRASTER)
         {
             bohrraster bo(zeile.text());
+            double afb = ausdruck_auswerten(bo.afb()).toDouble();
             if(bo.bezug() == WST_BEZUG_OBSEI)
             {
                 kreis k;
@@ -690,6 +774,11 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 }else
                 {
                     k.set_farbe_fuellung(FARBE_HELLBLAU);
+                }
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
                 }
                 strecke s1;
                 s1.set_farbe(k.farbe());
@@ -732,6 +821,11 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 }else
                 {
                     k.set_farbe_fuellung(FARBE_HELLBLAU);
+                }
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
                 }
                 strecke s1;
                 s1.set_farbe(k.farbe());
@@ -765,14 +859,30 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             }else if(bo.bezug() == WST_BEZUG_LI)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.tiefe());
                 r.set_li(0, bo.y(), 0);
                 r.verschieben_um(versatz_x, versatz_y);
-                kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
+
+                kreis k;                
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_li.x()-bo.z(),nullpunkt_li.y()+bo.y(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
+
                 for(uint i=0; i<bo.anz_y() ;i++)
                 {
                     rechteck tmp_r = r;
@@ -785,15 +895,30 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             }else if(bo.bezug() == WST_BEZUG_RE)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.tiefe());
                 r.set_breite(bo.dm());
                 r.set_re(wst_l, bo.y(), 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_re.x()+bo.z(),nullpunkt_re.y()+bo.y(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 for(uint i=0; i<bo.anz_y() ;i++)
                 {
                     rechteck tmp_r = r;
@@ -806,15 +931,31 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             }else if(bo.bezug() == WST_BEZUG_VO)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.dm());
                 r.set_breite(bo.tiefe());
                 r.set_un(bo.x(), 0, 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_vo.x()+bo.x(),nullpunkt_vo.y()-bo.z(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
+
                 for(uint i=0; i<bo.anz_x() ;i++)
                 {
                     rechteck tmp_r = r;
@@ -827,15 +968,30 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             }else if(bo.bezug() == WST_BEZUG_HI)
             {
                 rechteck r;
-                r.set_farbe_fuellung(FARBE_BRAUN);
                 r.set_laenge(bo.dm());
                 r.set_breite(bo.tiefe());
                 r.set_ob(bo.x(), wst_b, 0);
                 r.verschieben_um(versatz_x, versatz_y);
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    r.set_farbe_fuellung(FARBE_BRAUN);
+                }
+
                 kreis k;
-                k.set_farbe_fuellung(FARBE_BRAUN);
                 k.set_rad(bo.dm()/2);
                 k.set_mipu(nullpunkt_hi.x()+bo.x(),nullpunkt_hi.y()+bo.z(), 0);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                }else
+                {
+                    k.set_farbe_fuellung(FARBE_BRAUN);
+                }
                 for(uint i=0; i<bo.anz_x() ;i++)
                 {
                     rechteck tmp_r = r;
@@ -849,6 +1005,7 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
         }else if(zeile.at(0) == BEARBART_NUT)
         {
             nut nu(zeile.text());
+            double afb = ausdruck_auswerten(nu.afb()).toDouble();
             strecke s;
             s.set_stapu(nu.xs(), nu.ys(), 0);
             s.set_endpu(nu.xe(), nu.ye(), 0);
@@ -862,6 +1019,11 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 {
                     r.set_farbe_fuellung(farbe_unterseite);
                     r.set_stil(STIL_GESTRICHELT);
+                }
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
                 }
                 r.set_laenge(s.laenge2d());
                 r.set_breite(nu.breite());
@@ -915,13 +1077,20 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 k.set_mipu(stmp.endpu());
                 k.set_rad(30);
                 k.set_farbe(FARBE_GELB);
+                if(afb <= 0)
+                {
+                    k.set_farbe(FARBE_DUNKELGRAU);
+                    k.set_farbe_fuellung(FARBE_KEINE);
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }
                 gt.add_kreis(k);
-                //---
                 gt.add_rechteck(r);
             }
         }else if(zeile.at(0) == BEARBART_RTA)
         {
             rechtecktasche rt(zeile.text());
+            double afb = ausdruck_auswerten(rt.afb()).toDouble();
             rechteck r;
             double wkzdm = wkzm.dm(rt.wkznum()).toDouble();
             double eckenrad;
@@ -959,6 +1128,11 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                     {
                         r.set_farbe(farbe_unterseite);
                     }
+                }
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
                 }
                 r.set_laenge(rt.laenge());
                 r.set_breite(rt.breite());
@@ -1022,6 +1196,11 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 r.set_farbe_fuellung(FARBE_GRUEN);
                 r.verschieben_um(versatz_x, versatz_y);
                 //hier darf nicht der rad gesetzt werden weil Draufsicht
+                if(afb <= 0)
+                {
+                    r.set_farbe(FARBE_DUNKELGRAU);
+                    r.set_farbe_fuellung(FARBE_KEINE);
+                }
                 gt.add_rechteck(r);
                 r_kantenansicht.set_rad(eckenrad);
                 r_kantenansicht.set_farbe_fuellung(r.farbe_fuellung());
@@ -1032,6 +1211,7 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
         }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
         {
             fraeseraufruf fa(zeile.text());
+            double afb = ausdruck_auswerten(fa.afb()).toDouble();
             punkt3d p(fa.x(), fa.y(), fa.z());
             p.set_linienbreite(10);
             p.verschieben_um(versatz_x, versatz_y);
@@ -1042,10 +1222,15 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             {
                 p.set_farbe(farbe_unterseite);
             }
+            if(afb <= 0)
+            {
+                p.set_farbe(FARBE_DUNKELGRAU);
+            }
             gt.add_punkt(p);
         }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
         {
             fraesergerade fg(zeile.text());
+            double afb = ausdruck_auswerten(fg.afb()).toDouble();
             strecke s;
             s = fg.strecke_();
             s.verschieben_um(versatz_x, versatz_y);
@@ -1057,10 +1242,16 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 s.set_farbe(farbe_unterseite);
                 s.set_stil(STIL_GESTRICHELT);
             }
+            if(afb <= 0)
+            {
+                s.set_farbe(FARBE_DUNKELGRAU);
+                s.set_farbe_fuellung(FARBE_KEINE);
+            }
             gt.add_strecke(s);
         }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
         {
             fraeserbogen fb(zeile.text());
+            double afb = ausdruck_auswerten(fb.afb()).toDouble();
             bogen b = fb.bog();
             if(fb.bezug() == WST_BEZUG_OBSEI)
             {
@@ -1069,6 +1260,11 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             {
                 b.set_farbe(farbe_unterseite);
                 b.set_stil(STIL_GESTRICHELT);
+            }
+            if(afb <= 0)
+            {
+                b.set_farbe(FARBE_DUNKELGRAU);
+                b.set_farbe_fuellung(FARBE_KEINE);
             }
             b.verschieben_um(versatz_x, versatz_y);
             gt.add_bogen(b);
