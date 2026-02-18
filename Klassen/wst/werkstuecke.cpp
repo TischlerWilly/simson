@@ -17,7 +17,6 @@ bool werkstuecke::neu(werkstueck w)
     }else
     {
         w.unredo_neu();
-        Namen.add_hi(w.name());
         Wste.append(w);
     }
     return false;
@@ -27,7 +26,6 @@ bool werkstuecke::entf(QString werkstueckname)
     int wst_index = get_index(werkstueckname);
     if(wst_index >= 0)
     {
-        Namen.entf(wst_index, 1);
         Wste.erase(Wste.begin() + wst_index);
         return true;
     }else
@@ -39,7 +37,6 @@ bool werkstuecke::entf_at(uint index)
 {
     if(index < (uint)Wste.size())
     {
-        Namen.entf(index, 1);
         Wste.erase(Wste.begin() + index);
         return true;
     }else
@@ -51,9 +48,9 @@ bool werkstuecke::entf_at(uint index)
 //--------------------------------------------------get_xy:
 bool werkstuecke::ist_bekannt(QString werkstueckname)
 {
-    for(uint i=0; i<Namen.count() ;i++)
+    for(uint i=0; i<anzahl() ;i++)
     {
-        if(werkstueckname == Namen.at(i))
+        if(werkstueckname == Wste[i].name())
         {
             return true;
         }
@@ -62,9 +59,9 @@ bool werkstuecke::ist_bekannt(QString werkstueckname)
 }
 int werkstuecke::get_index(QString werkstueckname)
 {
-    for(uint i=0; i<Namen.count() ;i++)
+    for(uint i=0; i<anzahl() ;i++)
     {
-        if(werkstueckname == Namen.at(i))
+        if(werkstueckname == Wste[i].name())
         {
             return i;
         }
@@ -75,7 +72,7 @@ werkstueck* werkstuecke::wst(uint index)
 {
     //übergibt eine Kopie des Wst
     //Änderungen an dieser Kopie werden nicht zurück in diese Instanz geschrieben.
-    if(index >= 0 && index < Namen.count())
+    if(index >= 0 && index < anzahl())
     {
         return &Wste[index];
     }else
@@ -85,9 +82,9 @@ werkstueck* werkstuecke::wst(uint index)
 }
 QString werkstuecke::name(uint index)
 {
-    if(index > 0 && index < Namen.count())
+    if(index > 0 && index < anzahl())
     {
-        return Namen.at(index);
+        return Wste[index].name();
     }else
     {
         return "";
@@ -105,41 +102,57 @@ QString werkstuecke::cad_fehler()
 
     return msg;
 }
-
+QString werkstuecke::namen()
+{
+    text_zw alle_namen;
+    for(uint i=0; i<anzahl() ;i++)
+    {
+        alle_namen.add_hi(Wste[i].name());
+    }
+    return alle_namen.text();
+}
+text_zw werkstuecke::namen_tz()
+{
+    text_zw alle_namen;
+    for(uint i=0; i<anzahl() ;i++)
+    {
+        alle_namen.add_hi(Wste[i].name());
+    }
+    return alle_namen;
+}
 //--------------------------------------------------Manipulationen:
 void werkstuecke::clear()
 {
-    Namen.clear();
     Wste.clear();
 }
 QString werkstuecke::stdnamen(text_zw namen_alt, text_zw namen_neu)
 {
     QString baugruppenname; //Rückgabewert der Funktion
     //erster Durchlauf: Namen tauschen
-    for(uint i = 0; i<Namen.count() ;i++)
+    for(uint i = 0; i<anzahl() ;i++)
     {
-        QString tmp = Namen.at(i);
+        QString tmp = Wste[i].name();
         for(uint ii=0; ii<namen_alt.count();ii++)
         {
             if(tmp.contains(namen_alt.at(ii)))
             {
                 tmp.replace(namen_alt.at(ii), namen_neu.at(ii));
-                Namen.edit(i, tmp);
+                Wste[i].set_name(tmp);
                 break;
             }
         }
     }
 
     //zweiter Durchlauf: Schranknummer löschen wenn möglich
-    QString tmp = Namen.at(0);
+    QString tmp = Wste[0].name();
     bool schranknummer_wurde_entfernt = false;//wird gebraucht als Prüfung für den 3. Durchlauf
     if(tmp.contains("_"))
     {
         tmp = text_links(tmp, "_");
         bool identisch = true;
-        for(uint i = 1; i<Namen.count() ;i++)
+        for(uint i = 1; i<anzahl() ;i++)
         {
-            if(  tmp != text_links(Namen.at(i), "_")  )
+            if(  tmp != text_links(Wste[i].name(), "_")  )
             {
                 identisch = false;
                 break;
@@ -162,17 +175,17 @@ QString werkstuecke::stdnamen(text_zw namen_alt, text_zw namen_neu)
 
         if(identisch == true && istbaugruppenname == true)
         {
-            if(Namen.count() > 0)
+            if(anzahl() > 0)
             {
-                baugruppenname = text_links(Namen.at(0),"_");
+                baugruppenname = text_links(Wste[0].name(),"_");
                 if(baugruppenname.at(0)=='#')
                 {
                     baugruppenname = text_rechts(baugruppenname, "#");
                 }
             }
-            for(uint i = 0; i<Namen.count() ;i++)
+            for(uint i = 0; i<anzahl() ;i++)
             {
-                Namen.edit(  i, text_rechts(Namen.at(i),"_")  );
+                Wste[i].set_name(text_rechts(Wste[i].name(),"_"));
             }
             schranknummer_wurde_entfernt = true;
 
@@ -183,9 +196,9 @@ QString werkstuecke::stdnamen(text_zw namen_alt, text_zw namen_neu)
     text_zw bekannte_namen;
     if(schranknummer_wurde_entfernt)
     {
-        for(uint i = 0; i<Namen.count() ;i++)//Name für Name durchgehen
+        for(uint i = 0; i<anzahl() ;i++)//Name für Name durchgehen
         {
-            tmp = Namen.at(i);
+            tmp = Wste[i].name();
             QString name_bis_ziffer ="";
             //Namen und Ziffer trennen:
             for(int ii=0; ii<tmp.count() ;ii++)//Namen zeichenweise durchgehen
@@ -210,24 +223,15 @@ QString werkstuecke::stdnamen(text_zw namen_alt, text_zw namen_neu)
             }
             if(name_bis_ziffer.length() >0 && bekannt == false)//Wenn der Name noch nicht vergeben war
             {
-                Namen.edit(i, name_bis_ziffer);
+                Wste[i].set_name(name_bis_ziffer);
                 bekannte_namen.add_hi(name_bis_ziffer);
             }
         }
-    }
-
-    //Nameninformatione in den einzenen werkstücken aktualisieren:
-    for(uint i=0; i<Namen.count() ;i++)
-    {
-        werkstueck w = Wste.at(i);
-        w.set_name(Namen.at(i));
-        Wste.replace(i, w);
     }
     return baugruppenname;
 }
 void werkstuecke::sortieren()
 {
-    text_zw    tmp_Namen;
     QVector<werkstueck> tmp_Wste;
     text_zw rankingList;
     rankingList.add_hi("Seite_li");
@@ -325,22 +329,21 @@ void werkstuecke::sortieren()
     rankingList.add_hi("Sockel_re");
     rankingList.add_hi("Sockel");
     text_zw kopiert;
-    for(uint ii = 0; ii<Namen.count() ;ii++)
+    for(uint ii = 0; ii<anzahl() ;ii++)
     {
         kopiert.add_hi("nein");
     }
     for(uint i = 0; i<rankingList.count() ;i++)
     {
         QString akt_ranking_name =rankingList.at(i);
-        for(uint ii = 0; ii<Namen.count() ;ii++)
+        for(uint ii = 0; ii<anzahl() ;ii++)
         {
-            QString akt_wst_name = Namen.at(ii);
+            QString akt_wst_name = Wste[ii].name();
             if(kopiert.at(ii) != "ja")
             {
                 if(akt_wst_name.contains(akt_ranking_name))
                 {
                     //kopieren:
-                    tmp_Namen.add_hi(akt_wst_name);
                     werkstueck w = Wste.at(ii);
                     w.set_name(akt_wst_name);
                     tmp_Wste.append(w);
@@ -351,20 +354,18 @@ void werkstuecke::sortieren()
     }
 
     //2. Durchlauf. Jetzt kommen alle wst die nicht sortierbar waren:
-    for(uint i = 0; i<Namen.count() ;i++)
+    for(uint i = 0; i<anzahl() ;i++)
     {
-        QString akt_wst_name = Namen.at(i);
+        QString akt_wst_name = Wste[i].name();
         if(kopiert.at(i) != "ja")
         {
             //kopieren:
-            tmp_Namen.add_hi(akt_wst_name);
             werkstueck w = Wste.at(i);
             w.set_name(akt_wst_name);
             tmp_Wste.append(w);
             kopiert.edit(i, "ja");
         }
     }
-    Namen = tmp_Namen;
     Wste = tmp_Wste;
 }
 
@@ -377,9 +378,9 @@ void werkstuecke::sortieren()
 //--------------------------------------------------get_xy:
 int werkstuecke::index(QString werkstueckname)
 {
-    for(uint i=0; i<Namen.count() ;i++)
+    for(uint i=0; i<anzahl() ;i++)
     {
-        if(Namen.at(i)==werkstueckname)
+        if(Wste[i].name()==werkstueckname)
         {
             return i;
         }

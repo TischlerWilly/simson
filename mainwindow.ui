@@ -122,24 +122,34 @@
    </widget>
    <widget class="QMenu" name="menuBearbeitungen">
     <property name="title">
-     <string>Bearbeitungen</string>
+     <string>Bearbeiten</string>
     </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
-    <addaction name="action_make_bohrung"/>
-    <addaction name="action_make_rta"/>
-    <addaction name="action_make_nut"/>
-    <addaction name="separator"/>
-    <addaction name="actionVerschieben"/>
     <addaction name="actionKopieren"/>
     <addaction name="actionEinfuegen"/>
     <addaction name="actionEntfernen"/>
-    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuCAM">
+    <property name="title">
+     <string>CAM</string>
+    </property>
+    <addaction name="action_make_bohrung"/>
+    <addaction name="action_make_rta"/>
+    <addaction name="action_make_nut"/>
+   </widget>
+   <widget class="QMenu" name="menuManipulation">
+    <property name="title">
+     <string>Manipulation</string>
+    </property>
+    <addaction name="actionVerschieben"/>
     <addaction name="actionSchnellaenderung"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
+   <addaction name="menuCAM"/>
+   <addaction name="menuManipulation"/>
    <addaction name="menuEinstellungen"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
