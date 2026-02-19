@@ -4,7 +4,6 @@
 #define PROGRAMMVERSION "Simson V1-2026.02.19"
 
 /*
--> Bearbeiten/Ausschnieden
 
 --> G-Code export emc2
     > RTA

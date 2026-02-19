@@ -102,6 +102,7 @@ private slots:
     //---
     void on_actionKopieren_triggered();
     void on_actionEinfuegen_triggered();
+    void on_actionAusschneiden_triggered();
     void on_actionEntfernen_triggered();
     //CAM:
     void on_action_make_bohrung_triggered();

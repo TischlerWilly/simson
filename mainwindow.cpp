@@ -1243,6 +1243,11 @@ void MainWindow::on_actionEinfuegen_triggered()
         mb.exec();
     }
 }
+void MainWindow::on_actionAusschneiden_triggered()
+{
+    on_actionKopieren_triggered();
+    on_actionEntfernen_triggered();
+}
 void MainWindow::on_actionEntfernen_triggered()
 {
     if((ui->listWidget_bearb->currentIndex().isValid())  &&  \
@@ -2576,6 +2581,9 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 

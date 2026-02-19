@@ -129,6 +129,7 @@
     <addaction name="separator"/>
     <addaction name="actionKopieren"/>
     <addaction name="actionEinfuegen"/>
+    <addaction name="actionAusschneiden"/>
     <addaction name="actionEntfernen"/>
    </widget>
    <widget class="QMenu" name="menuCAM">
@@ -327,6 +328,14 @@
   <action name="actionGehe_zu_Punkt">
    <property name="text">
     <string>Gehe zu Punkt</string>
+   </property>
+  </action>
+  <action name="actionAusschneiden">
+   <property name="text">
+    <string>Ausschneiden</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>
