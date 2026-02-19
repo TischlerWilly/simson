@@ -15,7 +15,7 @@
 >> Einarbeiten in MainWindow
     > Kommentare_nc                         << ist fertig
     > Punkt anfahren/gezupu
-    > Programmhalt
+    > Programmhalt                          << ist fertig
 
 --> G-Code export emc2
     > Kommentare_nc

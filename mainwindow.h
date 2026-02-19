@@ -30,6 +30,8 @@
 #include "Funktionen/import/dxf.h"
 #include "Dialoge/dialog_gcode.h"
 #include "Dialoge/bearb/dialog_kommentar_nc.h"
+#include "Dialoge/bearb/dialog_bearb_halt.h"
+#include "Dialoge/bearb/dialog_bearb_gezupu.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -107,6 +109,8 @@ private slots:
     void on_action_make_nut_triggered();
     //---
     void on_actionNC_Kommentar_triggered();
+    void on_actionNC_Halt_triggered();
+    void on_actionGehe_zu_Punkt_triggered();
     //Manipulation:
     int auswahl_erster();
     int auswahl_letzter();
@@ -148,11 +152,15 @@ public slots:
     void slot_make_rta(rechtecktasche rt);
     void slot_make_nut(nut nu);
     void slot_make_kom(kommentar_nc ko);
+    void slot_make_halt(halt_nc ha);
+    void slot_make_gzp(gehezupunkt gzp);
     //---
     void slot_rta(rechtecktasche rta);
     void slot_bo(bohrung bo);
     void slot_nut(nut nu);
     void slot_kom(kommentar_nc ko);
+    void slot_halt(halt_nc ha);
+    void slot_gzp(gehezupunkt gzp);
     void slot_faufruf(fraeseraufruf fa);
     void slot_fgerade(fraesergerade fg);
     void slot_fbogen(fraeserbogen fb);

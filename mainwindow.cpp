@@ -457,7 +457,7 @@ void MainWindow::update_vorschau()
             wkz = Maschinen.masch(index)->wkzmag();
         }
         vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
-                                                                          Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid);
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid);
     }
 
 }
@@ -480,13 +480,13 @@ void MainWindow::on_actionNeu_triggered()
         w.set_laenge(500);
         w.set_breite(300);
         w.set_dicke(19);
-        bohrung bo;
-        bo.set_dm(25);
-        bo.set_x(100);
-        bo.set_y(50);
-        bo.set_z(19);
-        bo.set_tiefe(10);
-        bo.set_bezug(WST_BEZUG_OBSEI);
+        //bohrung bo;
+        //bo.set_dm(25);
+        //bo.set_x(100);
+        //bo.set_y(50);
+        //bo.set_z(19);
+        //bo.set_tiefe(10);
+        //bo.set_bezug(WST_BEZUG_OBSEI);
         //text_zw bearb;
         //bearb.add_hi(bo.text());
         //w.set_bearb(bearb);
@@ -1133,16 +1133,8 @@ void MainWindow::process_undo_redo(bool isUndo)
 
         // UI aktualisieren
         update_listwidget_bearb(wst);
+        update_vorschau();
         aktualisiere_fendtertitel();
-
-        wkz_magazin wkz;
-        if (ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            wkz = Maschinen.masch(Maschinen.get_index(masch_bez))->wkzmag();
-        }
-
-        vorschaufenster.slot_aktualisieren(wst->geo(wkz), wst->geo_aktfkon(wkz), 0);
     }else
     {
         QMessageBox::information(this, "Rückgängig", "Es ist kein Bauteil ausgewählt!");
@@ -1334,16 +1326,8 @@ void MainWindow::zeile_aendern(int index_bearb, QString bearb, bool unredor_verw
     {
         Wste.wst(index_dat)->unredo_neu();
     }
-    wkz_magazin wkz;
-    if(ui->comboBox_maschinen->currentIndex() >= 0)
-    {
-        QString masch_bez = ui->comboBox_maschinen->currentText();
-        int index_masch = Maschinen.get_index(masch_bez);
-        wkz = Maschinen.masch(index_masch)->wkzmag();
-    }
     update_listwidget_bearb(Wste.wst(index_dat));
-    vorschaufenster.slot_aktualisieren(Wste.wst(index_dat)->geo(wkz), \
-                                                                      Wste.wst(index_dat)->geo_aktfkon(wkz), index_bearb+1);
+    update_vorschau();
     aktualisiere_fendtertitel();
 }
 //CAM:
@@ -1438,6 +1422,44 @@ void MainWindow::on_actionNC_Kommentar_triggered()
         mb.exec();
     }
 }
+void MainWindow::on_actionNC_Halt_triggered()
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat >= 0)
+    {
+        Dialog_bearb_halt dlg;
+        dlg.setModal(true);
+        halt_nc ha;//Default-Daten
+        dlg.set_data(ha.text());
+        connect(&dlg, SIGNAL(signal_halt(halt_nc)), this, SLOT(slot_make_halt(halt_nc)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein aktives Werkstück vorhanden!");
+        mb.setWindowTitle("NC-Halt einfügen");
+        mb.exec();
+    }
+}
+void MainWindow::on_actionGehe_zu_Punkt_triggered()
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat >= 0)
+    {
+        Dialog_bearb_gezupu dlg;
+        dlg.setModal(true);
+        gehezupunkt gzp;//Default-Daten
+        dlg.set_data(gzp.text(), Wste.wst(index_dat));
+        connect(&dlg, SIGNAL(signal_gzp(gehezupunkt)), this, SLOT(slot_make_gzp(gehezupunkt)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein aktives Werkstück vorhanden!");
+        mb.setWindowTitle("\"Gehe zu Punkt\" einfügen");
+        mb.exec();
+    }
+}
 //---
 void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
 {
@@ -1482,6 +1504,14 @@ void MainWindow::slot_make_kom(kommentar_nc ko)
 {
     slot_make(ko.text(), true);
 }
+void MainWindow::slot_make_halt(halt_nc ha)
+{
+    slot_make(ha.text(), true);
+}
+void MainWindow::slot_make_gzp(gehezupunkt gzp)
+{
+    slot_make(gzp.text(), true);
+}
 //---
 void MainWindow::slot_rta(rechtecktasche rta)
 {
@@ -1508,6 +1538,20 @@ void MainWindow::slot_kom(kommentar_nc ko)
 {
     int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
     QString bearb = ko.text();
+    ui->listWidget_bearb->item(index_bearb)->setText(bohr_zu_prgzei(bearb));
+    zeile_aendern(index_bearb, bearb, true);
+}
+void MainWindow::slot_gzp(gehezupunkt gzp)
+{
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = gzp.text();
+    ui->listWidget_bearb->item(index_bearb)->setText(bohr_zu_prgzei(bearb));
+    zeile_aendern(index_bearb, bearb, true);
+}
+void MainWindow::slot_halt(halt_nc ha)
+{
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = ha.text();
     ui->listWidget_bearb->item(index_bearb)->setText(bohr_zu_prgzei(bearb));
     zeile_aendern(index_bearb, bearb, true);
 }
@@ -1831,6 +1875,20 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         connect(&dlg, SIGNAL(signal_kom(kommentar_nc)), this, SLOT(slot_kom(kommentar_nc)));
         dlg.set_data(bearb.text());
         dlg.exec();
+    }else if(bearb.at(0) == BEARBART_HALT)
+    {
+        Dialog_bearb_halt dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_halt(halt_nc)), this, SLOT(slot_halt(halt_nc)));
+        dlg.set_data(bearb.text());
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_GEZUPU)
+    {
+        Dialog_bearb_gezupu dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_gzp(gehezupunkt)), this, SLOT(slot_gzp(gehezupunkt)));
+        dlg.set_data(bearb.text(), Wste.wst(index_wst));
+        dlg.exec();
     }
 }
 void MainWindow::on_actionVerschieben_triggered()
@@ -2085,6 +2143,13 @@ QString MainWindow::verschiebe_bearb_einen(QString bearb, double ax, double ay, 
         fb.set_text(bearb);
         fb.bog_ptr()->verschieben_um(ax, ay);
         bearb = fb.text();
+    }else if(tz.at(0) == BEARBART_GEZUPU)
+    {
+        gehezupunkt gzp;
+        gzp.set_text(bearb);
+        gzp.set_x(gzp.x()+ax);
+        gzp.set_y(gzp.y()+ay);
+        bearb = gzp.text();
     }
     return bearb;
 }
@@ -2235,9 +2300,46 @@ void MainWindow::zeile_bearb_afb_umkehren(int zeile_bearb)
                     item.set_afb("0");
                 }
                 alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_KOMMENTAR)
+            {
+                kommentar_nc item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_HALT)
+            {
+                halt_nc item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
+            }else if(zeile.at(0) == BEARBART_GEZUPU)
+            {
+                gehezupunkt item(zeile.text());
+                double afb = ausdruck_auswerten(item.afb()).toDouble();
+                if(afb <= 0)
+                {
+                    item.set_afb("1");
+                }else
+                {
+                    item.set_afb("0");
+                }
+                alle_bearb->edit(zeile_bearb, item.text());
             }
             update_listwid_bearb();
             update_vorschau();
+            aktualisiere_fendtertitel();
         }
     }
 }
@@ -2317,17 +2419,8 @@ void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
     if(Wste.wst(row))
     {
         werkstueck *w = Wste.wst(row);
-
-        wkz_magazin wkz;
-        if(ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index_masch = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index_masch)->wkzmag();
-        }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
-
         update_listwidget_bearb(w);
+        update_vorschau();
     }else
     {
         ui->listWidget_bearb->clear();
@@ -2483,6 +2576,12 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
     }
 }
 //------------------------------------------------------
+
+
+
+
+
+
 
 
 

@@ -13,6 +13,8 @@ SOURCES += \
     Dialoge/bearb/dialog_bearb_faufruf.cpp \
     Dialoge/bearb/dialog_bearb_fbogen.cpp \
     Dialoge/bearb/dialog_bearb_fgerade.cpp \
+    Dialoge/bearb/dialog_bearb_gezupu.cpp \
+    Dialoge/bearb/dialog_bearb_halt.cpp \
     Dialoge/bearb/dialog_bearb_nut.cpp \
     Dialoge/bearb/dialog_bearb_pkopf.cpp \
     Dialoge/bearb/dialog_bearb_rta.cpp \
@@ -85,6 +87,8 @@ HEADERS += \
     Dialoge/bearb/dialog_bearb_faufruf.h \
     Dialoge/bearb/dialog_bearb_fbogen.h \
     Dialoge/bearb/dialog_bearb_fgerade.h \
+    Dialoge/bearb/dialog_bearb_gezupu.h \
+    Dialoge/bearb/dialog_bearb_halt.h \
     Dialoge/bearb/dialog_bearb_nut.h \
     Dialoge/bearb/dialog_bearb_pkopf.h \
     Dialoge/bearb/dialog_bearb_rta.h \
@@ -155,6 +159,8 @@ FORMS += \
     Dialoge/bearb/dialog_bearb_faufruf.ui \
     Dialoge/bearb/dialog_bearb_fbogen.ui \
     Dialoge/bearb/dialog_bearb_fgerade.ui \
+    Dialoge/bearb/dialog_bearb_gezupu.ui \
+    Dialoge/bearb/dialog_bearb_halt.ui \
     Dialoge/bearb/dialog_bearb_nut.ui \
     Dialoge/bearb/dialog_bearb_pkopf.ui \
     Dialoge/bearb/dialog_bearb_rta.ui \

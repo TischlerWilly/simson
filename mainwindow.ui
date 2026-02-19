@@ -140,6 +140,8 @@
     <addaction name="action_make_nut"/>
     <addaction name="separator"/>
     <addaction name="actionNC_Kommentar"/>
+    <addaction name="actionNC_Halt"/>
+    <addaction name="actionGehe_zu_Punkt"/>
    </widget>
    <widget class="QMenu" name="menuManipulation">
     <property name="title">
@@ -315,6 +317,16 @@
   <action name="actionNC_Kommentar">
    <property name="text">
     <string>NC-Kommentar</string>
+   </property>
+  </action>
+  <action name="actionNC_Halt">
+   <property name="text">
+    <string>NC-Halt</string>
+   </property>
+  </action>
+  <action name="actionGehe_zu_Punkt">
+   <property name="text">
+    <string>Gehe zu Punkt</string>
    </property>
   </action>
  </widget>

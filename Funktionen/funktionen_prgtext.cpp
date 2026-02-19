@@ -245,8 +245,11 @@ QString kom_zu_prgzei(QString text)
 }
 QString halt_zu_prgzei(QString text)
 {
+    QString msg = "-- PROGRAMM-HALT --";
     halt_nc halt(text);
-    return "-- PROGRAMM-HALT --";
+    msg += "\tAFB: ";
+    msg += halt.afb();
+    return msg;
 }
 QString gezupu_zu_prgzei(QString text)
 {
@@ -258,6 +261,8 @@ QString gezupu_zu_prgzei(QString text)
     msg += gzp.y_qstring();
     msg += "\tZ: ";
     msg += gzp.z_qstring();
+    msg += "\tAFB: ";
+    msg += gzp.afb();
     return msg;
 }
 
