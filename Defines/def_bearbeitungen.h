@@ -151,7 +151,30 @@
     10: Schnitt-Tiefe
 */
 
+#define BEARBART_KOMMENTAR       "prgkom"       //Bearbeitungsart Kommentar
+/*
+    Reihenfolge der Parameter:
+    0 : Bearbeitungsart: "prgkom"
+    1 : Kommentartext
+    2 : Ausführbedingung
+*/
 
+#define BEARBART_GEZUPU       "gezupu"       //Bearbeitungsart gehe zu Punkt
+/*
+    Reihenfolge der Parameter:
+    0 : Bearbeitungsart: "gezupu"
+    1 : Posision in X
+    2 : Position in Y
+    3 : Position in Z
+    4 : Ausführbedingung
+*/
+
+#define BEARBART_HALT       "prghalt"       //Bearbeitungsart Programm-Halt
+/*
+    Reihenfolge der Parameter:
+    0 : Bearbeitungsart: "prghalt"
+    1 : Ausführbedingung
+*/
 
 
 

@@ -65,6 +65,9 @@ SOURCES += \
     Klassen/wst/fraeseraufruf.cpp \
     Klassen/wst/fraeserbogen.cpp \
     Klassen/wst/fraesergerade.cpp \
+    Klassen/wst/gehezupunkt.cpp \
+    Klassen/wst/halt_nc.cpp \
+    Klassen/wst/kommentar_nc.cpp \
     Klassen/wst/nut.cpp \
     Klassen/wst/rechtecktasche.cpp \
     Klassen/wst/werkstueck.cpp \
@@ -134,6 +137,9 @@ HEADERS += \
     Klassen/wst/fraeseraufruf.h \
     Klassen/wst/fraeserbogen.h \
     Klassen/wst/fraesergerade.h \
+    Klassen/wst/gehezupunkt.h \
+    Klassen/wst/halt_nc.h \
+    Klassen/wst/kommentar_nc.h \
     Klassen/wst/nut.h \
     Klassen/wst/rechtecktasche.h \
     Klassen/wst/werkstueck.h \
