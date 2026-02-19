@@ -7,7 +7,7 @@ Dialog_bearb_gezupu::Dialog_bearb_gezupu(QWidget *parent)
 {
     ui->setupUi(this);
     Wst = nullptr;
-    this->setWindowTitle("Gehe zu Punkt");
+    this->setWindowTitle("Gehe zu Punkt (G0/Eilgang)");
 }
 
 Dialog_bearb_gezupu::~Dialog_bearb_gezupu()

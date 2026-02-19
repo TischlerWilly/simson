@@ -49,6 +49,18 @@ QString emc2::gcode()
             {
                 bohrung bo(zeile.text());
                 stream << bohr(bo);
+            }else if(zeile.at(0) == BEARBART_KOMMENTAR)
+            {
+                kommentar_nc ko(zeile.text());
+                stream << kommentar(ko);
+            }else if(zeile.at(0) == BEARBART_HALT)
+            {
+                halt_nc ha(zeile.text());
+                stream << halt(ha);
+            }else if(zeile.at(0) == BEARBART_GEZUPU)
+            {
+                gehezupunkt gzp(zeile.text());
+                stream << gezupu(gzp);
             }
         }
 
@@ -582,5 +594,53 @@ QString emc2::bohr(bohrung bo)
             }
         }
     }
+    return gcode;
+}
+
+QString emc2::kommentar(kommentar_nc ko)
+{
+    QString gcode;
+
+    if(ausdruck_auswerten(ko.afb()).toDouble() <= 0)
+    {
+        return gcode;//leerer String
+    }
+
+    QTextStream stream(&gcode);
+    QString tmp = ko.kom();
+    tmp.replace("(","[");
+    tmp.replace(")","]");
+    stream << "( " << tmp << " )\n";
+
+    return gcode;
+}
+
+QString emc2::halt(halt_nc ha)
+{
+    QString gcode;
+
+    if(ausdruck_auswerten(ha.afb()).toDouble() <= 0)
+    {
+        return gcode;//leerer String
+    }
+
+    QTextStream stream(&gcode);
+    stream << "\n" << "M0 (HALT)\n\n";
+
+    return gcode;
+}
+
+QString emc2::gezupu(gehezupunkt gzp)
+{
+    QString gcode;
+
+    if(ausdruck_auswerten(gzp.afb()).toDouble() <= 0)
+    {
+        return gcode;//leerer String
+    }
+
+    QTextStream stream(&gcode);
+    stream << "G0 X" << gzp.x() << " Y" << gzp.y() << " Z" << gzp.z() << "\n";
+
     return gcode;
 }

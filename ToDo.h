@@ -6,21 +6,7 @@
 /*
 -> Bearbeiten/Ausschnieden
 
-
--> bearb ergänzen um:
->> Einarbeiten in def_bearbeitungen.h       << ist fertig
->> klassen erstellen                        << ist fertig
->> Einarbeiten in geotext.h+.cpp            << ist fertig
->> Dialoge erstellen
->> Einarbeiten in MainWindow
-    > Kommentare_nc                         << ist fertig
-    > Punkt anfahren/gezupu
-    > Programmhalt                          << ist fertig
-
 --> G-Code export emc2
-    > Kommentare_nc
-    > Punkt anfahren/gezupu
-    > Programmhalt
     > RTA
         >> ausgeräumt bohrend eintauchen
         >> ausgeräumt helix-Eintauchen

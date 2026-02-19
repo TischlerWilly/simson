@@ -14,18 +14,18 @@ public:
     void setup();
 
     QString gcode();
-    QString prgkopf();
-    QString prgende();
-    QString wkz_wechsel(QString tnummer);
-    QString bohr(bohrung bo);
-
-
-
 
 
 private:
     void set_maschine(maschine *m);
     void set_wst(werkstueck *w);
+    QString prgkopf();
+    QString prgende();
+    QString wkz_wechsel(QString tnummer);
+    QString bohr(bohrung bo);
+    QString kommentar(kommentar_nc ko);
+    QString halt(halt_nc ha);
+    QString gezupu(gehezupunkt gzp);
 
     werkstueck  *Wst;
     maschine    *Maschine;
