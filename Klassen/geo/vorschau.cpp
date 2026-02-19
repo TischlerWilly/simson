@@ -630,6 +630,9 @@ QColor vorschau::set_farbe(QString farbe)
     }else if(farbe == FARBE_BRAUN)
     {
         qfarbe.setRgb(185,122,87);
+    }else if(farbe == FARBE_LILA)
+    {
+        qfarbe.setRgb(238,130,238);
     }
     return qfarbe;
 }

@@ -29,6 +29,7 @@
 #include "Funktionen/import/ewx.h"
 #include "Funktionen/import/dxf.h"
 #include "Dialoge/dialog_gcode.h"
+#include "Dialoge/bearb/dialog_kommentar_nc.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -104,6 +105,8 @@ private slots:
     void on_action_make_bohrung_triggered();
     void on_action_make_rta_triggered();
     void on_action_make_nut_triggered();
+    //---
+    void on_actionNC_Kommentar_triggered();
     //Manipulation:
     int auswahl_erster();
     int auswahl_letzter();
@@ -144,10 +147,12 @@ public slots:
     void slot_make_bo(bohrung bo);
     void slot_make_rta(rechtecktasche rt);
     void slot_make_nut(nut nu);
+    void slot_make_kom(kommentar_nc ko);
     //---
     void slot_rta(rechtecktasche rta);
     void slot_bo(bohrung bo);
     void slot_nut(nut nu);
+    void slot_kom(kommentar_nc ko);
     void slot_faufruf(fraeseraufruf fa);
     void slot_fgerade(fraesergerade fg);
     void slot_fbogen(fraeserbogen fb);

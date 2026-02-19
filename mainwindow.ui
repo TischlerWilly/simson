@@ -138,6 +138,8 @@
     <addaction name="action_make_bohrung"/>
     <addaction name="action_make_rta"/>
     <addaction name="action_make_nut"/>
+    <addaction name="separator"/>
+    <addaction name="actionNC_Kommentar"/>
    </widget>
    <widget class="QMenu" name="menuManipulation">
     <property name="title">
@@ -308,6 +310,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionNC_Kommentar">
+   <property name="text">
+    <string>NC-Kommentar</string>
    </property>
   </action>
  </widget>

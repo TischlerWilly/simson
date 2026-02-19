@@ -1268,6 +1268,27 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             }
             b.verschieben_um(versatz_x, versatz_y);
             gt.add_bogen(b);
+        }else if(zeile.at(0) == BEARBART_KOMMENTAR)
+        {
+            gt.add_leerzeile();
+        }else if(zeile.at(0) == BEARBART_GEZUPU)
+        {
+            gehezupunkt gzp(zeile.text());
+            double afb = ausdruck_auswerten(gzp.afb()).toDouble();
+            punkt3d p = gzp.pos();
+            p.set_linienbreite(15);
+            p.verschieben_um(versatz_x, versatz_y);
+            if(afb <= 0)
+            {
+                p.set_farbe(FARBE_DUNKELGRAU);
+            }else
+            {
+                p.set_farbe(FARBE_LILA);
+            }
+            gt.add_punkt(p);
+        }else if(zeile.at(0) == BEARBART_HALT)
+        {
+            gt.add_leerzeile();
         }
         gt.zeilenvorschub();
     }

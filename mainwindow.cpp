@@ -1237,15 +1237,9 @@ void MainWindow::on_actionEinfuegen_triggered()
             Wste.wst(index_wst)->unredo_neu();
             ui->listWidget_bearb->setCurrentRow(index_liwid);
 
-            wkz_magazin wkz;
-            if(ui->comboBox_maschinen->currentIndex() >= 0)
-            {
-                QString masch_bez = ui->comboBox_maschinen->currentText();
-                int index = Maschinen.get_index(masch_bez);
-                wkz = Maschinen.masch(index)->wkzmag();
-            }
-            vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
-                                                                              Wste.wst(index_wst)->geo_aktfkon(wkz), 0);
+            update_listwid_bearb();
+            update_vorschau();
+            aktualisiere_fendtertitel();
         }
     }else
     {
@@ -1424,6 +1418,27 @@ void MainWindow::on_action_make_nut_triggered()
         mb.exec();
     }
 }
+//---
+void MainWindow::on_actionNC_Kommentar_triggered()
+{
+    int index_dat = ui->listWidget_dateien->currentRow();
+    if(index_dat >= 0)
+    {
+        Dialog_kommentar_nc dlg;
+        dlg.setModal(true);
+        kommentar_nc ko;//Default-Daten
+        dlg.set_data(ko.text());
+        connect(&dlg, SIGNAL(signal_kom(kommentar_nc)), this, SLOT(slot_make_kom(kommentar_nc)));
+        dlg.exec();
+    }else
+    {
+        QMessageBox mb;
+        mb.setText("Es ist kein aktives Werkstück vorhanden!");
+        mb.setWindowTitle("NC-Kommentar einfügen");
+        mb.exec();
+    }
+}
+//---
 void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
 {
     int index_dat = ui->listWidget_dateien->currentRow();
@@ -1449,6 +1464,7 @@ void MainWindow::slot_make(QString bearb, bool unredor_verwenden)
     }
     update_listwidget_bearb(Wste.wst(index_dat));
     update_vorschau();
+    aktualisiere_fendtertitel();
 }
 void MainWindow::slot_make_bo(bohrung bo)
 {
@@ -1462,6 +1478,11 @@ void MainWindow::slot_make_nut(nut nu)
 {
     slot_make(nu.text(), true);
 }
+void MainWindow::slot_make_kom(kommentar_nc ko)
+{
+    slot_make(ko.text(), true);
+}
+//---
 void MainWindow::slot_rta(rechtecktasche rta)
 {
     int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
@@ -1481,6 +1502,13 @@ void MainWindow::slot_nut(nut nu)
     int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
     QString bearb = nu.text();
     ui->listWidget_bearb->item(index_bearb)->setText(nut_zu_prgzei(bearb));
+    zeile_aendern(index_bearb, bearb, true);
+}
+void MainWindow::slot_kom(kommentar_nc ko)
+{
+    int index_bearb = ui->listWidget_bearb->currentRow()-1;//Index-1 weil 1. Zeile WST-Maße sind
+    QString bearb = ko.text();
+    ui->listWidget_bearb->item(index_bearb)->setText(bohr_zu_prgzei(bearb));
     zeile_aendern(index_bearb, bearb, true);
 }
 void MainWindow::slot_faufruf(fraeseraufruf fa)
@@ -1795,6 +1823,13 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         dlg.setModal(true);
         connect(&dlg, SIGNAL(signal_fbogen(fraeserbogen)), this, SLOT(slot_fbogen(fraeserbogen)));
         dlg.set_data(bearb.text(), Wste.wst(index_wst));
+        dlg.exec();
+    }else if(bearb.at(0) == BEARBART_KOMMENTAR)
+    {
+        Dialog_kommentar_nc dlg;
+        dlg.setModal(true);
+        connect(&dlg, SIGNAL(signal_kom(kommentar_nc)), this, SLOT(slot_kom(kommentar_nc)));
+        dlg.set_data(bearb.text());
         dlg.exec();
     }
 }
@@ -2345,7 +2380,7 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
         text_zw zeile;
         zeile.set_text(bearb,TRENNZ_BEARB_PARAM);
         QColor farbe;
-        farbe.setRgb(255,255,255);
+        farbe.setRgb(255,255,255);//weiß
         int deckkraft = 160;
         QString bezug = zeile.at(1);
         double afb = 1;
@@ -2407,6 +2442,24 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
             farbe.setRgb(255,155,106,deckkraft);//helles orange
             fraeserbogen fb(zeile.text());
             afb = ausdruck_auswerten(fb.afb()).toDouble();
+        }else if(zeile.at(0) == BEARBART_KOMMENTAR)
+        {
+            bearb = kom_zu_prgzei(zeile.text());
+            farbe.setRgb(255,255,255,deckkraft);//weiß
+            kommentar_nc ko(zeile.text());
+            afb = ausdruck_auswerten(ko.afb()).toDouble();
+        }else if(zeile.at(0) == BEARBART_HALT)
+        {
+            bearb = halt_zu_prgzei(zeile.text());
+            farbe.setRgb(255,255,255,deckkraft);//weiß
+            halt_nc halt(zeile.text());
+            afb = ausdruck_auswerten(halt.afb()).toDouble();
+        }else if(zeile.at(0) == BEARBART_GEZUPU)
+        {
+            bearb = gezupu_zu_prgzei(zeile.text());
+            farbe.setRgb(255,255,255,deckkraft);//weiß
+            gehezupunkt gzp(zeile.text());
+            afb = ausdruck_auswerten(gzp.afb()).toDouble();
         }
 
         ui->listWidget_bearb->addItem(bearb);
@@ -2430,6 +2483,9 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
     }
 }
 //------------------------------------------------------
+
+
+
 
 
 

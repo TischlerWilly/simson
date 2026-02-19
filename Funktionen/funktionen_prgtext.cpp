@@ -230,8 +230,36 @@ QString fbogen_zu_prgzei(QString text)
     msg += fb.afb();
     return msg;
 }
-
-
+QString kom_zu_prgzei(QString text)
+{
+    QString msg = "(";
+    kommentar_nc ko(text);
+    QString kommentar = ko.kom();
+    kommentar.replace("(","[");
+    kommentar.replace(")","]");
+    msg += kommentar;
+    msg += ")";
+    msg += "\tAFB: ";
+    msg += ko.afb();
+    return msg;
+}
+QString halt_zu_prgzei(QString text)
+{
+    halt_nc halt(text);
+    return "-- PROGRAMM-HALT --";
+}
+QString gezupu_zu_prgzei(QString text)
+{
+    QString msg = "Gehe zu ";
+    gehezupunkt gzp(text);
+    msg += "\tX: ";
+    msg += gzp.x_qstring();
+    msg += "\tY: ";
+    msg += gzp.y_qstring();
+    msg += "\tZ: ";
+    msg += gzp.z_qstring();
+    return msg;
+}
 
 
 
