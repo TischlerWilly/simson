@@ -476,7 +476,7 @@ void vorschau::wheelEvent(QWheelEvent *event)
     double wstY_neu = (N.y() - Npv.y() - mauspos.y()) / (Sf * Zf);
 
     Npv.set_x(Npv.x() - (wstX_neu - wstX_alt) * Sf * Zf);
-    Npv.set_y(Npv.y() - (wstY_neu - wstY_alt) * Sf * Zf);
+    Npv.set_y(Npv.y() + (wstY_neu - wstY_alt) * Sf * Zf);
 
     this->update();
 }
