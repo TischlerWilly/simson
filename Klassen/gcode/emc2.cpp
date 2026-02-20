@@ -61,6 +61,10 @@ QString emc2::gcode()
             {
                 gehezupunkt gzp(zeile.text());
                 stream << gezupu(gzp);
+            }else if(zeile.at(0) == BEARBART_RTA)
+            {
+                rechtecktasche rt(zeile.text());
+                stream << rta(rt);
             }
         }
 
@@ -592,6 +596,180 @@ QString emc2::bohr(bohrung bo)
                 stream << "( >>>>>>>>>> Zapfen übersprungen weil kein geeignetes Werkzeug gefunden wurde! <<<<<<<<<<)\n";
                 stream << "( " << bohr_zu_prgzei(bo.text()) << " )\n\n";
             }
+        }
+    }
+    return gcode;
+}
+
+QString emc2::rta(rechtecktasche rt)
+{
+    QString gcode;
+
+    if(ausdruck_auswerten(rt.afb()).toDouble() <= 0)
+    {
+        return gcode;//leerer String
+    }
+
+    if(Maschine != nullptr && Wst != nullptr)
+    {
+        QTextStream stream(&gcode);
+        QString bezug = rt.bezug();
+        if(!rt.istZapfen())
+        {
+            //Ist direkt ein WKZ definiert?:
+            QString tnummer;
+            if(rt.bezug() == WST_BEZUG_OBSEI  ||  rt.bezug() == WST_BEZUG_UNSEI)
+            {
+                tnummer = Maschine->wkzmag().wkznummer_von_alias(rt.wkznum(), WKZ_VERT);
+            }else
+            {
+                tnummer = Maschine->wkzmag().wkznummer_von_alias(rt.wkznum(), WKZ_HORI);
+            }
+
+            //Oder ist ein geeignetes WKZ verfügbar?:
+            double min = rt.laenge();
+            if(rt.breite() < min)
+            {
+                min = rt.breite();
+            }
+            double max = rt.laenge();
+            if(rt.breite() > max)
+            {
+                max = rt.breite();
+            }
+            double dif_max_min = max - min;
+
+            if(tnummer.isEmpty())
+            {
+                tnummer = Maschine->wkzmag().wkznummer(WKZ_TYP_FRAESER, min, rt.tiefe(), Wst->dicke(), bezug);
+            }
+
+            if(!tnummer.isEmpty())
+            {
+                //Es kann eine Rechtecktasche verwendet werden
+
+                double wst_dicke = Wst->dicke();
+                double bohrtiefe = rt.tiefe();
+                double zustellmass = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
+                double austritt = 0.0;
+                double toleranz = 0.01;
+                double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
+                double wkzdm = Maschine->wkzmag().dm(tnummer).toDouble();//Durchmesser des Fräsers
+                double ueberlappung = 1.0;//Überlappung der Fräsbahnen zueinander
+
+                // Prüfen ob Durchgangs-Tasche
+                if (bohrtiefe >= (wst_dicke - toleranz))
+                {
+                    // Falls die Tasche durchgehen soll -> Sicherheitszugabe
+                    austritt = Masszugabe_dutati;
+                }
+
+                // Z-Werte berechnen
+                double sicherheits_z = wst_dicke + Sicherheitsabstand;
+                double ziel_z = (wst_dicke - bohrtiefe) - austritt;
+
+                stream << wkz_wechsel(tnummer);
+
+                if(Maschine->wkzmag().kann_bohrend_eintauchen(tnummer))
+                {//bohrendes eintauchen (spart etwas Zeit)
+                    if (bohrtiefe > 0)
+                    {
+                        stream << "\n";
+                        stream << "( Rechtecktasche bohrend eintauchen: )\n";
+                        stream << "( " << bohr_zu_prgzei(rt.text()) << " )\n";
+
+                        double schlichtzugabe = 0.5;
+                        double halbes_min = min / 2.0;
+                        double fraeser_radius = wkzdm / 2.0;
+
+                        // (Radius) für das grobe Ausräumen (mit Aufmaß)
+                        double max_ausraeum = halbes_min - fraeser_radius - schlichtzugabe;
+                        // (Radius) für das finale Schlichten
+                        double final_schlicht = halbes_min - fraeser_radius;
+
+                        // Sicherheitscheck: Ist die Tasche groß genug für Schlichten?
+                        if (max_ausraeum < 0.1)
+                        {
+                            max_ausraeum = final_schlicht;
+                            schlichtzugabe = 0;
+                        }
+
+                        stream << "G0 X" << rt.x() << " Y" << rt.y() << "\n";
+                        stream << "G0 Z" << sicherheits_z << "\n";
+
+                        // --- SCHRITT 1: Räumen der Tasche mit Z-Zustellungen ---
+                        double aktuelle_z = wst_dicke;
+                        while (aktuelle_z > ziel_z + toleranz)
+                        {
+                            aktuelle_z -= zustellmass;
+                            if (aktuelle_z < ziel_z)
+                            {
+                                aktuelle_z = ziel_z;
+                            }
+
+                            // Zustellung in Z
+                            stream << "G1 Z" << aktuelle_z << " F" << vorschub / 2.0 << "\n";
+
+                            // Radiales Räumen bis zum Schlichtaufmaß
+                            double aktueller_radius = 0.0;
+                            double schrittweite = wkzdm - ueberlappung;
+
+                            while (aktueller_radius < max_ausraeum - toleranz)
+                            {
+                                aktueller_radius += schrittweite;
+                                if (aktueller_radius > max_ausraeum)
+                                {
+                                    aktueller_radius = max_ausraeum;
+                                }
+                                double akt_halbe_l = aktueller_radius + dif_max_min/2;
+                                double akt_halbe_b = aktueller_radius;
+                                double akt_abst_kontur = halbes_min - aktueller_radius;
+                                double akt_eckenrad = rt.rad() - akt_abst_kontur;
+                                if(akt_eckenrad < 0)
+                                {
+                                    akt_eckenrad = 0;
+                                }
+                                rechtecktasche r;
+                                r.set_mipu(rt.mipu());
+                                r.set_drewi(rt.drewi());
+                                r.set_rad(akt_eckenrad);
+                                r.set_laenge(akt_halbe_l*2);
+                                r.set_breite(akt_halbe_b*2);
+
+                                if(akt_eckenrad == 0)
+                                {//Eckiges Rechteck fräsen
+
+                                    //hier fehlt noch der Programmcode
+
+
+
+
+                                }else
+                                {//Recheck mit abgerundeten Ecken fräsen
+
+                                    //hier fehlt noch der Programmcode
+
+
+
+
+                                }
+                            }
+
+                            // Nach jeder Z-Ebene kurz zur Mitte zurück, um Freiraum zu schaffen
+                            stream << "G1 X" << rt.x() << " Y" << rt.y() << "\n";
+                        }
+                    }
+                }else
+                {//spiralförmiges eintauchen
+                    if (bohrtiefe > 0)
+                    {
+
+                    }
+                }
+            }
+        }else //bo.istZapfen()
+        {
+
         }
     }
     return gcode;

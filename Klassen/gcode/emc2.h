@@ -26,6 +26,7 @@ private:
     QString kommentar(kommentar_nc ko);
     QString halt(halt_nc ha);
     QString gezupu(gehezupunkt gzp);
+    QString rta(rechtecktasche rt);
 
     werkstueck  *Wst;
     maschine    *Maschine;
