@@ -61,6 +61,19 @@ public:
     punkt3d obre();
     punkt3d unli();
     punkt3d unre();
+    punkt3d ob();
+    punkt3d un();
+    punkt3d li();
+    punkt3d re();
+    //Diese Punkte geben jeweils den Punkt bis zum Eckenradius an:
+    punkt3d obli_li();
+    punkt3d obli_ob();
+    punkt3d obre_ob();
+    punkt3d obre_re();
+    punkt3d unli_li();
+    punkt3d unli_un();
+    punkt3d unre_un();
+    punkt3d unre_re();
 
     inline  double  l()
     {

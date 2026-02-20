@@ -570,8 +570,9 @@ QString emc2::bohr(bohrung bo)
 
                         // Sanfter Übergang von Schruppbahn auf Schlichtbahn
                         // Wir nutzen einen kleinen R-Bogen für den Versatz
+                        stream << "G01 X" << schlicht_x+schlichtzugabe << " Y" << bo.y()-schlichtzugabe << "\n";
                         stream << "G02 X" << schlicht_x
-                               << " Y" << bo.y() + schlichtzugabe
+                               << " Y" << bo.y()
                                << " R" << schlichtzugabe << "\n";
 
                         // Die eigentliche Schlichtrunde
@@ -648,123 +649,188 @@ QString emc2::rta(rechtecktasche rt)
             {
                 //Es kann eine Rechtecktasche verwendet werden
 
-                double wst_dicke = Wst->dicke();
-                double bohrtiefe = rt.tiefe();
-                double zustellmass = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
-                double austritt = 0.0;
-                double toleranz = 0.01;
-                double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
-                double wkzdm = Maschine->wkzmag().dm(tnummer).toDouble();//Durchmesser des Fräsers
-                double ueberlappung = 1.0;//Überlappung der Fräsbahnen zueinander
-
-                // Prüfen ob Durchgangs-Tasche
-                if (bohrtiefe >= (wst_dicke - toleranz))
+                if(rt.ausraeumen())
                 {
-                    // Falls die Tasche durchgehen soll -> Sicherheitszugabe
-                    austritt = Masszugabe_dutati;
-                }
+                    double wst_dicke = Wst->dicke();
+                    double bohrtiefe = rt.tiefe();
+                    double zustellmass = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
+                    double austritt = 0.0;
+                    double toleranz = 0.01;
+                    double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
+                    double wkzdm = Maschine->wkzmag().dm(tnummer).toDouble();//Durchmesser des Fräsers
+                    double ueberlappung = 1.0;//Überlappung der Fräsbahnen zueinander
 
-                // Z-Werte berechnen
-                double sicherheits_z = wst_dicke + Sicherheitsabstand;
-                double ziel_z = (wst_dicke - bohrtiefe) - austritt;
-
-                stream << wkz_wechsel(tnummer);
-
-                if(Maschine->wkzmag().kann_bohrend_eintauchen(tnummer))
-                {//bohrendes eintauchen (spart etwas Zeit)
-                    if (bohrtiefe > 0)
+                    // Prüfen ob Durchgangs-Tasche
+                    if (bohrtiefe >= (wst_dicke - toleranz))
                     {
-                        stream << "\n";
-                        stream << "( Rechtecktasche bohrend eintauchen: )\n";
-                        stream << "( " << bohr_zu_prgzei(rt.text()) << " )\n";
+                        // Falls die Tasche durchgehen soll -> Sicherheitszugabe
+                        austritt = Masszugabe_dutati;
+                    }
 
-                        double schlichtzugabe = 0.5;
-                        double halbes_min = min / 2.0;
-                        double fraeser_radius = wkzdm / 2.0;
+                    // Z-Werte berechnen
+                    double sicherheits_z = wst_dicke + Sicherheitsabstand;
+                    double ziel_z = (wst_dicke - bohrtiefe) - austritt;
 
-                        // (Radius) für das grobe Ausräumen (mit Aufmaß)
-                        double max_ausraeum = halbes_min - fraeser_radius - schlichtzugabe;
-                        // (Radius) für das finale Schlichten
-                        double final_schlicht = halbes_min - fraeser_radius;
+                    stream << wkz_wechsel(tnummer);
 
-                        // Sicherheitscheck: Ist die Tasche groß genug für Schlichten?
-                        if (max_ausraeum < 0.1)
+                    if(Maschine->wkzmag().kann_bohrend_eintauchen(tnummer))
+                    {//bohrendes eintauchen (spart etwas Zeit)
+                        if (bohrtiefe > 0)
                         {
-                            max_ausraeum = final_schlicht;
-                            schlichtzugabe = 0;
-                        }
+                            stream << "\n";
+                            stream << "( Rechtecktasche bohrend eintauchen: )\n";
+                            stream << "( " << bohr_zu_prgzei(rt.text()) << " )\n";
 
-                        stream << "G0 X" << rt.x() << " Y" << rt.y() << "\n";
-                        stream << "G0 Z" << sicherheits_z << "\n";
+                            double schlichtzugabe = 0.5;
+                            double halbes_min = min / 2.0;
+                            double fraeser_radius = wkzdm / 2.0;
 
-                        // --- SCHRITT 1: Räumen der Tasche mit Z-Zustellungen ---
-                        double aktuelle_z = wst_dicke;
-                        while (aktuelle_z > ziel_z + toleranz)
-                        {
-                            aktuelle_z -= zustellmass;
-                            if (aktuelle_z < ziel_z)
+                            // (Radius) für das grobe Ausräumen (mit Aufmaß)
+                            double max_ausraeum = halbes_min - fraeser_radius - schlichtzugabe;
+                            // (Radius) für das finale Schlichten
+                            double final_schlicht = halbes_min - fraeser_radius;
+
+                            // Sicherheitscheck: Ist die Tasche groß genug für Schlichten?
+                            if (max_ausraeum < 0.1)
                             {
-                                aktuelle_z = ziel_z;
+                                max_ausraeum = final_schlicht;
+                                schlichtzugabe = 0;
                             }
 
-                            // Zustellung in Z
-                            stream << "G1 Z" << aktuelle_z << " F" << vorschub / 2.0 << "\n";
+                            //Fräser über dem wst positionieren, über dem MiPu der rta:
+                            stream << "G0 X" << rt.x() << " Y" << rt.y() << "\n";
+                            stream << "G0 Z" << sicherheits_z << "\n";
 
-                            // Radiales Räumen bis zum Schlichtaufmaß
-                            double aktueller_radius = 0.0;
-                            double schrittweite = wkzdm - ueberlappung;
-
-                            while (aktueller_radius < max_ausraeum - toleranz)
+                            // --- SCHRITT 1: Räumen der Tasche mit Z-Zustellungen ---
+                            double aktuelle_z = wst_dicke;
+                            while (aktuelle_z > ziel_z + toleranz)
                             {
-                                aktueller_radius += schrittweite;
-                                if (aktueller_radius > max_ausraeum)
+                                aktuelle_z -= zustellmass;
+                                if (aktuelle_z < ziel_z)
                                 {
-                                    aktueller_radius = max_ausraeum;
+                                    aktuelle_z = ziel_z;
                                 }
-                                double akt_halbe_l = aktueller_radius + dif_max_min/2;
-                                double akt_halbe_b = aktueller_radius;
-                                double akt_abst_kontur = halbes_min - aktueller_radius;
-                                double akt_eckenrad = rt.rad() - akt_abst_kontur;
-                                if(akt_eckenrad < 0)
+
+                                // Zustellung in Z (bohrend eintauchen)
+                                stream << "G1 Z" << aktuelle_z << " F" << vorschub / 2.0 << "\n";
+
+                                // Radiales Räumen bis zum Schlichtaufmaß
+                                double aktueller_radius = 0.0;
+                                double schrittweite = wkzdm - ueberlappung;
+
+                                while (aktueller_radius < max_ausraeum - toleranz)
                                 {
-                                    akt_eckenrad = 0;
+                                    aktueller_radius += schrittweite;
+                                    if (aktueller_radius > max_ausraeum)
+                                    {
+                                        aktueller_radius = max_ausraeum;
+                                    }
+                                    double akt_halbe_l = aktueller_radius + dif_max_min/2;
+                                    double akt_halbe_b = aktueller_radius;
+                                    double akt_abst_kontur = halbes_min - aktueller_radius;
+                                    double akt_eckenrad = rt.rad() - akt_abst_kontur;
+                                    if(akt_eckenrad < 0)
+                                    {
+                                        akt_eckenrad = 0;
+                                    }
+                                    rechteck r;
+                                    r.set_mipu(rt.mipu());
+                                    r.set_drewi(rt.drewi());
+                                    r.set_rad(akt_eckenrad);
+                                    r.set_laenge(akt_halbe_l*2);
+                                    r.set_breite(akt_halbe_b*2);
+
+                                    if(akt_eckenrad == 0)
+                                    {//Eckiges Rechteck fräsen
+                                        stream << "G1 X" << r.un().x() << " Y" << r.un().y() << " F" << vorschub << "\n";
+                                        stream << "G1 X" << r.unli().x() << " Y" << r.unli().y() << "\n";
+                                        stream << "G1 X" << r.obli().x() << " Y" << r.obli().y() << "\n";
+                                        stream << "G1 X" << r.obre().x() << " Y" << r.obre().y() << "\n";
+                                        stream << "G1 X" << r.unre().x() << " Y" << r.unre().y() << "\n";
+                                        stream << "G1 X" << r.un().x() << " Y" << r.un().y() << "\n";
+                                    }else
+                                    {//Recheck mit abgerundeten Ecken fräsen
+                                        stream << "G1 X" << r.un().x() << " Y" << r.un().y() << " F" << vorschub << "\n";
+                                        stream << "G1 X" << r.unli_un().x() << " Y" << r.unli_un().y() << "\n";
+                                        stream << "G2 X" << r.unli_li().x() << " Y" << r.unli_li().y() << " R" << r.rad() << "\n";
+                                        stream << "G1 X" << r.obli_li().x() << " Y" << r.obli_li().y() << "\n";
+                                        stream << "G2 X" << r.obli_ob().x() << " Y" << r.obli_ob().y() << " R" << r.rad() << "\n";
+                                        stream << "G1 X" << r.obre_ob().x() << " Y" << r.obre_ob().y() << "\n";
+                                        stream << "G2 X" << r.obre_re().x() << " Y" << r.obre_re().y() << " R" << r.rad() << "\n";
+                                        stream << "G1 X" << r.unre_re().x() << " Y" << r.unre_re().y() << "\n";
+                                        stream << "G2 X" << r.unre_un().x() << " Y" << r.unre_un().y() << " R" << r.rad() << "\n";
+                                        stream << "G1 X" << r.un().x() << " Y" << r.un().y() << "\n";
+                                    }
                                 }
-                                rechtecktasche r;
+
+                                // Nach jeder Z-Ebene kurz zur Mitte zurück, um Freiraum zu schaffen
+                                if (schlichtzugabe > 0)
+                                {
+                                    if(aktuelle_z != ziel_z)
+                                    {
+                                        stream << "G1 X" << rt.x() << " Y" << rt.y() << "\n";
+                                    }
+                                }else
+                                {
+                                    stream << "G1 X" << rt.x() << " Y" << rt.y() << "\n";
+                                }
+                            }
+
+                            // --- SCHRITT 2: Finales Schlichten in voller Tiefe ---
+                            if (schlichtzugabe > 0)
+                            {
+                                stream << "( Finales Schlichten der Wandung in voller Tiefe )\n";
+                                // Der Fräser steht bereits auf ziel_z in der Mitte
+                                double akt_rad = rt.rad()-fraeser_radius;
+                                if(akt_rad < 0)
+                                {
+                                    akt_rad = 0;
+                                }
+                                rechteck r;
                                 r.set_mipu(rt.mipu());
                                 r.set_drewi(rt.drewi());
-                                r.set_rad(akt_eckenrad);
-                                r.set_laenge(akt_halbe_l*2);
-                                r.set_breite(akt_halbe_b*2);
-
-                                if(akt_eckenrad == 0)
+                                r.set_rad(akt_rad);
+                                r.set_laenge( max - wkzdm );
+                                r.set_breite( min - wkzdm );
+                                if(r.rad() == 0)
                                 {//Eckiges Rechteck fräsen
-
-                                    //hier fehlt noch der Programmcode
-
-
-
-
+                                    stream << "G1 X" << r.un().x() << " Y" << r.un().y() << " F" << vorschub << "\n";
+                                    stream << "G1 X" << r.unli().x() << " Y" << r.unli().y() << "\n";
+                                    stream << "G1 X" << r.obli().x() << " Y" << r.obli().y() << "\n";
+                                    stream << "G1 X" << r.obre().x() << " Y" << r.obre().y() << "\n";
+                                    stream << "G1 X" << r.unre().x() << " Y" << r.unre().y() << "\n";
+                                    stream << "G1 X" << r.un().x() << " Y" << r.un().y() << "\n";
                                 }else
                                 {//Recheck mit abgerundeten Ecken fräsen
-
-                                    //hier fehlt noch der Programmcode
-
-
-
-
+                                    stream << "G1 X" << r.un().x() << " Y" << r.un().y() << " F" << vorschub << "\n";
+                                    stream << "G1 X" << r.unli_un().x() << " Y" << r.unli_un().y() << "\n";
+                                    stream << "G2 X" << r.unli_li().x() << " Y" << r.unli_li().y() << " R" << r.rad() << "\n";
+                                    stream << "G1 X" << r.obli_li().x() << " Y" << r.obli_li().y() << "\n";
+                                    stream << "G2 X" << r.obli_ob().x() << " Y" << r.obli_ob().y() << " R" << r.rad() << "\n";
+                                    stream << "G1 X" << r.obre_ob().x() << " Y" << r.obre_ob().y() << "\n";
+                                    stream << "G2 X" << r.obre_re().x() << " Y" << r.obre_re().y() << " R" << r.rad() << "\n";
+                                    stream << "G1 X" << r.unre_re().x() << " Y" << r.unre_re().y() << "\n";
+                                    stream << "G2 X" << r.unre_un().x() << " Y" << r.unre_un().y() << " R" << r.rad() << "\n";
+                                    stream << "G1 X" << r.un().x() << " Y" << r.un().y() << "\n";
                                 }
+
+                                // Nach dem Schlichten wieder zur Mitte fahren
+                                stream << "G1 X" << rt.x() << " Y" << rt.y() << "\n";
                             }
 
-                            // Nach jeder Z-Ebene kurz zur Mitte zurück, um Freiraum zu schaffen
-                            stream << "G1 X" << rt.x() << " Y" << rt.y() << "\n";
+                            // --- SCHRITT 3: Rückzug ---
+                            stream << "G0 Z" << sicherheits_z << "\n";
+                        }
+                    }else
+                    {//spiralförmiges eintauchen
+                        if (bohrtiefe > 0)
+                        {
+
                         }
                     }
-                }else
-                {//spiralförmiges eintauchen
-                    if (bohrtiefe > 0)
-                    {
+                }else//nicht ausräumen
+                {
 
-                    }
                 }
             }
         }else //bo.istZapfen()

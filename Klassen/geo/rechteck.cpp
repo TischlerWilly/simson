@@ -163,31 +163,116 @@ punkt3d rechteck::mipu()
 punkt3d rechteck::obli()
 {
     punkt3d p = MiPu;
-    p.verschieben_um( -l()/2 , b()/2);
+    p.verschieben_um( -l()/2 , b()/2 );
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
 punkt3d rechteck::obre()
 {
     punkt3d p = MiPu;
-    p.verschieben_um( l()/2 , b()/2);
+    p.verschieben_um( l()/2 , b()/2 );
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
 punkt3d rechteck::unli()
 {
     punkt3d p = MiPu;
-    p.verschieben_um( -l()/2 , -b()/2);
+    p.verschieben_um( -l()/2 , -b()/2 );
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
 punkt3d rechteck::unre()
 {
     punkt3d p = MiPu;
-    p.verschieben_um( l()/2 , -b()/2);
+    p.verschieben_um( l()/2 , -b()/2 );
     p.drehen(MiPu, Drehwinkel);
     return p;
 }
+punkt3d rechteck::ob()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( 0 , b()/2 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::un()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( 0 , -b()/2 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::li()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( -l()/2 , 0 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::re()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( l()/2 , 0 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::obli_li()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( -l()/2 , b()/2-rad() );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::obli_ob()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( -l()/2+rad() , b()/2 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::obre_ob()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( l()/2-rad() , b()/2 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::obre_re()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( l()/2 , b()/2-rad() );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::unli_li()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( -l()/2 , -b()/2+rad() );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::unli_un()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( -l()/2+rad() , -b()/2 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::unre_un()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( l()/2-rad() , -b()/2 );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+punkt3d rechteck::unre_re()
+{
+    punkt3d p = MiPu;
+    p.verschieben_um( l()/2 , -b()/2+rad() );
+    p.drehen(MiPu, Drehwinkel);
+    return p;
+}
+
 double rechteck::abst(punkt3d p)
 {
     punkt3d pol, por, pul, pur;
