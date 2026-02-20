@@ -19,6 +19,7 @@ public:
     void set_nut_vert(QString klasse);
     void set_kta(QString klasse);
     void set_rta(QString klasse);
+    void set_zapfen(QString klasse);
     void set_fraes_vert(QString klasse);
 
     //get:
@@ -29,6 +30,7 @@ public:
     QString nut_vert();
     QString kta();
     QString rta();
+    QString zapfen();
     QString fraes_vert();
 
     private:
@@ -39,6 +41,7 @@ public:
         QString FraesVert;
         QString Kta;
         QString Rta;
+        QString Zapfen;
 
 };
 

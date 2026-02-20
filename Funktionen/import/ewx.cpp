@@ -467,16 +467,40 @@ werkstueck import_ewx(QString dateiinhalt)
             if(ref.bezug() == WST_BEZUG_UNSEI)
             {
                 uzs = !uzs;
-            }            
-            bogen b;
-            b.set_uzs(uzs);
-            b.set_bogen(stapu, endpu, rad, uzs);
-            fraeserbogen fb;
-            fb.set_bogen(b);
-            fb.set_tiSta(ti.toDouble());
-            fb.set_tiEnd(ti.toDouble());
+            }
+            if(stapu == endpu)//ganzer Kreis
+            {
+                //Teilung notwendig da interne Bogenberechungn keine Vollkreise verarbeiten kann
+                punkt3d teilungspunk = drehen(mipu, stapu, degToRad(180));
+                bogen b1;
+                b1.set_uzs(uzs);
+                b1.set_bogen(stapu, teilungspunk, rad, uzs);
+                bogen b2;
+                b2.set_uzs(uzs);
+                b2.set_bogen(teilungspunk, endpu, rad, uzs);
+                fraeserbogen fb1;
+                fb1.set_bogen(b1);
+                fb1.set_tiSta(ti.toDouble());
+                fb1.set_tiEnd(ti.toDouble());
+                fb1.set_bezug(ref.bezug());
+                fraeserbogen fb2 = fb1;
+                fb2.set_bogen(b2);
 
-            fkon.add_hi(fb.text());
+                fkon.add_hi(fb1.text());
+                fkon.add_hi(fb2.text());
+            }else //Kreisausschnitt
+            {
+                bogen b;
+                b.set_uzs(uzs);
+                b.set_bogen(stapu, endpu, rad, uzs);
+                fraeserbogen fb;
+                fb.set_bogen(b);
+                fb.set_tiSta(ti.toDouble());
+                fb.set_tiEnd(ti.toDouble());
+                fb.set_bezug(ref.bezug());
+
+                fkon.add_hi(fb.text());
+            }
         }
     }
 

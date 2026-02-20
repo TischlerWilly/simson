@@ -31,6 +31,7 @@ void Dialog_fraeser::set_Data(text_zw msg, bool ist_neues_wkz)
     ui->checkBox_ist_aktiv->setChecked(wkz.istaktiv());
     ui->checkBox_ist_hori->setChecked(wkz.isthori());
     ui->checkBox_ist_veti->setChecked(wkz.istverti());
+    ui->checkBox_kann_bohrend_eintauchen->setChecked(wkz.kann_bohrend_eintauchen());
     this->show();
 }
 
@@ -54,6 +55,7 @@ void Dialog_fraeser::clear()
     ui->lineEdit_spiegel->clear();
     ui->checkBox_nur_direkt_zuweisbar->setChecked(false);
     ui->checkBox_ist_aktiv->setChecked(true);
+    ui->checkBox_kann_bohrend_eintauchen->setChecked(false);
 }
 
 void Dialog_fraeser::on_pushButton_abbrechen_clicked()
@@ -133,6 +135,7 @@ void Dialog_fraeser::on_pushButton_ok_clicked()
         fraeser.set_istaktiv(ui->checkBox_ist_aktiv->isChecked());
         fraeser.set_isthori(ui->checkBox_ist_hori->isChecked());
         fraeser.set_istverti(ui->checkBox_ist_veti->isChecked());
+        fraeser.set_kann_bohrend_eintauchen(ui->checkBox_kann_bohrend_eintauchen->isChecked());
 
         emit Data(fraeser.daten(), Wkz_ist_neu);
     }

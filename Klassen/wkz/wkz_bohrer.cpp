@@ -11,6 +11,7 @@ wkz_bohrer::wkz_bohrer()
     IstDuBo         = false;    
     IstHori         = false;
     IstVerti        = false;
+    Vorschub        = 1000;
 }
 wkz_bohrer::wkz_bohrer(text_zw wkz)
 {
@@ -48,6 +49,7 @@ wkz_bohrer::wkz_bohrer(text_zw wkz)
         IstVerti = false;
     }
     ZustMasHori = wkz.at(10).toDouble();
+    Vorschub = wkz.at(11).toDouble();
 }
 //----------------------------------set:
 void wkz_bohrer::set_wkznr(QString nr)
@@ -105,6 +107,13 @@ void wkz_bohrer::set_istverti(bool ja)
 {
     IstVerti = ja;
 }
+void wkz_bohrer::set_vorschub(double f)
+{
+    if(f >= 0)
+    {
+        Vorschub = f;
+    }
+}
 //----------------------------------get:
 text_zw wkz_bohrer::daten()
 {
@@ -145,6 +154,7 @@ text_zw wkz_bohrer::daten()
         wkz.add_hi("0");
     }
     wkz.add_hi(double_to_qstring(ZustMasHori)); //10: Zustellmaß horizontal
+    wkz.add_hi(double_to_qstring(Vorschub));    //11: Vorschub
     return wkz;
 }
 QString wkz_bohrer::wkznr()
@@ -187,7 +197,10 @@ bool wkz_bohrer::istverti()
 {
     return IstVerti;
 }
-
+double wkz_bohrer::vorschub()
+{
+    return Vorschub;
+}
 
 
 

@@ -146,12 +146,18 @@ void bogen::versetze_spu(punkt3d neue_pos)
     punkt3d newStartPoint = neue_pos;
     double dx = oldEndPoint.x() - newStartPoint.x();
     double dy = oldEndPoint.y() - newStartPoint.y();
-    double d = std::sqrt(dx*dx + dy*dy);
+    double d = std::sqrt(dx * dx + dy * dy);
+
+    // Abbruch bei fast identischen Punkten, um "Umklappen" zu verhindern
+    if (d < 1e-9)
+    {
+        return;
+    }
 
     // 2. Mittelpunkt der Strecke
     punkt3d mid;
-    mid.set_x( (newStartPoint.x() + oldEndPoint.x()) / 2.0 );
-    mid.set_y( (newStartPoint.y() + oldEndPoint.y()) / 2.0 );
+    mid.set_x((newStartPoint.x() + oldEndPoint.x()) / 2.0);
+    mid.set_y((newStartPoint.y() + oldEndPoint.y()) / 2.0);
 
     // 3. Abstand des Kreismittelpunkts von der Mitte
     double oldAngleSpan = spannwinkel();
@@ -159,23 +165,36 @@ void bogen::versetze_spu(punkt3d neue_pos)
 
     // 4. Normale zur Strecke (linksseitig)
     double nx = -dy / d;
-    double ny =  dx / d;
+    double ny = dx / d;
 
     // 5. Mittelpunkt berechnen
     punkt3d C;
-    C.set_x( mid.x() + nx * h );
-    C.set_y( mid.y() + ny * h );
+    C.set_x(mid.x() + nx * h);
+    C.set_y(mid.y() + ny * h);
 
     // 6. Radius
-    double r = std::sqrt( (newStartPoint.x() - C.x())*(newStartPoint.x() - C.x()) +\
-                          (newStartPoint.y() - C.y())*(newStartPoint.y() - C.y()) );
+    double r = std::sqrt((newStartPoint.x() - C.x()) * (newStartPoint.x() - C.x()) + \
+                         (newStartPoint.y() - C.y()) * (newStartPoint.y() - C.y()));
 
     // 7. Winkel
-    double startAngle = std::atan2( newStartPoint.y() - C.y(),
-                                    newStartPoint.x() - C.x() );
+    double startAngle = std::atan2(newStartPoint.y() - C.y(), newStartPoint.x() - C.x());
+    double endAngle = std::atan2(oldEndPoint.y() - C.y(), oldEndPoint.x() - C.x());
 
-    double endAngle = std::atan2( oldEndPoint.y() - C.y(),
-                                  oldEndPoint.x() - C.x() );
+    // Drehrichtung (Uzs) berücksichtigen, damit der Bogen nicht springt
+    if (Uzs)
+    {
+        if (endAngle > startAngle)
+        {
+            endAngle -= 2 * M_PI;
+        }
+    }
+    else
+    {
+        if (endAngle < startAngle)
+        {
+            endAngle += 2 * M_PI;
+        }
+    }
 
     // Ergebnis setzen
     set_mipu(C);
@@ -196,12 +215,17 @@ void bogen::versetze_epu(punkt3d neue_pos)
     punkt3d newEndPoint = neue_pos;
     double dx = newEndPoint.x() - oldStartPoint.x();
     double dy = newEndPoint.y() - oldStartPoint.y();
-    double d = std::sqrt(dx*dx + dy*dy);
+    double d = std::sqrt(dx * dx + dy * dy);
+
+    if (d < 1e-9)
+    {
+        return;
+    }
 
     // 2. Mittelpunkt der Strecke
     punkt3d mid;
-    mid.set_x( (oldStartPoint.x() + newEndPoint.x()) / 2.0 );
-    mid.set_y( (oldStartPoint.y() + newEndPoint.y()) / 2.0 );
+    mid.set_x((oldStartPoint.x() + newEndPoint.x()) / 2.0);
+    mid.set_y((oldStartPoint.y() + newEndPoint.y()) / 2.0);
 
     // 3. Abstand des Kreismittelpunkts von der Mitte
     double oldAngleSpan = spannwinkel();
@@ -209,23 +233,35 @@ void bogen::versetze_epu(punkt3d neue_pos)
 
     // 4. Normale zur Strecke (linksseitig)
     double nx = -dy / d;
-    double ny =  dx / d;
+    double ny = dx / d;
 
     // 5. Mittelpunkt berechnen
     punkt3d C;
-    C.set_x( mid.x() + nx * h );
-    C.set_y( mid.y() + ny * h );
+    C.set_x(mid.x() + nx * h);
+    C.set_y(mid.y() + ny * h);
 
     // 6. Radius
-    double r = std::sqrt( (oldStartPoint.x() - C.x())*(oldStartPoint.x() - C.x()) +\
-                          (oldStartPoint.y() - C.y())*(oldStartPoint.y() - C.y()) );
+    double r = std::sqrt((oldStartPoint.x() - C.x()) * (oldStartPoint.x() - C.x()) + \
+                         (oldStartPoint.y() - C.y()) * (oldStartPoint.y() - C.y()));
 
     // 7. Winkel
-    double startAngle = std::atan2( oldStartPoint.y() - C.y(),
-                                    oldStartPoint.x() - C.x() );
+    double startAngle = std::atan2(oldStartPoint.y() - C.y(), oldStartPoint.x() - C.x());
+    double endAngle = std::atan2(newEndPoint.y() - C.y(), newEndPoint.x() - C.x());
 
-    double endAngle = std::atan2( newEndPoint.y() - C.y(),
-                                  newEndPoint.x() - C.x() );
+    if (Uzs)
+    {
+        if (endAngle > startAngle)
+        {
+            endAngle -= 2 * M_PI;
+        }
+    }
+    else
+    {
+        if (endAngle < startAngle)
+        {
+            endAngle += 2 * M_PI;
+        }
+    }
 
     // Ergebnis setzen
     set_mipu(C);

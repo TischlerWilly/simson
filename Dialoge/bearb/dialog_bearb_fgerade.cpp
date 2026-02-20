@@ -91,3 +91,45 @@ void Dialog_bearb_fgerade::on_btn_abbrechen_clicked()
 {
     this->close();
 }
+
+void Dialog_bearb_fgerade::showEvent(QShowEvent *event)
+{
+    QDialog::showEvent(event); // Basisklasse aufrufen nicht vergessen!
+
+    // Startet die Funktion 'aktualisiere_infofelder' nach 50ms (1000ms == 1 Sekunden)
+    QTimer::singleShot(50, this, &Dialog_bearb_fgerade::aktualisiere_infofelder);
+}
+void Dialog_bearb_fgerade::aktualisiere_infofelder()
+{
+    if(this->isVisible())
+    {
+        punkt3d sp, ep;
+        sp.set_x(var_zu_wert(ui->lineEdit_xs->text()));
+        sp.set_y(var_zu_wert(ui->lineEdit_ys->text()));
+        ep.set_x(var_zu_wert(ui->lineEdit_xe->text()));
+        ep.set_y(var_zu_wert(ui->lineEdit_ye->text()));
+        strecke s;
+        s.set_stapu(sp);
+        s.set_endpu(ep);
+
+        ui->lineEdit_laenge->setText(s.laenge2d_QString());
+    }
+}
+
+void Dialog_bearb_fgerade::on_lineEdit_xs_editingFinished()
+{
+    aktualisiere_infofelder();
+}
+void Dialog_bearb_fgerade::on_lineEdit_ys_editingFinished()
+{
+    aktualisiere_infofelder();
+}
+void Dialog_bearb_fgerade::on_lineEdit_xe_editingFinished()
+{
+    aktualisiere_infofelder();
+}
+void Dialog_bearb_fgerade::on_lineEdit_ye_editingFinished()
+{
+    aktualisiere_infofelder();
+}
+

@@ -7,8 +7,9 @@ einstellung_dxf_klassen::einstellung_dxf_klassen()
     BohrHori        = "H_Bohr";
     NutVert         = "V_Saeg";
     FraesVert       = "V_Fraes";
-    Kta             = "F_Tasche";
-    Rta             = "F_Tasche";
+    Kta             = "Tasche";
+    Rta             = "Tasche";
+    Rta             = "Zapfen";
 }
 
 //--------------------------set_xy():
@@ -43,6 +44,10 @@ void einstellung_dxf_klassen::set_text(QString t)
         if(spalten.at(0) == "Rechtecktasche:")
         {
             set_rta(spalten.at(1));
+        }
+        if(spalten.at(0) == "Zapfen:")
+        {
+            set_zapfen(spalten.at(1));
         }
         if(spalten.at(0) == "Fraeser vertikal:")
         {
@@ -84,6 +89,11 @@ QString einstellung_dxf_klassen::text()
     text += rta();
     text += "\n";
 
+    text += "Zapfen:";
+    text += "\t";
+    text += zapfen();
+    text += "\n";
+
     text += "Fraeser vertikal:";
     text += "\t";
     text += fraes_vert();
@@ -116,6 +126,10 @@ void einstellung_dxf_klassen::set_rta(QString klasse)
 {
     Rta = klasse;
 }
+void einstellung_dxf_klassen::set_zapfen(QString klasse)
+{
+    Zapfen = klasse;
+}
 void einstellung_dxf_klassen::set_fraes_vert(QString klasse)
 {
     FraesVert = klasse;
@@ -146,6 +160,10 @@ QString einstellung_dxf_klassen::rta()
 {
     return Rta;
 }
+QString einstellung_dxf_klassen::zapfen()
+{
+    return Zapfen;
+}
 QString einstellung_dxf_klassen::fraes_vert()
 {
     return FraesVert;
@@ -160,6 +178,7 @@ bool operator ==(einstellung_dxf_klassen e1, einstellung_dxf_klassen e2)
        e1.nut_vert() == e2.nut_vert()&&\
        e1.kta() == e2.kta()&&\
        e1.rta() == e2.rta()&&\
+       e1.zapfen() == e2.zapfen()&&\
        e1.fraes_vert() == e2.fraes_vert())
     {
         return true;
@@ -176,6 +195,7 @@ bool operator !=(einstellung_dxf_klassen e1, einstellung_dxf_klassen e2)
        e1.nut_vert() == e2.nut_vert()&&\
        e1.kta() == e2.kta()&&\
        e1.rta() == e2.rta()&&\
+       e1.zapfen() == e2.zapfen()&&\
        e1.fraes_vert() == e2.fraes_vert())
     {
         return false;

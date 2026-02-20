@@ -67,6 +67,7 @@ private:
 #define FARBE_GRAU        "grau"
 #define FARBE_DUNKELGRAU  "dunkelgrau"
 #define FARBE_BRAUN       "braun"
+#define FARBE_LILA        "lila"
 
 #define STIL_TRANSPARENT    "transparent"
 #define STIL_DURCHGEHEND    "durchgehend"

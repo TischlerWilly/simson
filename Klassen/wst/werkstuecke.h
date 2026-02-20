@@ -14,10 +14,11 @@ public:
     //--------------------------------------------------set_xy:
     bool neu(werkstueck w);
     bool entf(QString werkstueckname);
+    bool entf_at(uint index);
 
     inline void set_name(uint zeilennummer,  QString neuer_name)
     {
-        Namen.edit(zeilennummer, neuer_name);
+        //Namen.edit(zeilennummer, neuer_name);
     }
     //--------------------------------------------------get_xy:
     bool        ist_bekannt(QString werkstueckname);
@@ -26,18 +27,12 @@ public:
     QString     name(uint index);
     QString     cad_fehler();
 
-    inline uint             anzahl()
+    inline uint anzahl()
     {
-        return Namen.count();
+        return Wste.size();
     }
-    inline QString          namen()
-    {
-        return Namen.text();
-    }
-    inline text_zw namen_tz()
-    {
-        return Namen;
-    }
+    QString namen();
+    text_zw namen_tz();
 
     //--------------------------------------------------Manipulationen:
     void clear();
@@ -49,7 +44,6 @@ public:
 
 private:
     //Variabeln:
-    text_zw    Namen;        //namen der Wst
     QVector<werkstueck> Wste;         //hier werden alle Werkstücke gespeichert
 
     //Funktionen:

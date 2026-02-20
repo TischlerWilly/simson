@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QMessageBox>
+#include <QFileInfo>
 
 #include "Defines/werkzeug.h"
 #include "Funktionen/umwandeln.h"
@@ -29,6 +30,7 @@ public:
     werkstueck(QString neuer_name);
 
     //--------------------------------------------------set_xy:
+    void set_text(QString text);
     void set_laenge(double l);
     void set_laenge(QString l);
     void set_breite(double b);
@@ -38,11 +40,19 @@ public:
     void neue_bearbeitung(QString text);
     void set_bearb(text_zw b);
     void set_name(QString neuer_name);
+    void set_dateipfad(QString pfad);
     void set_versatz_x(double versatz);
     void set_versatz_y(double versatz);
     void set_versatz_z(double versatz);
+    void set_prgend_x(QString endpos);
+    void set_prgend_y(QString endpos);
+    void set_prgend_z(QString endpos);
+    void set_sichabst(double abst);
+    void set_sichabst(QString abst);
+    void wurde_gespeichert();
 
     //--------------------------------------------------get_xy:
+    QString text();
     QString cad_fehler(bool kurz = false);
     geo_text geo(wkz_magazin wkzm);
     geo_text geo_aktfkon(wkz_magazin wkzm);
@@ -94,9 +104,33 @@ public:
     {
         return double_to_qstring(Versatz_z);
     }
+    inline QString prgend_x()
+    {
+        return Prgend_x;
+    }
+    inline QString prgend_y()
+    {
+        return Prgend_y;
+    }
+    inline QString prgend_z()
+    {
+        return Prgend_z;
+    }
+    inline double   sichabst() const
+    {
+        return SichAbst;
+    }
+    inline QString  sichabst_qstring() const
+    {
+        return double_to_qstring(SichAbst);
+    }
     inline QString  name()
     {
         return Name;
+    }
+    inline QString dateipfad()
+    {
+        return Dateipfad;
     }
     inline text_zw bearb()
     {
@@ -106,7 +140,16 @@ public:
     {
         return &Bearb;
     }
-
+    inline bool hat_aenderungen()
+    {
+        if(UnReDo.anz_aktive_elemente() > 1 && UnReDo.akt_pos() > 0)
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
     //--------------------------------------------------Manipulationen:
     void undo();
     void redo();
@@ -123,13 +166,25 @@ private:
     double Versatz_x;
     double Versatz_y;
     double Versatz_z;
+    QString Prgend_x;
+    QString Prgend_y;
+    QString Prgend_z;
+    double SichAbst; //Sicherheitsabstand
     text_zw Bearb;
     QString Name;
+    QString Dateipfad;
 
     undo_redo<text_zw> UnReDo;
     undo_redo<double> UnReDo_L;
     undo_redo<double> UnReDo_B;
     undo_redo<double> UnReDo_D;
+    undo_redo<double> UnReDo_versatz_x;
+    undo_redo<double> UnReDo_versatz_y;
+    undo_redo<double> UnReDo_versatz_z;
+    undo_redo<QString> UnReDo_prgend_x;
+    undo_redo<QString> UnReDo_prgend_y;
+    undo_redo<QString> UnReDo_prgend_z;
+    undo_redo<double> UnReDo_sichabst;
 
 };
 

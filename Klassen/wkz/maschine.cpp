@@ -4,12 +4,28 @@ maschine::maschine()
 {
     Laenge  = 700;
     Breite  = 700;
+    Ausgabeformat = "kein";
+    ManWkzWechsel = true;
+    DrehzExportieren = false;
+    Prgendpos.set_x(100);
+    Prgendpos.set_y(100);
+    Prgendpos.set_z(100);
+    Zugabe_DuBoTi = 0.3;
+    Zugabe_DuTaTi = 0.3;
 }
 maschine::maschine(QString neuer_name)
 {
     Name    = neuer_name;
     Laenge  = 700;
     Breite  = 700;
+    Ausgabeformat = "kein";
+    ManWkzWechsel = true;
+    DrehzExportieren = false;
+    Prgendpos.set_x(100);
+    Prgendpos.set_y(100);
+    Prgendpos.set_z(100);
+    Zugabe_DuBoTi = 0.3;
+    Zugabe_DuTaTi = 0.3;
 }
 
 //--------------------------------------------------set_xy:
@@ -27,6 +43,30 @@ void maschine::set_text(QString t)
         }else if(spalten.at(0) == "Breite:")
         {
             set_breite(spalten.at(1));
+        }else if(spalten.at(0) == "PrgEndPos X:")
+        {
+            set_prgenpos_x(spalten.at(1));
+        }else if(spalten.at(0) == "PrgEndPos Y:")
+        {
+            set_prgenpos_y(spalten.at(1));
+        }else if(spalten.at(0) == "PrgEndPos Z:")
+        {
+            set_prgenpos_z(spalten.at(1));
+        }else if(spalten.at(0) == "Zugabe DuBoTi:")
+        {
+            set_zugabe_duboti(spalten.at(1));
+        }else if(spalten.at(0) == "Zugabe DuTaTi:")
+        {
+            set_zugabe_dutati(spalten.at(1));
+        }else if(spalten.at(0) == "Ausgabeformat:")
+        {
+            set_ausgabeformat(spalten.at(1));
+        }else if(spalten.at(0) == "ManWkzWechsl:")
+        {
+            set_manWkzWechsel(spalten.at(1));
+        }else if(spalten.at(0) == "DrehzExportieren:")
+        {
+            set_drehzExportieren(spalten.at(1));
         }
     }
 }
@@ -39,7 +79,7 @@ void maschine::set_laenge(double l)
 }
 void maschine::set_laenge(QString l)
 {
-    set_laenge(l.toDouble());
+    set_breite(ausdruck_auswerten(l).toDouble());
 }
 void maschine::set_breite(double b)
 {
@@ -50,7 +90,66 @@ void maschine::set_breite(double b)
 }
 void maschine::set_breite(QString b)
 {
-    set_breite(b.toDouble());
+    set_breite(ausdruck_auswerten(b).toDouble());
+}
+void maschine::set_prgenpos_x(double pos)
+{
+    if(pos>0 && pos<5000)
+    {
+        Prgendpos.set_x(pos);
+    }
+}
+void maschine::set_prgenpos_x(QString pos)
+{
+    set_prgenpos_x(ausdruck_auswerten(pos).toDouble());
+}
+void maschine::set_prgenpos_y(double pos)
+{
+    if(pos>0 && pos<5000)
+    {
+        Prgendpos.set_y(pos);
+    }
+}
+void maschine::set_prgenpos_y(QString pos)
+{
+    set_prgenpos_y(ausdruck_auswerten(pos).toDouble());
+}
+void maschine::set_prgenpos_z(double pos)
+{
+    if(pos>0 && pos<500)
+    {
+        Prgendpos.set_z(pos);
+    }
+}
+void maschine::set_prgenpos_z(QString pos)
+{
+    set_prgenpos_z(ausdruck_auswerten(pos).toDouble());
+}
+void maschine::set_zugabe_duboti(double zugabe)
+{
+    if(zugabe>0 && zugabe<10)
+    {
+        Zugabe_DuBoTi = zugabe;
+    }
+}
+void maschine::set_zugabe_duboti(QString zugabe)
+{
+    set_zugabe_duboti(ausdruck_auswerten(zugabe).toDouble());
+}
+void maschine::set_zugabe_dutati(double zugabe)
+{
+    if(zugabe>0 && zugabe<10)
+    {
+        Zugabe_DuTaTi = zugabe;
+    }
+}
+void maschine::set_zugabe_dutati(QString zugabe)
+{
+    set_zugabe_dutati(ausdruck_auswerten(zugabe).toDouble());
+}
+void maschine::set_ausgabeformat(QString f)
+{
+    Ausgabeformat = f;
 }
 void maschine::set_name(QString neuer_name)
 {
@@ -59,6 +158,34 @@ void maschine::set_name(QString neuer_name)
 void maschine::set_wkzmag(wkz_magazin wkzmag)
 {
     Wkzmag = wkzmag;
+}
+void maschine::set_manWkzWechsel(bool jn)
+{
+    ManWkzWechsel = jn;
+}
+void maschine::set_manWkzWechsel(QString jn)
+{
+    if(jn == "ja")
+    {
+        ManWkzWechsel = true;
+    }else
+    {
+        ManWkzWechsel = false;
+    }
+}
+void maschine::set_drehzExportieren(bool jn)
+{
+    DrehzExportieren = jn;
+}
+void maschine::set_drehzExportieren(QString jn)
+{
+    if(jn == "ja")
+    {
+        DrehzExportieren = true;
+    }else
+    {
+        DrehzExportieren = false;
+    }
 }
 
 //--------------------------------------------------get_xy:
@@ -74,6 +201,58 @@ QString maschine::text()
     text += "Breite:";
     text += "\t";
     text += breite_qstring();
+    text += "\n";
+
+    text += "PrgEndPos X:";
+    text += "\t";
+    text += prgenpos_x_qstring();
+    text += "\n";
+
+    text += "PrgEndPos Y:";
+    text += "\t";
+    text += prgenpos_y_qstring();
+    text += "\n";
+
+    text += "PrgEndPos Z:";
+    text += "\t";
+    text += prgenpos_z_qstring();
+    text += "\n";
+
+    text += "Zugabe DuBoTi:";
+    text += "\t";
+    text += zugabe_duboti_qstring();
+    text += "\n";
+
+    text += "Zugabe DuTaTi:";
+    text += "\t";
+    text += zugabe_dutati_qstring();
+    text += "\n";
+
+    text += "Ausgabeformat:";
+    text += "\t";
+    text += ausgabeformat();
+    text += "\n";
+
+    text += "ManWkzWechsl:";
+    text += "\t";
+    if(manWkzWechsel() == true)
+    {
+        text += "ja";
+    }else
+    {
+        text += "nein";
+    }
+    text += "\n";
+
+    text += "DrehzExportieren:";
+    text += "\t";
+    if(drehzExportieren() == true)
+    {
+        text += "ja";
+    }else
+    {
+        text += "nein";
+    }
     text += "\n";
 
     return text;

@@ -5,6 +5,7 @@
 #define NAMEN_STD_INI_TZ_   "\t"
 
 #define EWX         ".ewx"
+#define DATEIENDUNG_EIGENE ".sim"
 
 
 

@@ -38,7 +38,10 @@ void Dialog_Einstellung_pfade::on_pushButton_quelle_clicked()
     {
         Einstellung.set_verzeichnis_quelle("./");
     }
-    QString tmp = QFileDialog::getExistingDirectory(this, tr("Quellverzeichniss"), Einstellung.verzeichnis_quelle());
+    //QString tmp = QFileDialog::getExistingDirectory(this, tr("Quellverzeichniss"), Einstellung.verzeichnis_quelle());
+    QString tmp = QFileDialog::getExistingDirectory(this, tr("Quellverzeichniss"),
+                                    Einstellung.verzeichnis_quelle(),
+                                    QFileDialog::ShowDirsOnly | QFileDialog::DontUseNativeDialog );
     if(!tmp.isEmpty())
     {
         Einstellung.set_verzeichnis_quelle(tmp);
@@ -51,7 +54,9 @@ void Dialog_Einstellung_pfade::on_pushButton_ziel_server_clicked()
     {
         Einstellung.set_verzeichnis_ziel_server("./");
     }
-    QString tmp = QFileDialog::getExistingDirectory(this, tr("Zielverzeichniss Server"), Einstellung.verzeichnis_ziel_server());
+    QString tmp = QFileDialog::getExistingDirectory(this, tr("Zielverzeichniss Server"),
+                                                    Einstellung.verzeichnis_ziel_server(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontUseNativeDialog );
     if(!tmp.isEmpty())
     {
         Einstellung.set_verzeichnis_ziel_server(tmp);
@@ -64,7 +69,9 @@ void Dialog_Einstellung_pfade::on_pushButton_ziel_lokal_clicked()
     {
         Einstellung.set_verzeichnis_ziel_lokal("./");
     }
-    QString tmp = QFileDialog::getExistingDirectory(this, tr("Zielverzeichniss lokal"), Einstellung.verzeichnis_ziel_lokal());
+    QString tmp = QFileDialog::getExistingDirectory(this, tr("Zielverzeichniss lokal"),
+                                                    Einstellung.verzeichnis_ziel_lokal(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontUseNativeDialog );
     if(!tmp.isEmpty())
     {
         Einstellung.set_verzeichnis_ziel_lokal(tmp);

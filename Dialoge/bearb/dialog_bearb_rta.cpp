@@ -69,6 +69,7 @@ void Dialog_bearb_rta::set_data(QString d, werkstueck *w, text_zw wkzmag)
     //---------
     ui->lineEdit_afb->setText(rta.afb());
     ui->lineEdit_wkz->setText(rta.wkznum());
+    ui->checkBox_zapfen->setChecked(rta.istZapfen());
 }
 
 void Dialog_bearb_rta::on_btn_abbrechen_clicked()
@@ -98,9 +99,13 @@ void Dialog_bearb_rta::on_btn_ok_clicked()
     rta.set_laenge(var_zu_wert(ui->lineEdit_l->text()));
     rta.set_breite(var_zu_wert(ui->lineEdit_b->text()));
     rta.set_tiefe(var_zu_wert(ui->lineEdit_ti->text()));
-    rta.set_x(var_zu_wert(ui->lineEdit_x->text()));
-    rta.set_y(var_zu_wert(ui->lineEdit_y->text()));
-    rta.set_z(var_zu_wert(ui->lineEdit_z->text()));
+
+    punkt3d mipu;
+    mipu.set_x(var_zu_wert(ui->lineEdit_x->text()));
+    mipu.set_y(var_zu_wert(ui->lineEdit_y->text()));
+    mipu.set_z(var_zu_wert(ui->lineEdit_z->text()));
+    rta.set_mipu(mipu);
+
     rta.set_drewi(degToRad(var_zu_wert(ui->lineEdit_wi->text()).toDouble()));
     rta.set_rad(var_zu_wert(ui->lineEdit_rad->text()));
     rta.set_zustellmass(var_zu_wert(ui->lineEdit_zust->text()));
@@ -127,6 +132,7 @@ void Dialog_bearb_rta::on_btn_ok_clicked()
     }
     rta.set_afb(ui->lineEdit_afb->text());
     rta.set_wkznum(ui->lineEdit_wkz->text());
+    rta.set_zapfen(ui->checkBox_zapfen->isChecked());
 
     emit signal_rta(rta);
     this->close();

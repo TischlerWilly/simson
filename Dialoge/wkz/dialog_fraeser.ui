@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>440</height>
+    <height>510</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>160</x>
-     <y>400</y>
+     <y>470</y>
      <width>231</width>
      <height>31</height>
     </rect>
@@ -48,12 +48,25 @@
      <x>20</x>
      <y>10</y>
      <width>371</width>
-     <height>381</height>
+     <height>451</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="lineEdit_zustmasshori"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="lineEdit_nutzl"/>
+    </item>
     <item row="1" column="1">
      <widget class="QLineEdit" name="lineEdit_dm"/>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_zust_min">
+      <property name="text">
+       <string>Mind. Zustellung</string>
+      </property>
+     </widget>
     </item>
     <item row="11" column="1">
      <widget class="QCheckBox" name="checkBox_ist_hori">
@@ -62,24 +75,16 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="1">
-     <widget class="QCheckBox" name="checkBox_nur_direkt_zuweisbar">
-      <property name="text">
-       <string>Nur direkt zuweisbar</string>
-      </property>
-     </widget>
+    <item row="8" column="1">
+     <widget class="QLineEdit" name="lineEdit_spiegel"/>
     </item>
-    <item row="7" column="1">
-     <widget class="QLineEdit" name="lineEdit_alias">
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name des  Fräsers im Export des vorgeschalteten CAD-Programmes. Der Alias-name wird programminertn dazu verwendet gleiche Fräser auf unterschiedlichen Maschinen zu erkennen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="lineEdit_zustmassvert"/>
     </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_nutzl">
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_alias">
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nutzlänge&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Alias-Name</string>
       </property>
      </widget>
     </item>
@@ -90,40 +95,10 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QLineEdit" name="lineEdit_zustmassvert"/>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_nr">
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bezeichnung des Fräsers die beim Export verwendet wird&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="1">
-     <widget class="QLineEdit" name="lineEdit_spiegel"/>
-    </item>
-    <item row="6" column="1">
-     <widget class="QLineEdit" name="lineEdit_voers"/>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="label_zust_min">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_nr">
       <property name="text">
-       <string>Mind. Zustellung</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="label_vors">
-      <property name="text">
-       <string>Vorschub</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_zustm">
-      <property name="text">
-       <string>Zustellmaß vertikal</string>
+       <string>Werkzeugnummer</string>
       </property>
      </widget>
     </item>
@@ -134,27 +109,34 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
-     <widget class="QLabel" name="label_alias">
-      <property name="text">
-       <string>Alias-Name</string>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="lineEdit_nr">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bezeichnung des Fräsers die beim Export verwendet wird&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
-    <item row="13" column="1">
+    <item row="14" column="1">
      <widget class="QCheckBox" name="checkBox_ist_aktiv">
       <property name="text">
        <string>ist aktiv</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_nutzl"/>
+    <item row="6" column="1">
+     <widget class="QLineEdit" name="lineEdit_voers"/>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_nr">
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_zustm">
       <property name="text">
-       <string>Werkzeugnummer</string>
+       <string>Zustellmaß vertikal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_nutzl">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nutzlänge&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
@@ -172,13 +154,38 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="QLineEdit" name="lineEdit_zustmasshori"/>
+    <item row="7" column="1">
+     <widget class="QLineEdit" name="lineEdit_alias">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name des  Fräsers im Export des vorgeschalteten CAD-Programmes. Der Alias-name wird programminertn dazu verwendet gleiche Fräser auf unterschiedlichen Maschinen zu erkennen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="1">
+     <widget class="QCheckBox" name="checkBox_nur_direkt_zuweisbar">
+      <property name="text">
+       <string>Nur direkt zuweisbar</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_vors">
+      <property name="text">
+       <string>Vorschub</string>
+      </property>
+     </widget>
     </item>
     <item row="4" column="0">
      <widget class="QLabel" name="label_zustmass">
       <property name="text">
        <string>Zustellmaß horizontal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1">
+     <widget class="QCheckBox" name="checkBox_kann_bohrend_eintauchen">
+      <property name="text">
+       <string>kann bohrend eintauchen</string>
       </property>
      </widget>
     </item>
@@ -198,9 +205,10 @@
   <tabstop>checkBox_nur_direkt_zuweisbar</tabstop>
   <tabstop>checkBox_ist_veti</tabstop>
   <tabstop>checkBox_ist_hori</tabstop>
+  <tabstop>checkBox_kann_bohrend_eintauchen</tabstop>
   <tabstop>checkBox_ist_aktiv</tabstop>
-  <tabstop>pushButton_ok</tabstop>
   <tabstop>pushButton_abbrechen</tabstop>
+  <tabstop>pushButton_ok</tabstop>
  </tabstops>
  <resources/>
  <connections/>

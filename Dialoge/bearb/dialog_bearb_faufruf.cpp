@@ -40,6 +40,7 @@ void Dialog_bearb_faufruf::set_data(QString d, werkstueck *w, text_zw wkzmag)
     fraeseraufruf fa;
     fa.set_text(d);
     ui->lineEdit_ti->setText(fa.tiefe_qstring());
+    ui->lineEdit_zust->setText(fa.zust_qstring());
     ui->lineEdit_x->setText(fa.x_qstring());
     ui->lineEdit_y->setText(fa.y_qstring());
     ui->lineEdit_z->setText(fa.z_qstring());
@@ -116,6 +117,7 @@ void Dialog_bearb_faufruf::on_btn_ok_clicked()
 {
     fraeseraufruf fa;
     fa.set_tiefe(var_zu_wert(ui->lineEdit_ti->text()));
+    fa.set_zust(ui->lineEdit_zust->text());
     fa.set_x(var_zu_wert(ui->lineEdit_x->text()));
     fa.set_y(var_zu_wert(ui->lineEdit_y->text()));
     fa.set_z(var_zu_wert(ui->lineEdit_z->text()));

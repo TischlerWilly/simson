@@ -28,6 +28,7 @@ public:
     void set_pos(punkt3d p);
     void set_tiefe(double ti);
     void set_tiefe(QString ti);
+    void set_zust(QString zust);
     void set_bezug(QString bezugsflaeche);
     void set_afb(QString ausfuehrbedingung);
     void set_radkor(QString kor);
@@ -47,6 +48,7 @@ public:
     QString z_qstring();
     double  tiefe();
     QString tiefe_qstring();
+    QString zust_qstring();
     QString bezug();
     QString afb();
     QString radkor();
@@ -65,6 +67,7 @@ public:
 private:
     punkt3d Pos; //Der Z-Wert wird benutzt für horizontale Fräsungen
     double Tiefe;   //ist die Eintauchtiefe = Oberfläche-Wst bis gesamte Bahntiefe
+    QString Zustellung; //Zustelltiefe in mm (AUTO == Wert kommt vom Fräser)
     QString Bezug;
     QString Afb;
     QString Korrektur;

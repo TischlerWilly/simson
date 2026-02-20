@@ -60,6 +60,7 @@ void Dialog_bearb_bohrung::set_data(QString d, werkstueck *w, text_zw wkzmag)
     //---------
     ui->lineEdit_afb->setText(bo.afb());
     ui->lineEdit_wkz->setText(bo.wkznum());
+    ui->checkBox_zapfen->setChecked(bo.istZapfen());
 }
 
 QString Dialog_bearb_bohrung::var_zu_wert(QString term)
@@ -114,9 +115,37 @@ void Dialog_bearb_bohrung::on_btn_ok_clicked()
         wkznr = "void";
     }
     bo.set_wkznum(wkznr);
+    bo.set_zapfen(ui->checkBox_zapfen->isChecked());
 
-    emit signal_bo(bo);
-    this->close();
+    if(bo.dm() <= 0)
+    {
+        QString msg;
+        msg = "Der Bohrdurchmesser muss größer als 0 sein!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Angaben ungültig!");
+        mb.exec();
+    }else if(bo.tiefe() <= 0)
+    {
+        QString msg;
+        msg = "Die Bohrtiefe muss größer als 0 sein!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Angaben ungültig!");
+        mb.exec();
+    }else if(bo.zustellmass() <= 0)
+    {
+        QString msg;
+        msg = "Das Zustellmaß muss größer als 0 sein!";
+        QMessageBox mb;
+        mb.setText(msg);
+        mb.setWindowTitle("Angaben ungültig!");
+        mb.exec();
+    }else
+    {
+        emit signal_bo(bo);
+        this->close();
+    }
 }
 
 void Dialog_bearb_bohrung::on_btn_abbrechen_clicked()

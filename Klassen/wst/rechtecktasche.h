@@ -7,6 +7,7 @@
 #include "Defines/def_bearbeitungen.h"
 #include "Funktionen/umwandeln.h"
 #include "Klassen/geo/punkt3d.h"
+#include "Klassen/geo/rechteck.h"
 
 
 class rechtecktasche
@@ -15,18 +16,13 @@ public:
     rechtecktasche();
     rechtecktasche(QString text);
 
+    void set_reck(rechteck r);
     void set_laenge(double l);
     void set_laenge(QString l);
     void set_breite(double b);
     void set_breite(QString b);
     void set_tiefe(double t);
     void set_tiefe(QString t);
-    void set_x(double x);
-    void set_x(QString x);
-    void set_y(double y);
-    void set_y(QString y);
-    void set_z(double z);
-    void set_z(QString z);
     void set_mipu(punkt3d p);
     void set_drewi(double wi);
     void set_drewi(QString wi);
@@ -39,7 +35,11 @@ public:
     void set_bezug(QString bezugsflaeche);
     void set_afb(QString ausfuehrbedingung);
     void set_wkznum(QString nummer);
+    void set_zapfen(bool ist_zapfen);
+    void set_zapfen(QString ist_zapfen);
 
+    rechteck reck();
+    rechteck *reck_ptr();
     double  laenge();
     QString laenge_qstring();
     double  breite();
@@ -64,22 +64,21 @@ public:
     QString bezug();
     QString afb();
     QString wkznum();
+    bool istZapfen();
+    QString istZapfen_qstring();
 
     QString text();
     void set_text(QString text);
 
 private:
-    double Laenge;
-    double Breite;
+    rechteck Rechteck_intern;
     double Tiefe;
-    punkt3d Mipu;
-    double Drewinkel;
-    double Eckenradius;
     double Zustellmass;
     bool Ausraeumen;
     QString Bezug;
     QString Afb;
     QString Werkzeugnummer;
+    bool IstZapfen; //Zapfen fräsen statt Loch Bohren
 
     void setup();
 

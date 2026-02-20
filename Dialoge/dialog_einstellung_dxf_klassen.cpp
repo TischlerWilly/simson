@@ -26,6 +26,7 @@ void Dialog_einstellung_dxf_klassen::on_pushButton_speichern_clicked()
     Einstellung_klassen.set_nut_vert(ui->lineEdit_nut_vert->text());
     Einstellung_klassen.set_kta(ui->lineEdit_kta->text());
     Einstellung_klassen.set_rta(ui->lineEdit_rta->text());
+    Einstellung_klassen.set_zapfen(ui->lineEdit_zapfen->text());
     Einstellung_klassen.set_fraes_vert(ui->lineEdit_fraes_vert->text());
     this->close();
     emit send_einstellung(Einstellung_klassen);
@@ -47,6 +48,8 @@ void Dialog_einstellung_dxf_klassen::slot_einstellung(einstellung_dxf eg, einste
     ui->lineEdit_kta->setText(Einstellung_klassen.kta());
     ui->lineEdit_rta->clear();
     ui->lineEdit_rta->setText(Einstellung_klassen.rta());
+    ui->lineEdit_zapfen->clear();
+    ui->lineEdit_zapfen->setText(Einstellung_klassen.zapfen());
     ui->lineEdit_fraes_vert->clear();
     ui->lineEdit_fraes_vert->setText(Einstellung_klassen.fraes_vert());
     this->show();
@@ -142,3 +145,17 @@ void Dialog_einstellung_dxf_klassen::on_lineEdit_rta_textChanged(const QString &
     beispiel += "601";
     ui->lineEdit_rta_beispiel2->setText(beispiel);
 }
+void Dialog_einstellung_dxf_klassen::on_lineEdit_zapfen_textChanged(const QString &arg1)
+{
+    //Beispiel 1:
+    QString beispiel = arg1;
+    beispiel += "_14";
+    beispiel += Einstellung_allgem.dezitren();
+    beispiel += "2";
+    ui->lineEdit_zapfen_beispiel->setText(beispiel);
+    //Beispiel 2:
+    beispiel += Einstellung_allgem.kenWKZnr();
+    beispiel += "601";
+    ui->lineEdit_zapfen_beispiel2->setText(beispiel);
+}
+

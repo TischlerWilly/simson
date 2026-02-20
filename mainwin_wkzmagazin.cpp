@@ -121,6 +121,14 @@ void mainwin_wkzmagazin::info_aktualisieren(uint index)
         {
             rumpf.add_hi("nein");
         }
+        kopf.add_hi("kann bohrend eintauchen");
+        if(f.kann_bohrend_eintauchen())
+        {
+            rumpf.add_hi("ja");
+        }else
+        {
+            rumpf.add_hi("nein");
+        }
         ui->tableWidget_info->setRowCount(kopf.count());
         for(uint i=0;i<kopf.count();i++)
         {
@@ -146,6 +154,8 @@ void mainwin_wkzmagazin::info_aktualisieren(uint index)
         rumpf.add_hi(double_to_qstring(b.zustmavert()));
         kopf.add_hi("Zustellmaß hori");
         rumpf.add_hi(double_to_qstring(b.zustmahori()));
+        kopf.add_hi("Vorschub");
+        rumpf.add_hi(double_to_qstring(b.vorschub()));
         kopf.add_hi("Ist Durchgangsbohrer");
         if(b.istdubo())
         {
@@ -169,7 +179,7 @@ void mainwin_wkzmagazin::info_aktualisieren(uint index)
         }else
         {
             rumpf.add_hi("nein");
-        }
+        }        
         ui->tableWidget_info->setRowCount(kopf.count());
         for(uint i=0;i<kopf.count();i++)
         {

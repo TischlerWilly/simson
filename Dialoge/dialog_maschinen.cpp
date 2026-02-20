@@ -22,8 +22,8 @@ void Dialog_maschinen::slot_maschinen(maschinen m)
 {
     Maschinen = m;
     ui->listWidget_maschinen->clear();
-    ui->lineEdit_tischlaenge->clear();
-    ui->lineEdit_tischbreite->clear();
+    ui->checkBox_manWkzWechsel->setChecked(false);
+    ui->checkBox_drehzExportieren->setChecked(false);
     for(uint i=0; i<m.anzahl();i++)
     {
         ui->listWidget_maschinen->addItem(m.masch(i)->name());
@@ -58,20 +58,96 @@ void Dialog_maschinen::on_pushButton_abbrechen_clicked()
 {
     this->close();
 }
-void Dialog_maschinen::on_pushButton_laenge_ok_clicked()
+void Dialog_maschinen::on_doubleSpinBox_tischlaenge_editingFinished()
 {
     if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
     {
-        QString laenge = ausdruck_auswerten(ui->lineEdit_tischlaenge->text());
+        double laenge = ui->doubleSpinBox_tischlaenge->value();
         Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_laenge(laenge);
     }
 }
-void Dialog_maschinen::on_pushButton_breite_ok_clicked()
+void Dialog_maschinen::on_doubleSpinBox_tischbreite_editingFinished()
 {
     if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
     {
-        QString breite = ausdruck_auswerten(ui->lineEdit_tischbreite->text());
-        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_breite(breite);
+        double breite = ui->doubleSpinBox_tischbreite->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_laenge(breite);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_prgendpos_x_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double pos = ui->doubleSpinBox_prgendpos_x->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_x(pos);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_prgendpos_y_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double pos = ui->doubleSpinBox_prgendpos_y->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_y(pos);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_prgendpos_z_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double pos = ui->doubleSpinBox_prgendpos_z->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_prgenpos_z(pos);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_zugabe_DuBoTi_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double zugabe = ui->doubleSpinBox_zugabe_DuBoTi->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_zugabe_duboti(zugabe);
+    }
+}
+void Dialog_maschinen::on_doubleSpinBox_zugabe_DuTaTi_editingFinished()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        double zugabe = ui->doubleSpinBox_zugabe_DuTaTi->value();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_zugabe_dutati(zugabe);
+    }
+}
+void Dialog_maschinen::on_radioButton_ausgabe_kein_toggled(bool checked)
+{
+    if(checked == true)
+    {
+        if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+        {
+            Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_ausgabeformat("kein");
+        }
+    }
+}
+void Dialog_maschinen::on_radioButton_ausgabe_emc2_toggled(bool checked)
+{
+    if(checked == true)
+    {
+        if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+        {
+            Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_ausgabeformat("emc2");
+        }
+    }
+}
+void Dialog_maschinen::on_checkBox_manWkzWechsel_stateChanged(int arg1)
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        bool jn = ui->checkBox_manWkzWechsel->isChecked();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_manWkzWechsel(jn);
+    }
+}
+void Dialog_maschinen::on_checkBox_drehzExportieren_stateChanged(int arg1)
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        bool jn = ui->checkBox_drehzExportieren->isChecked();
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_drehzExportieren(jn);
     }
 }
 void Dialog_maschinen::on_pushButton_ok_clicked()
@@ -83,8 +159,22 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
 {
     if(Maschinen.masch(currentRow))
     {
-        ui->lineEdit_tischlaenge->setText(Maschinen.masch(currentRow)->laenge_qstring());
-        ui->lineEdit_tischbreite->setText(Maschinen.masch(currentRow)->breite_qstring());
+        ui->doubleSpinBox_tischlaenge->setValue(Maschinen.masch(currentRow)->laenge());
+        ui->doubleSpinBox_tischbreite->setValue(Maschinen.masch(currentRow)->breite());
+        ui->doubleSpinBox_prgendpos_x->setValue(Maschinen.masch(currentRow)->prgenpos_x());
+        ui->doubleSpinBox_prgendpos_y->setValue(Maschinen.masch(currentRow)->prgenpos_y());
+        ui->doubleSpinBox_prgendpos_z->setValue(Maschinen.masch(currentRow)->prgenpos_z());
+        ui->doubleSpinBox_zugabe_DuBoTi->setValue(Maschinen.masch(currentRow)->zugabe_duboti());
+        ui->doubleSpinBox_zugabe_DuTaTi->setValue(Maschinen.masch(currentRow)->zugabe_dutati());
+        if(Maschinen.masch(currentRow)->ausgabeformat() == "emc2")
+        {
+            ui->radioButton_ausgabe_emc2->setChecked(true);
+        }else
+        {
+            ui->radioButton_ausgabe_kein->setChecked(true);
+        }
+        ui->checkBox_manWkzWechsel->setChecked(Maschinen.masch(currentRow)->manWkzWechsel());
+        ui->checkBox_drehzExportieren->setChecked(Maschinen.masch(currentRow)->drehzExportieren());
         prgpfade pf;
         ui->label_speierort->setText(pf.path_masch_dir(Maschinen.masch(currentRow)->name()));
     }
@@ -128,4 +218,15 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 

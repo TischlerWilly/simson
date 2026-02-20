@@ -13,13 +13,18 @@ SOURCES += \
     Dialoge/bearb/dialog_bearb_faufruf.cpp \
     Dialoge/bearb/dialog_bearb_fbogen.cpp \
     Dialoge/bearb/dialog_bearb_fgerade.cpp \
+    Dialoge/bearb/dialog_bearb_gezupu.cpp \
+    Dialoge/bearb/dialog_bearb_halt.cpp \
     Dialoge/bearb/dialog_bearb_nut.cpp \
     Dialoge/bearb/dialog_bearb_pkopf.cpp \
     Dialoge/bearb/dialog_bearb_rta.cpp \
     Dialoge/bearb/dialog_bearb_verschieben.cpp \
+    Dialoge/bearb/dialog_kommentar_nc.cpp \
+    Dialoge/bearb/dialog_schnellaenderung.cpp \
     Dialoge/dialog_einstellung_dxf.cpp \
     Dialoge/dialog_einstellung_dxf_klassen.cpp \
     Dialoge/dialog_einstellung_pfade.cpp \
+    Dialoge/dialog_gcode.cpp \
     Dialoge/dialog_maschinen.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
     Dialoge/wkz/dialog_fraeser.cpp \
@@ -38,6 +43,7 @@ SOURCES += \
     Klassen/einstellung_dxf.cpp \
     Klassen/einstellung_dxf_klassen.cpp \
     Klassen/formel.cpp \
+    Klassen/gcode/emc2.cpp \
     Klassen/geo/bogen.cpp \
     Klassen/geo/darstellungsatribute.cpp \
     Klassen/geo/geo_text.cpp \
@@ -62,6 +68,9 @@ SOURCES += \
     Klassen/wst/fraeseraufruf.cpp \
     Klassen/wst/fraeserbogen.cpp \
     Klassen/wst/fraesergerade.cpp \
+    Klassen/wst/gehezupunkt.cpp \
+    Klassen/wst/halt_nc.cpp \
+    Klassen/wst/kommentar_nc.cpp \
     Klassen/wst/nut.cpp \
     Klassen/wst/rechtecktasche.cpp \
     Klassen/wst/werkstueck.cpp \
@@ -78,13 +87,18 @@ HEADERS += \
     Dialoge/bearb/dialog_bearb_faufruf.h \
     Dialoge/bearb/dialog_bearb_fbogen.h \
     Dialoge/bearb/dialog_bearb_fgerade.h \
+    Dialoge/bearb/dialog_bearb_gezupu.h \
+    Dialoge/bearb/dialog_bearb_halt.h \
     Dialoge/bearb/dialog_bearb_nut.h \
     Dialoge/bearb/dialog_bearb_pkopf.h \
     Dialoge/bearb/dialog_bearb_rta.h \
     Dialoge/bearb/dialog_bearb_verschieben.h \
+    Dialoge/bearb/dialog_kommentar_nc.h \
+    Dialoge/bearb/dialog_schnellaenderung.h \
     Dialoge/dialog_einstellung_dxf.h \
     Dialoge/dialog_einstellung_dxf_klassen.h \
     Dialoge/dialog_einstellung_pfade.h \
+    Dialoge/dialog_gcode.h \
     Dialoge/dialog_maschinen.h \
     Dialoge/wkz/dialog_bohrer.h \
     Dialoge/wkz/dialog_fraeser.h \
@@ -103,6 +117,7 @@ HEADERS += \
     Klassen/einstellung_dxf.h \
     Klassen/einstellung_dxf_klassen.h \
     Klassen/formel.h \
+    Klassen/gcode/emc2.h \
     Klassen/geo/bogen.h \
     Klassen/geo/darstellungsatribute.h \
     Klassen/geo/defines_geometrie.h \
@@ -128,10 +143,14 @@ HEADERS += \
     Klassen/wst/fraeseraufruf.h \
     Klassen/wst/fraeserbogen.h \
     Klassen/wst/fraesergerade.h \
+    Klassen/wst/gehezupunkt.h \
+    Klassen/wst/halt_nc.h \
+    Klassen/wst/kommentar_nc.h \
     Klassen/wst/nut.h \
     Klassen/wst/rechtecktasche.h \
     Klassen/wst/werkstueck.h \
     Klassen/wst/werkstuecke.h \
+    ToDo.h \
     mainwin_wkzmagazin.h \
     mainwindow.h
 
@@ -140,13 +159,18 @@ FORMS += \
     Dialoge/bearb/dialog_bearb_faufruf.ui \
     Dialoge/bearb/dialog_bearb_fbogen.ui \
     Dialoge/bearb/dialog_bearb_fgerade.ui \
+    Dialoge/bearb/dialog_bearb_gezupu.ui \
+    Dialoge/bearb/dialog_bearb_halt.ui \
     Dialoge/bearb/dialog_bearb_nut.ui \
     Dialoge/bearb/dialog_bearb_pkopf.ui \
     Dialoge/bearb/dialog_bearb_rta.ui \
     Dialoge/bearb/dialog_bearb_verschieben.ui \
+    Dialoge/bearb/dialog_kommentar_nc.ui \
+    Dialoge/bearb/dialog_schnellaenderung.ui \
     Dialoge/dialog_einstellung_dxf.ui \
     Dialoge/dialog_einstellung_dxf_klassen.ui \
     Dialoge/dialog_einstellung_pfade.ui \
+    Dialoge/dialog_gcode.ui \
     Dialoge/dialog_maschinen.ui \
     Dialoge/wkz/dialog_bohrer.ui \
     Dialoge/wkz/dialog_fraeser.ui \
@@ -161,7 +185,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    ToDo.txt \
     simson.ico \
     toolbaricons/Fraese 100x100.png \
     toolbaricons/down.png \

@@ -34,6 +34,7 @@ private slots:
     void on_lineEdit_fraes_vert_textChanged(const QString &arg1);
     void on_lineEdit_kta_textChanged(const QString &arg1);
     void on_lineEdit_rta_textChanged(const QString &arg1);
+    void on_lineEdit_zapfen_textChanged(const QString &arg1);
 
 private:
     Ui::Dialog_einstellung_dxf_klassen *ui;

@@ -17,6 +17,7 @@ void fraeseraufruf::setup()
     Afb = "1";
     Korrektur = "M";
     Werkzeugnummer = "void";
+    Zustellung = "AUTO";
     Anfahrtyp = FAUFRUF_ANABTYP_NDEF;
     Abfahrtyp = FAUFRUF_ANABTYP_NDEF;
     Anfahrweg = FAUFRUF_ANABWEG_AUTO;
@@ -39,7 +40,6 @@ void fraeseraufruf::set_y(QString y)
 {
     Pos.set_y(y);
 }
-
 void fraeseraufruf::set_z(double z)
 {
     Pos.set_z(z);
@@ -48,7 +48,6 @@ void fraeseraufruf::set_z(QString z)
 {
     Pos.set_z(z);
 }
-
 void fraeseraufruf::set_pos(punkt3d p)
 {
     Pos = p;
@@ -60,6 +59,10 @@ void fraeseraufruf::set_tiefe(double ti)
 void fraeseraufruf::set_tiefe(QString ti)
 {
     set_tiefe(ti.toDouble());
+}
+void fraeseraufruf::set_zust(QString zust)
+{
+    Zustellung = zust;
 }
 void fraeseraufruf::set_bezug(QString bezugsflaeche)
 {
@@ -124,7 +127,6 @@ QString fraeseraufruf::y_qstring()
 {
     return Pos.y_QString();
 }
-
 double fraeseraufruf::z()
 {
     return Pos.z();
@@ -133,7 +135,6 @@ QString fraeseraufruf::z_qstring()
 {
     return Pos.z_QString();
 }
-
 double fraeseraufruf::tiefe()
 {
     return Tiefe;
@@ -141,6 +142,10 @@ double fraeseraufruf::tiefe()
 QString fraeseraufruf::tiefe_qstring()
 {
     return double_to_qstring(Tiefe);
+}
+QString fraeseraufruf::zust_qstring()
+{
+    return Zustellung;
 }
 QString fraeseraufruf::bezug()
 {
@@ -214,6 +219,8 @@ QString fraeseraufruf::text()
     msg += anfahrweg_qstring();          //Zeile 11
     msg += TRENNZ_BEARB_PARAM_;
     msg += abfahrweg_qstring();          //Zeile 12
+    msg += TRENNZ_BEARB_PARAM_;
+    msg += zust_qstring();               //Zeile 13
 
     return msg;
 }
@@ -235,6 +242,7 @@ void fraeseraufruf::set_text(QString text)
         set_abfahrtyp(tz.at(10));
         set_anfahrweg(tz.at(11));
         set_abfahrweg(tz.at(12));
+        set_zust(tz.at(13));
     }
 }
 
