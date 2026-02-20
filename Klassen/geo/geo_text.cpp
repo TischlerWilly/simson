@@ -1151,11 +1151,16 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
                 gt.add_rechteck(r);
                 if(rt.ausraeumen() == false  && rt.istZapfen() == false)
                 {
-                    r.set_laenge(r.l()-wkzdm);
-                    r.set_breite(r.b()-wkzdm);
-                    r.set_rad(eckenrad-wkzdm/2);
-                    r.set_farbe_fuellung(FARBE_GRAU);
-                    gt.add_rechteck(r);
+                    double innen_l = r.l() - wkzdm*2;
+                    double innen_b = r.b() - wkzdm*2;
+                    if(innen_l > 0 && innen_b > 0)
+                    {
+                        r.set_laenge(innen_l);
+                        r.set_breite(innen_b);
+                        r.set_rad(eckenrad-wkzdm);
+                        r.set_farbe_fuellung(FARBE_GRAU);
+                        gt.add_rechteck(r);
+                    }
                 }
             }else
             {

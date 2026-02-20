@@ -13,11 +13,7 @@ rechtecktasche::rechtecktasche(QString text)
 
 void rechtecktasche::setup()
 {
-    Laenge = 0;
-    Breite = 0;
     Tiefe = 0;
-    Drewinkel = 0;
-    Eckenradius = 0;
     Zustellmass = 0;
     Ausraeumen = true;
     Bezug = WST_BEZUG_OBSEI;
@@ -26,11 +22,15 @@ void rechtecktasche::setup()
     IstZapfen = false;
 }
 
+void rechtecktasche::set_reck(rechteck r)
+{
+    Rechteck_intern = r;
+}
 void rechtecktasche::set_laenge(double l)
 {
     if(l > 0)
     {
-        Laenge = l;
+        Rechteck_intern.set_laenge(l);
     }
 }
 void rechtecktasche::set_laenge(QString l)
@@ -41,7 +41,7 @@ void rechtecktasche::set_breite(double b)
 {
     if(b > 0)
     {
-        Breite = b;
+        Rechteck_intern.set_breite(b);
     }
 }
 void rechtecktasche::set_breite(QString b)
@@ -59,33 +59,9 @@ void rechtecktasche::set_tiefe(QString t)
 {
     set_tiefe(t.toDouble());
 }
-void rechtecktasche::set_x(double x)
-{
-    Mipu.set_x(x);
-}
-void rechtecktasche::set_x(QString x)
-{
-    Mipu.set_x(x);
-}
-void rechtecktasche::set_y(double y)
-{
-    Mipu.set_y(y);
-}
-void rechtecktasche::set_y(QString y)
-{
-    Mipu.set_y(y);
-}
-void rechtecktasche::set_z(double z)
-{
-    Mipu.set_z(z);
-}
-void rechtecktasche::set_z(QString z)
-{
-    Mipu.set_z(z);
-}
 void rechtecktasche::set_mipu(punkt3d p)
 {
-    Mipu = p;
+    Rechteck_intern.set_mipu(p);
 }
 void rechtecktasche::set_drewi(double wi)
 {
@@ -93,7 +69,7 @@ void rechtecktasche::set_drewi(double wi)
     {
         wi = wi -180;
     }
-    Drewinkel = wi;
+    Rechteck_intern.set_drewi(wi);
 }
 void rechtecktasche::set_drewi(QString wi)
 {
@@ -103,7 +79,7 @@ void rechtecktasche::set_rad(double r)
 {
     if(r >= 0)
     {
-        Eckenradius = r;
+        Rechteck_intern.set_rad(r);
     }
 }
 void rechtecktasche::set_rad(QString r)
@@ -162,22 +138,29 @@ void rechtecktasche::set_zapfen(QString ist_zapfen)
     }
 }
 
-
+rechteck rechtecktasche::reck()
+{
+    return Rechteck_intern;
+}
+rechteck *rechtecktasche::reck_ptr()
+{
+    return &Rechteck_intern;
+}
 double rechtecktasche::laenge()
 {
-    return Laenge;
+    return Rechteck_intern.l();
 }
 QString rechtecktasche::laenge_qstring()
 {
-    return double_to_qstring(Laenge);
+    return Rechteck_intern.l_qstring();
 }
 double rechtecktasche::breite()
 {
-    return Breite;
+    return Rechteck_intern.b();
 }
 QString rechtecktasche::breite_qstring()
 {
-    return double_to_qstring(Breite);
+    return Rechteck_intern.b_qstring();
 }
 double rechtecktasche::tiefe()
 {
@@ -189,47 +172,47 @@ QString rechtecktasche::tiefe_qstring()
 }
 double rechtecktasche::x()
 {
-    return Mipu.x();
+    return Rechteck_intern.mipu().x();
 }
 QString rechtecktasche::x_qstring()
 {
-    return Mipu.x_QString();
+    return Rechteck_intern.mipu().x_QString();
 }
 double rechtecktasche::y()
 {
-    return Mipu.y();
+    return Rechteck_intern.mipu().y();
 }
 QString rechtecktasche::y_qstring()
 {
-    return Mipu.y_QString();
+    return Rechteck_intern.mipu().y_QString();
 }
 double rechtecktasche::z()
 {
-    return Mipu.z();
+    return Rechteck_intern.mipu().z();
 }
 QString rechtecktasche::z_qstring()
 {
-    return Mipu.z_QString();
+    return Rechteck_intern.mipu().z_QString();
 }
 punkt3d rechtecktasche::mipu()
 {
-    return  Mipu;
+    return  Rechteck_intern.mipu();
 }
 double rechtecktasche::drewi()
 {
-    return Drewinkel;
+    return Rechteck_intern.drewi();
 }
 QString rechtecktasche::drewi_qstring()
 {
-    return double_to_qstring(Drewinkel);
+    return Rechteck_intern.drewi_qstring();
 }
 double rechtecktasche::rad()
 {
-    return Eckenradius;
+    return Rechteck_intern.rad();
 }
 QString rechtecktasche::rad_qstring()
 {
-    return double_to_qstring(Eckenradius);
+    return Rechteck_intern.rad_qstring();
 }
 double rechtecktasche::zustellmass()
 {
@@ -324,9 +307,13 @@ void rechtecktasche::set_text(QString text)
         set_laenge(tz.at(2));
         set_breite(tz.at(3));
         set_tiefe(tz.at(4));
-        set_x(tz.at(5));
-        set_y(tz.at(6));
-        set_z(tz.at(7));
+
+        punkt3d mipu;
+        mipu.set_x(tz.at(5));
+        mipu.set_y(tz.at(6));
+        mipu.set_z(tz.at(7));
+        Rechteck_intern.set_mipu(mipu);
+
         set_drewi(tz.at(8));
         set_rad(tz.at(9));
         set_ausraeumen(tz.at(10));

@@ -321,12 +321,16 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
                             mipu = rta.mipu();
                             if(Einst_allgem.drehtyp_L())
                             {
-                                rta.set_x(Wst->laenge()-mipu.x());
+                                punkt3d mipu = rta.mipu();
+                                mipu.set_x(Wst->laenge()-mipu.x());
+                                rta.set_mipu(mipu);
                                 //rta.set_y(mipu.y());
                             }else //if(Einstellung_dxf.drehtyp_B())
                             {
                                 //rta.set_x(mipu.x());
-                                rta.set_y(Wst->breite()-mipu.y());
+                                punkt3d mipu = rta.mipu();
+                                mipu.set_y(Wst->breite()-mipu.y());
+                                rta.set_mipu(mipu);
                             }
 
                             Wst->bearb_ptr()->add_hi(rta.text());
@@ -465,12 +469,16 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
                         mipu = rta.mipu();
                         if(Einst_allgem.drehtyp_L())
                         {
-                            rta.set_x(Wst->laenge()-mipu.x());
+                            punkt3d mipu = rta.mipu();
+                            mipu.set_x(Wst->laenge()-mipu.x());
+                            rta.set_mipu(mipu);
                             //rta.set_y(mipu.y());
                         }else //if(Einstellung_dxf.drehtyp_B())
                         {
                             //rta.set_x(mipu.x());
-                            rta.set_y(Wst->breite()-mipu.y());
+                            punkt3d mipu = rta.mipu();
+                            mipu.set_y(Wst->breite()-mipu.y());
+                            rta.set_mipu(mipu);
                         }
 
                         Wst->bearb_ptr()->add_hi(rta.text());

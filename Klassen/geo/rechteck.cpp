@@ -148,7 +148,7 @@ void rechteck::set_breite(double neue_breite)
 }
 void rechteck::set_rad(double neuer_radius)
 {
-    Radius = neuer_radius;
+    Eckenradius = neuer_radius;
 }
 void rechteck::set_drewi(double neuer_drehwinkel)
 {

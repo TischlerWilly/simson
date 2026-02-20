@@ -2058,28 +2058,38 @@ QString MainWindow::verschiebe_bearb_einen(QString bearb, double ax, double ay, 
         rt.set_text(bearb);
         if(rt.bezug() == WST_BEZUG_OBSEI || rt.bezug() == WST_BEZUG_UNSEI)
         {
-            rt.set_x(rt.x()+ax);
-            rt.set_y(rt.y()+ay);
+            punkt3d mipu;
+            mipu.set_x(rt.x()+ax);
+            mipu.set_y(rt.y()+ay);
+            rt.set_mipu(mipu);
         }else if(rt.bezug() == WST_BEZUG_LI)
         {
-            rt.set_x(0);
-            rt.set_y(rt.y()+ay);
-            rt.set_z(rt.z()+az);
+            punkt3d mipu;
+            mipu.set_x(0);
+            mipu.set_y(rt.y()+ay);
+            mipu.set_z(rt.z()+az);
+            rt.set_mipu(mipu);
         }else if(rt.bezug() == WST_BEZUG_RE)
         {
-            rt.set_x(wst_l_neu);
-            rt.set_y(rt.y()+ay);
-            rt.set_z(rt.z()+az);
+            punkt3d mipu;
+            mipu.set_x(wst_l_neu);
+            mipu.set_y(rt.y()+ay);
+            mipu.set_z(rt.z()+az);
+            rt.set_mipu(mipu);
         }else if(rt.bezug() == WST_BEZUG_VO)
         {
-            rt.set_x(rt.x()+ax);
-            rt.set_y(0);
-            rt.set_z(rt.z()+az);
+            punkt3d mipu;
+            mipu.set_x(rt.x()+ax);
+            mipu.set_y(0);
+            mipu.set_z(rt.z()+az);
+            rt.set_mipu(mipu);
         }else if(rt.bezug() == WST_BEZUG_HI)
         {
-            rt.set_x(rt.x()+ax);
-            rt.set_y(wst_b_neu);
-            rt.set_z(rt.z()+az);
+            punkt3d mipu;
+            mipu.set_x(rt.x()+ax);
+            mipu.set_y(wst_b_neu);
+            mipu.set_z(rt.z()+az);
+            rt.set_mipu(mipu);
         }
         bearb = rt.text();
     }if(tz.at(0) == BEARBART_NUT)

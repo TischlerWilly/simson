@@ -59,7 +59,7 @@ public:
     {
         return Z_param;
     }
-    inline  QString x_QString()
+    inline QString x_QString()
     {
         return double_to_qstring(X_param);
     }

@@ -93,11 +93,11 @@ public:
     }
     inline  double  rad()
     {
-        return Radius;
+        return Eckenradius;
     }
     inline  QString rad_qstring()
     {
-        return double_to_qstring(Radius);
+        return double_to_qstring(Eckenradius);
     }
     inline  double  drewi()
     {
@@ -115,7 +115,7 @@ public:
 private:
     punkt3d MiPu;
     double Laenge, Breite;
-    double Radius;
+    double Eckenradius;
     double Drehwinkel;//in Radiant
 };
 

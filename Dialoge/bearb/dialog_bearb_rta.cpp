@@ -99,9 +99,13 @@ void Dialog_bearb_rta::on_btn_ok_clicked()
     rta.set_laenge(var_zu_wert(ui->lineEdit_l->text()));
     rta.set_breite(var_zu_wert(ui->lineEdit_b->text()));
     rta.set_tiefe(var_zu_wert(ui->lineEdit_ti->text()));
-    rta.set_x(var_zu_wert(ui->lineEdit_x->text()));
-    rta.set_y(var_zu_wert(ui->lineEdit_y->text()));
-    rta.set_z(var_zu_wert(ui->lineEdit_z->text()));
+
+    punkt3d mipu;
+    mipu.set_x(var_zu_wert(ui->lineEdit_x->text()));
+    mipu.set_y(var_zu_wert(ui->lineEdit_y->text()));
+    mipu.set_z(var_zu_wert(ui->lineEdit_z->text()));
+    rta.set_mipu(mipu);
+
     rta.set_drewi(degToRad(var_zu_wert(ui->lineEdit_wi->text()).toDouble()));
     rta.set_rad(var_zu_wert(ui->lineEdit_rad->text()));
     rta.set_zustellmass(var_zu_wert(ui->lineEdit_zust->text()));

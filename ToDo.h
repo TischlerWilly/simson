@@ -7,9 +7,6 @@
 
 --> G-Code export emc2
     > RTA
-        >> ausgeräumt bohrend eintauchen
-        >> ausgeräumt helix-Eintauchen
-        >> nicht ausgeräumt helix-Eintauchen
         >> Zapfen fräsen
     > fkon
 
