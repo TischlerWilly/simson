@@ -1,13 +1,11 @@
 #ifndef TODO_H
 #define TODO_H
 
-#define PROGRAMMVERSION "Simson V1-2026.02.20"
+#define PROGRAMMVERSION "Simson V1-2026.02.21"
 
 /*
 
 --> G-Code export emc2
-    > RTA
-        >> Zapfen fräsen
     > fkon
 
 -> Verschiebe n Kopien
