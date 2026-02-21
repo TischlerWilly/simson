@@ -1319,6 +1319,11 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
         if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
         {
             fraeseraufruf fa(zeile.text());
+            if(fa.radkor() == FRKOR_M)
+            {
+                fa.set_anfahrtyp(FAUFRUF_ANABTYP_GARADE);
+                fa.set_abfahrtyp(FAUFRUF_ANABTYP_GARADE);
+            }
             letzter_fa = fa;//wird gebraucht für die Berechnung der Abfahrwege
             radkor = fa.radkor();
             gt.add_leerzeile();
@@ -1377,19 +1382,13 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                             b.set_farbe(FARBE_BLAU);
                             if(fa.radkor() == FRKOR_L)
                             {
-                                s.drenen_um_endpu_2d(radToDeg(90), true);
-                                s.drenen_um_stapu_2d(radToDeg(90), true);
-                                //b.set_startpunkt(s.endpu());
-                                //b.set_endpunkt(fa.pos());
-                                //b.set_radius(anweg, false);
+                                s.drenen_um_endpu_2d(degToRad(90), true);
+                                s.drenen_um_stapu_2d(degToRad(90), true);
                                 b.set_bogen(s.endpu(), fa.pos(), anweg, false);
                             }else if(fa.radkor() == FRKOR_R)
                             {
-                                s.drenen_um_endpu_2d(radToDeg(90), false);
-                                s.drenen_um_stapu_2d(radToDeg(90), false);
-                                //b.set_startpunkt(s.endpu());
-                                //b.set_endpunkt(fa.pos());
-                                //b.set_radius(anweg, true);
+                                s.drenen_um_endpu_2d(degToRad(90), false);
+                                s.drenen_um_stapu_2d(degToRad(90), false);
                                 b.set_bogen(s.endpu(), fa.pos(), anweg, true);
                             }
                         }else
@@ -1398,19 +1397,13 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                             b.set_stil(STIL_GESTRICHELT);
                             if(fa.radkor() == FRKOR_L)
                             {
-                                s.drenen_um_endpu_2d(radToDeg(90), false);
-                                s.drenen_um_stapu_2d(radToDeg(90), false);
-                                //b.set_startpunkt(s.endpu());
-                                //b.set_endpunkt(fa.pos());
-                                //b.set_radius(anweg, true);
+                                s.drenen_um_endpu_2d(degToRad(90), false);
+                                s.drenen_um_stapu_2d(degToRad(90), false);
                                 b.set_bogen(s.endpu(), fa.pos(), anweg, true);
                             }else if(fa.radkor() == FRKOR_R)
                             {
-                                s.drenen_um_endpu_2d(radToDeg(90), true);
-                                s.drenen_um_stapu_2d(radToDeg(90), true);
-                                //b.set_startpunkt(s.endpu());
-                                //b.set_endpunkt(fa.pos());
-                                //b.set_radius(anweg, false);
+                                s.drenen_um_endpu_2d(degToRad(90), true);
+                                s.drenen_um_stapu_2d(degToRad(90), true);
                                 b.set_bogen(s.endpu(), fa.pos(), anweg, false);
                             }
                         }
@@ -1720,6 +1713,8 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
             {
                 if(fb.bezug() == WST_BEZUG_OBSEI)
                 {
+                    //s.set_stapu(b.mipu());
+                    //s.set_endpu(b.mipu_auf_bog(true));
                     if(radkor == FRKOR_L)
                     {
                         if(b.uzs())
@@ -1741,6 +1736,8 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                     }
                 }else if(fb.bezug() == WST_BEZUG_UNSEI)
                 {
+                    s.set_stapu(b.mipu());
+                    s.set_endpu(b.mipu_auf_bog(false));
                     if(radkor == FRKOR_R)
                     {
                         if(b.uzs())
@@ -1761,7 +1758,6 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                         }
                     }
                 }
-
                 k.set_mipu(s.endpu());
             }
             gt.add_kreis(k);

@@ -28,7 +28,7 @@ public:
     //get:
     QString text();
     punkt3d mipu();
-    punkt3d mipu_auf_bog();
+    punkt3d mipu_auf_bog(bool oberseite = true);
     double rad();
     QString rad_QString();
     double swi();

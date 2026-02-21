@@ -301,16 +301,20 @@ punkt3d bogen::mipu()
 {
     return Mipu;
 }
-punkt3d bogen::mipu_auf_bog()
+punkt3d bogen::mipu_auf_bog(bool oberseite)
 {
     punkt3d p;
 
     double diff = ewi() - swi();
 
+     bool effektiver_uzs = oberseite ? uzs() : !uzs();
+
     // Normalisierung der Winkeldifferenz basierend auf der Richtung
-    if (uzs()) {
+    if (effektiver_uzs)
+    {
         if (diff > 0) diff -= 2.0 * M_PI;
-    } else {
+    }else
+    {
         if (diff < 0) diff += 2.0 * M_PI;
     }
 

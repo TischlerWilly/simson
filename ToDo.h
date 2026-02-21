@@ -7,6 +7,7 @@
 
 --> G-Code export emc2
     > fkon
+        >> siehe hierzu gcodegenerator: void programmtext::aktualisiere_fkon()
 
 -> Verschiebe n Kopien
 -> vieleck-Tasche
