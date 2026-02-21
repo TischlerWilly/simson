@@ -42,6 +42,15 @@ void vorschau::update_cad()
             zeichneGeotext(painter, spalten.at(ii), i);
         }
     }
+    //Leitlinien fkon darstellen:
+    for(uint i=0;i<LeitlinieFkon.count();i++)
+    {
+        text_zw spalten = LeitlinieFkon.at(i);
+        for(uint ii=0;ii<spalten.count();ii++)
+        {
+            zeichneGeotext(painter, spalten.at(ii), i);
+        }
+    }
 }
 
 void vorschau::paintEvent(QPaintEvent *)
@@ -249,10 +258,11 @@ void vorschau::zeichneGeotext(QPainter &painter, QString geometrieElement, int i
     }
 }
 
-void vorschau::slot_aktualisieren(geo_text gt, geo_text fkon, int aktive_zeile)
+void vorschau::slot_aktualisieren(geo_text gt, geo_text fkon, geo_text leitlinieFkon, int aktive_zeile)
 {
     Geotext = gt;
     GeoFkon = fkon;
+    LeitlinieFkon = leitlinieFkon;
     Aktuelle_zeilennummer = aktive_zeile;
     slot_aktualisieren();
 }

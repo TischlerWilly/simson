@@ -61,7 +61,9 @@ public:
     double abst(punkt3d p);
     bool auf_strecke(punkt3d p);
     double wink();
+    strecke parallele(bool links, double abstand);
     QString text();
+
 
     //-----------------------------------------manipulationen:
     void    richtung_unkehren();

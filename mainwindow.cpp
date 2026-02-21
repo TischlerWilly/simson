@@ -345,6 +345,7 @@ void MainWindow::set_vorschaufenster_default()
 {
     geo_text gt;
     geo_text fkon;
+    geo_text leitlinieFkon;
     kreis k;
     k.set_mipu(0,0,0);
     k.set_rad(20);
@@ -360,7 +361,7 @@ void MainWindow::set_vorschaufenster_default()
     punkt3d p(500,500,0);
     gt.add_punkt(p);
 
-    vorschaufenster.slot_aktualisieren(gt, fkon, 0);
+    vorschaufenster.slot_aktualisieren(gt, fkon, leitlinieFkon, 0);
 }
 void MainWindow::getMausPosXY(punkt3d p)
 {
@@ -457,7 +458,9 @@ void MainWindow::update_vorschau()
             wkz = Maschinen.masch(index)->wkzmag();
         }
         vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
-                                           Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid);
+                                           Wste.wst(index_wst)->geo_aktfkon(wkz), \
+                                           Wste.wst(index_wst)->geo_leitliniefkon(wkz),\
+                                           index_liwid);
     }
 
 }
@@ -764,21 +767,13 @@ void MainWindow::on_action_import_dxf_triggered()
     //-----------------------------UI aktualisieren:
     if(Wste.wst(0))
     {
-        werkstueck *w = Wste.wst(0);
         ui->listWidget_dateien->clear();
         for(uint i=0; i<Wste.anzahl();i++)
         {
             ui->listWidget_dateien->addItem(Wste.namen_tz().at(i));
             ui->listWidget_dateien->setCurrentRow(0);
         }
-        wkz_magazin wkz;
-        if(ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index_masch = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index_masch)->wkzmag();
-        }
-        vorschaufenster.slot_aktualisieren(w->geo(wkz), w->geo_aktfkon(wkz), 0);
+        update_vorschau();
     }
     //-----------------------------
 }
@@ -1300,15 +1295,7 @@ void MainWindow::on_actionEntfernen_triggered()
         Wste.wst(index_wst)->unredo_neu();
         update_listwidget_bearb(Wste.wst(index_wst));
         ui->listWidget_bearb->setCurrentRow(index_liwid-1);
-        wkz_magazin wkz;
-        if(ui->comboBox_maschinen->currentIndex() >= 0)
-        {
-            QString masch_bez = ui->comboBox_maschinen->currentText();
-            int index = Maschinen.get_index(masch_bez);
-            wkz = Maschinen.masch(index)->wkzmag();
-        }
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
-                                                                          Wste.wst(index_wst)->geo_aktfkon(wkz), index_liwid-1);
+        update_vorschau();
     }else
     {
         QMessageBox mb;
@@ -1821,8 +1808,7 @@ void MainWindow::zeile_bearb_bearbeiten(int zeile_bearb)
         Wste.wst(index_wst)->set_bearb(bearb_neu);
         Wste.wst(index_wst)->unredo_neu();
         update_listwidget_bearb(Wste.wst(index_wst));
-        vorschaufenster.slot_aktualisieren(Wste.wst(index_wst)->geo(wkz), \
-                                                                          Wste.wst(index_wst)->geo_aktfkon(wkz), zeile_bearb);
+        update_vorschau();
         aktualisiere_fendtertitel();
         return;
     }

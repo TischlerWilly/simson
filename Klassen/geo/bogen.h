@@ -41,6 +41,7 @@ public:
     double spannwinkel();
     bool uzs();
     QString uzs_QString();
+    bogen parallele(bool links, double abstand);
 
     //Manipulationen:
     void    richtung_unkehren();

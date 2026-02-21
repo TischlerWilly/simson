@@ -7,7 +7,9 @@
 
 --> G-Code export emc2
     > fkon
-        >> siehe hierzu gcodegenerator: void programmtext::aktualisiere_fkon()
+        >> geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm)
+        >> Einstellung für Mainwindow hinzufügen um Leitlinien nur optional anzuzeigen
+            >>> void vorschau::update_cad() >> optional: for(uint i=0;i<LeitlinieFkon.count();i++)
 
 -> Verschiebe n Kopien
 -> vieleck-Tasche

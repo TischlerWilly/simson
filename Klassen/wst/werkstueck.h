@@ -56,6 +56,7 @@ public:
     QString cad_fehler(bool kurz = false);
     geo_text geo(wkz_magazin wkzm);
     geo_text geo_aktfkon(wkz_magazin wkzm);
+    geo_text geo_leitliniefkon(wkz_magazin wkzm);
     inline double   laenge() const
     {
         return Laenge;

@@ -1326,7 +1326,6 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
             }
             letzter_fa = fa;//wird gebraucht für die Berechnung der Abfahrwege
             radkor = fa.radkor();
-            gt.add_leerzeile();
             QString wkznr = fa.wkznum();
             fraeserdm = wkzm.dm(wkznr).toDouble();
             if(i+1 < bearb.count())
@@ -1705,16 +1704,14 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
             }
             strecke s;
             s.set_stapu(b.mipu());
-            s.set_endpu(b.mipu_auf_bog());
+            s.set_endpu(b.mipu_auf_bog(fb.bezug() == WST_BEZUG_OBSEI));
             if(radkor == FRKOR_M)
             {
-                k.set_mipu(b.mipu_auf_bog());
+                k.set_mipu(b.mipu_auf_bog(fb.bezug() == WST_BEZUG_OBSEI));
             }else
             {
                 if(fb.bezug() == WST_BEZUG_OBSEI)
                 {
-                    //s.set_stapu(b.mipu());
-                    //s.set_endpu(b.mipu_auf_bog(true));
                     if(radkor == FRKOR_L)
                     {
                         if(b.uzs())
@@ -1736,8 +1733,6 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                     }
                 }else if(fb.bezug() == WST_BEZUG_UNSEI)
                 {
-                    s.set_stapu(b.mipu());
-                    s.set_endpu(b.mipu_auf_bog(false));
                     if(radkor == FRKOR_R)
                     {
                         if(b.uzs())
@@ -1905,6 +1900,508 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
         gt.zeilenvorschub();
     }
     return gt;
+}
+geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm)
+{
+    //-------------------------------------------
+    geo_text gt;
+    //gt.add_leerzeile();//Werkstück
+    //gt.zeilenvorschub();
+    //------------------------------
+    //leitlinie fkon ermitteln
+    //------------------------------
+    QString radkor;
+    double fraeserdm = 10;//default-wert
+    fraeseraufruf letzter_fa;
+    //Phase 1 (bearbeitungen in geometrieen übersetzen, dabei an und abfahrwege ergänzen):
+    //(wir speichern das Ergebins in gt)
+    for(uint i=0; i<bearb.count() ;i++)
+    {
+        text_zw zeile;
+        zeile.set_text(bearb.at(i),TRENNZ_BEARB_PARAM);
+        if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+        {
+            fraeseraufruf fa(zeile.text());
+            if(fa.bezug() == WST_BEZUG_OBSEI)
+            {
+                if(fa.radkor() == FRKOR_M)
+                {
+                    fa.set_anfahrtyp(FAUFRUF_ANABTYP_GARADE);
+                    fa.set_abfahrtyp(FAUFRUF_ANABTYP_GARADE);
+                }
+                letzter_fa = fa;//wird gebraucht für die Berechnung der Abfahrwege
+                radkor = fa.radkor();
+                QString wkznr = fa.wkznum();
+                fraeserdm = wkzm.dm(wkznr).toDouble();
+                if(i+1 < bearb.count())
+                {
+                    double anweg;
+                    if(fa.anfahrweg_qstring() == FAUFRUF_ANABWEG_AUTO)
+                    {
+                        anweg = fraeserdm;
+                    }else
+                    {
+                        anweg = fa.anfahrweg();
+                        if(anweg < fraeserdm)
+                        {
+                            anweg = fraeserdm;
+                        }
+                    }
+                    text_zw folzei;//Folgezeile
+                    folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                    punkt3d pfa;//Punkt Fräseraufruf
+                    pfa.set_x(fa.x());
+                    pfa.set_y(fa.y());
+                    punkt3d pein;//Eintauchpunkt
+                    if(folzei.at(0) == BEARBART_FRAESERGERADE)
+                    {
+                        fraesergerade fg(folzei.text());
+                        if(fa.anfahrtyp() == FAUFRUF_ANABTYP_GARADE)
+                        {
+                            strecke s = fg.strecke_();
+                            strecke_bezugspunkt sb;
+                            sb = strecke_bezugspunkt_ende;
+                            s.set_laenge(s.laenge2d()+anweg, sb);
+                            sb = strecke_bezugspunkt_start;
+                            s.set_laenge(anweg, sb);
+                            s.verschieben_um(versatz_x, versatz_y);
+                            gt.add_strecke(s);
+                        }else if(fa.anfahrtyp() == FAUFRUF_ANABTYP_BOGEN)
+                        {
+                            bogen b;
+                            //Hilfs-Strecke:
+                            strecke s = fg.strecke_();
+                            strecke_bezugspunkt sb;
+                            sb = strecke_bezugspunkt_ende;
+                            s.set_laenge(s.laenge2d()+anweg, sb);
+                            sb = strecke_bezugspunkt_start;
+                            s.set_laenge(anweg, sb);
+                            //---
+                            if(fa.radkor() == FRKOR_L)
+                            {
+                                s.drenen_um_endpu_2d(degToRad(90), true);
+                                s.drenen_um_stapu_2d(degToRad(90), true);
+                                b.set_bogen(s.endpu(), fa.pos(), anweg, false);
+                            }else if(fa.radkor() == FRKOR_R)
+                            {
+                                s.drenen_um_endpu_2d(degToRad(90), false);
+                                s.drenen_um_stapu_2d(degToRad(90), false);
+                                b.set_bogen(s.endpu(), fa.pos(), anweg, true);
+                            }
+                            b.verschieben_um(versatz_x, versatz_y);
+                            gt.add_bogen(b);
+                        }
+                    }else if(folzei.at(0) == BEARBART_FRAESERBOGEN)
+                    {
+                        fraeserbogen fb(folzei.text());
+                        if(fa.anfahrtyp() == FAUFRUF_ANABTYP_GARADE)
+                        {
+                            strecke s;
+                            s.set_stapu(fb.bog().mipu());
+                            s.set_endpu(fb.bog().spu());
+                            strecke_bezugspunkt sb;
+                            sb = strecke_bezugspunkt_ende;
+                            s.set_laenge(anweg, sb);
+                            s.drenen_um_endpu_2d(radToDeg(90), fb.bog().uzs());
+                            s.verschieben_um(versatz_x, versatz_y);
+                            gt.add_strecke(s);
+                        }else if(fa.anfahrtyp() == FAUFRUF_ANABTYP_BOGEN)
+                        {
+                            bogen b;
+                            strecke s;
+                            s.set_stapu(fb.bog().mipu());
+                            s.set_endpu(fb.bog().spu());
+                            strecke_bezugspunkt sb;
+                            sb = strecke_bezugspunkt_ende;
+                            s.set_laenge(anweg, sb);
+                            s.drenen_um_endpu_2d(radToDeg(90), fb.bog().uzs());
+                            if(fa.radkor() == FRKOR_L)
+                            {
+                                if(fb.bog().uzs())
+                                {
+                                    s.drenen_um_endpu_2d(radToDeg(90), true);
+                                    s.drenen_um_stapu_2d(radToDeg(90), true);
+                                    b.set_bogen(s.endpu(), fa.pos(), anweg, false);
+                                }else
+                                {
+                                    s.drenen_um_stapu_2d(radToDeg(90), fb.bog().uzs());
+                                    b.set_bogen(s.endpu(), fa.pos(), anweg, false);
+                                }
+                            }else if(fa.radkor() == FRKOR_R)
+                            {
+                                if(fb.bog().uzs())
+                                {
+                                    s.drenen_um_endpu_2d(radToDeg(90), false);
+                                    s.drenen_um_stapu_2d(radToDeg(90), false);
+                                    b.set_bogen(s.endpu(), fa.pos(), anweg, true);
+                                }else
+                                {
+                                    s.drenen_um_stapu_2d(radToDeg(90), true);
+                                    b.set_bogen(s.endpu(), fa.pos(), anweg, true);
+                                }
+                            }
+                            b.verschieben_um(versatz_x, versatz_y);
+                            gt.add_bogen(b);
+                        }
+                    }
+                }
+            }else
+            {
+                gt.add_leerzeile();
+            }
+        }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
+        {
+            fraesergerade fg(zeile.text());
+            if(fg.bezug() == WST_BEZUG_OBSEI)
+            {
+                strecke s;
+                s = fg.strecke_();
+                s.verschieben_um(versatz_x, versatz_y);
+                gt.add_strecke(s);
+                //Abfahrweg:
+                double abweg;
+                if(letzter_fa.abfahrweg_qstring() == FAUFRUF_ANABWEG_AUTO)
+                {
+                    abweg = fraeserdm;
+                }else
+                {
+                    abweg = letzter_fa.abfahrweg();
+                    if(abweg < fraeserdm)
+                    {
+                        abweg = fraeserdm;
+                    }
+                }
+                bool ist_konturende = false;
+                if(i+1 == bearb.count())
+                {
+                    ist_konturende = true;
+                }
+                if(i+1 < bearb.count())
+                {
+                    text_zw folzei;//Folgezeile
+                    folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                    if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
+                    {
+                        ist_konturende = true;
+                    }
+                }
+                if(ist_konturende == true)
+                {
+                    if(letzter_fa.abfahrtyp() == FAUFRUF_ANABTYP_GARADE)
+                    {
+                        strecke s = fg.strecke_();
+                        strecke_bezugspunkt sb;
+                        sb = strecke_bezugspunkt_start;
+                        s.set_laenge(s.laenge2d()+abweg, sb);
+                        sb = strecke_bezugspunkt_ende;
+                        s.set_laenge(abweg, sb);
+                        s.verschieben_um(versatz_x, versatz_y);
+                        gt.add_strecke(s);
+                    }else if(letzter_fa.abfahrtyp() == FAUFRUF_ANABTYP_BOGEN)
+                    {
+                        bogen b;
+                        //Hilfs-Strecke:
+                        strecke s = fg.strecke_();
+                        strecke_bezugspunkt sb;
+                        sb = strecke_bezugspunkt_start;
+                        s.set_laenge(s.laenge2d()+abweg, sb);
+                        sb = strecke_bezugspunkt_ende;
+                        s.set_laenge(abweg, sb);
+                        //---
+                        if(letzter_fa.radkor() == FRKOR_L)
+                        {
+                            s.drenen_um_endpu_2d(radToDeg(90), false);
+                            s.drenen_um_stapu_2d(radToDeg(90), false);
+                            b.set_bogen(fg.ep(), s.stapu(), abweg, false);
+                        }else if(letzter_fa.radkor() == FRKOR_R)
+                        {
+                            s.drenen_um_endpu_2d(radToDeg(90), true);
+                            s.drenen_um_stapu_2d(radToDeg(90), true);
+                            b.set_bogen(fg.ep(), s.stapu(), abweg, true);
+                        }
+                        b.verschieben_um(versatz_x, versatz_y);
+                        gt.add_bogen(b);
+                    }
+                }
+            }else
+            {
+                gt.add_leerzeile();
+            }
+        }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            fraeserbogen fb(zeile.text());
+            if(fb.bezug() == WST_BEZUG_OBSEI)
+            {
+                bogen b = fb.bog();
+                b.verschieben_um(versatz_x, versatz_y);
+                gt.add_bogen(b);
+                //Abfahrweg:
+                double abweg;
+                if(letzter_fa.abfahrweg_qstring() == FAUFRUF_ANABWEG_AUTO)
+                {
+                    abweg = fraeserdm;
+                }else
+                {
+                    abweg = letzter_fa.abfahrweg();
+                    if(abweg < fraeserdm)
+                    {
+                        abweg = fraeserdm;
+                    }
+                }
+                bool ist_konturende = false;
+                if(i+1 == bearb.count())
+                {
+                    ist_konturende = true;
+                }
+                if(i+1 < bearb.count())
+                {
+                    text_zw folzei;//Folgezeile
+                    folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                    if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
+                    {
+                        ist_konturende = true;
+                    }
+                }
+                if(ist_konturende == true)
+                {
+                    if(letzter_fa.abfahrtyp() == FAUFRUF_ANABTYP_GARADE)
+                    {
+                        strecke s;
+                        s.set_stapu(fb.bog().epu());
+                        s.set_endpu(fb.bog().mipu());
+                        strecke_bezugspunkt sb;
+                        sb = strecke_bezugspunkt_start;
+                        s.set_laenge(abweg, sb);
+                        s.drenen_um_stapu_2d(radToDeg(90), !fb.bog().uzs());
+                        s.verschieben_um(versatz_x, versatz_y);
+                        gt.add_strecke(s);
+                    }else if(letzter_fa.anfahrtyp() == FAUFRUF_ANABTYP_BOGEN)
+                    {
+                        bogen b;
+                        strecke s;
+                        s.set_stapu(fb.bog().epu());
+                        s.set_endpu(fb.bog().mipu());
+                        strecke_bezugspunkt sb;
+                        sb = strecke_bezugspunkt_start;
+                        s.set_laenge(abweg, sb);
+                        s.drenen_um_stapu_2d(90, !fb.bog().uzs());
+                        s.drenen_um_endpu_2d(90, !fb.bog().uzs());
+                        if(letzter_fa.radkor() == FRKOR_L)
+                        {
+                            if(fb.bog().uzs())
+                            {
+                                s.drenen_um_endpu_2d(radToDeg(180), false);
+                            }
+                            b.set_bogen(fb.bog().epu(), s.stapu(), abweg, false);
+                        }else if(letzter_fa.radkor() == FRKOR_R)
+                        {
+                            if(!fb.bog().uzs())
+                            {
+                                s.drenen_um_endpu_2d(radToDeg(180), false);
+                            }
+                            b.set_bogen(fb.bog().epu(), s.stapu(), abweg, true);
+                        }
+                        b.verschieben_um(versatz_x, versatz_y);
+                        gt.add_bogen(b);
+                    }
+                }
+            }else
+            {
+                gt.add_leerzeile();
+            }
+        }else
+        {
+            gt.add_leerzeile();
+        }
+        gt.zeilenvorschub();
+    }
+    //Phase 2 (Parallele erstellen):
+    geo_text parallele;
+    parallele.add_leerzeile();//Werkstück
+    parallele.zeilenvorschub();
+    for(uint i=0; i<bearb.count() ;i++)
+    {
+        text_zw zeile;
+        zeile.set_text(bearb.at(i),TRENNZ_BEARB_PARAM);
+        if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+        {
+            fraeseraufruf fa(zeile.text());
+            if(fa.bezug() == WST_BEZUG_OBSEI)
+            {
+                letzter_fa = fa;
+                radkor = fa.radkor();
+                QString wkznr = fa.wkznum();
+                fraeserdm = wkzm.dm(wkznr).toDouble();
+
+                text_zw spalten = gt.at(i);//geodaten von gt aus aktueller Zeile holen
+                text_zw element = spalten.at(0);//Enthällt nur 1 Element (Bogen oder Strecke)
+
+                if(element.text().contains(STRECKE))
+                {
+                    strecke s;
+                    s.set_text(element.text());
+                    if(radkor == FRKOR_M)
+                    {
+                        parallele.add_strecke(s);
+                    }else if(radkor == FRKOR_L)
+                    {
+                        parallele.add_strecke(s.parallele(true, fraeserdm/2));
+                    }else //if(radkor == FRKOR_R)
+                    {
+                        parallele.add_strecke(s.parallele(false, fraeserdm/2));
+                    }
+                }else//if(element.text().contains(BOGEN))
+                {
+                    bogen b;
+                    b.set_text(element.text());
+                    if(radkor == FRKOR_M)
+                    {
+                        parallele.add_bogen(b);
+                    }else if(radkor == FRKOR_L)
+                    {//Der Bogen wird immer kleiner da wir immer einen Viertelkreis aus Richtung der Radkor haben
+                        b.set_rad(b.rad()-fraeserdm/2);
+                        parallele.add_bogen(b);
+                    }else //if(radkor == FRKOR_R)
+                    {//Der Bogen wird immer kleiner da wir immer einen Viertelkreis aus Richtung der Radkor haben
+                        b.set_rad(b.rad()-fraeserdm/2);
+                        parallele.add_bogen(b);
+                    }
+                }
+            }else
+            {
+                gt.add_leerzeile();
+            }
+        }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
+        {
+            fraesergerade fg(zeile.text());
+            if(fg.bezug() == WST_BEZUG_OBSEI)
+            {
+                text_zw spalten = gt.at(i);//geodaten von gt aus aktueller Zeile holen
+                text_zw element = spalten.at(0);//Erstes Element
+                strecke s;
+                s.set_text(element.text());
+                if(radkor == FRKOR_M)
+                {
+                    parallele.add_strecke(s);
+                }else if(radkor == FRKOR_L)
+                {
+                    parallele.add_strecke(s.parallele(true, fraeserdm/2));
+                }else //if(radkor == FRKOR_R)
+                {
+                    parallele.add_strecke(s.parallele(false, fraeserdm/2));
+                }
+
+                if(spalten.count() > 1)
+                {//hat auch die Geometrie für das Abfahren
+                    text_zw element = spalten.at(1);//Enthällt nur 1 Element (Bogen oder Strecke)
+
+                    if(element.text().contains(STRECKE))
+                    {
+                        strecke s;
+                        s.set_text(element.text());
+                        if(radkor == FRKOR_M)
+                        {
+                            parallele.add_strecke(s);
+                        }else if(radkor == FRKOR_L)
+                        {
+                            parallele.add_strecke(s.parallele(true, fraeserdm/2));
+                        }else //if(radkor == FRKOR_R)
+                        {
+                            parallele.add_strecke(s.parallele(false, fraeserdm/2));
+                        }
+                    }else//if(element.text().contains(BOGEN))
+                    {
+                        bogen b;
+                        b.set_text(element.text());
+                        if(radkor == FRKOR_M)
+                        {
+                            parallele.add_bogen(b);
+                        }else if(radkor == FRKOR_L)
+                        {//Der Bogen wird immer kleiner da wir immer einen Viertelkreis aus Richtung der Radkor haben
+                            b.set_rad(b.rad()-fraeserdm/2);
+                            parallele.add_bogen(b);
+                        }else //if(radkor == FRKOR_R)
+                        {//Der Bogen wird immer kleiner da wir immer einen Viertelkreis aus Richtung der Radkor haben
+                            b.set_rad(b.rad()-fraeserdm/2);
+                            parallele.add_bogen(b);
+                        }
+                    }
+                }
+            }else
+            {
+                gt.add_leerzeile();
+            }
+        }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
+        {
+            fraeserbogen fb(zeile.text());
+            if(fb.bezug() == WST_BEZUG_OBSEI)
+            {
+                text_zw spalten = gt.at(i);//geodaten von gt aus aktueller Zeile holen
+                text_zw element = spalten.at(0);//Erstes Element
+                bogen b;
+                b.set_text(element.text());
+                if(radkor == FRKOR_M)
+                {
+                    parallele.add_bogen(b);
+                }else if(radkor == FRKOR_L)
+                {
+                    parallele.add_bogen(b.parallele(true, fraeserdm/2));//evtl entsteht ein Bogen mit r=0!!
+                }else //if(radkor == FRKOR_R)
+                {
+                    parallele.add_bogen(b.parallele(false, fraeserdm/2));//evtl entsteht ein Bogen mit r=0!!
+                }
+
+                if(spalten.count() > 1)
+                {//hat auch die Geometrie für das Abfahren
+                    text_zw element = spalten.at(1);//Enthällt nur 1 Element (Bogen oder Strecke)
+
+                    if(element.text().contains(STRECKE))
+                    {
+                        strecke s;
+                        s.set_text(element.text());
+                        if(radkor == FRKOR_M)
+                        {
+                            parallele.add_strecke(s);
+                        }else if(radkor == FRKOR_L)
+                        {
+                            parallele.add_strecke(s.parallele(true, fraeserdm/2));
+                        }else //if(radkor == FRKOR_R)
+                        {
+                            parallele.add_strecke(s.parallele(false, fraeserdm/2));
+                        }
+                    }else//if(element.text().contains(BOGEN))
+                    {
+                        bogen b;
+                        b.set_text(element.text());
+                        if(radkor == FRKOR_M)
+                        {
+                            parallele.add_bogen(b);
+                        }else if(radkor == FRKOR_L)
+                        {//Der Bogen wird immer kleiner da wir immer einen Viertelkreis aus Richtung der Radkor haben
+                            b.set_rad(b.rad()-fraeserdm/2);
+                            parallele.add_bogen(b);
+                        }else //if(radkor == FRKOR_R)
+                        {//Der Bogen wird immer kleiner da wir immer einen Viertelkreis aus Richtung der Radkor haben
+                            b.set_rad(b.rad()-fraeserdm/2);
+                            parallele.add_bogen(b);
+                        }
+                    }
+                }
+            }else
+            {
+                gt.add_leerzeile();
+            }
+        }else
+        {
+            gt.add_leerzeile();
+        }
+        parallele.zeilenvorschub();
+    }
+
+    //Phase 3 (trimmen):
+    //....
+
+    return parallele;
 }
 
 

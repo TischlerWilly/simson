@@ -220,6 +220,50 @@ double strecke::wink()
 
     return std::atan2(dy, dx);  // Ergebnis in Radiant
 }
+strecke strecke::parallele(bool links, double abstand)
+{
+    // 1. Richtungsvektor der Originalstrecke berechnen
+    double dx = Endpu.x() - Stapu.x();
+    double dy = Endpu.y() - Stapu.y();
+
+    // 2. Länge der Strecke berechnen (für die Normierung)
+    double laenge = std::sqrt(dx * dx + dy * dy);
+
+    // Sicherheitsabfrage: Falls die Punkte identisch sind,
+    // kann keine Parallele berechnet werden.
+    if (laenge < 0.0000001) {
+        strecke s;
+        s.set_stapu(Stapu);
+        s.set_endpu(Endpu);
+        return s;
+    }
+
+    // 3. Normalenvektor berechnen (senkrecht auf der Strecke)
+    // Bei (dx, dy) ist (-dy, dx) der Vektor nach links
+    // und (dy, -dx) der Vektor nach rechts.
+    double nx, ny;
+    if (links) {
+        nx = -dy / laenge;
+        ny =  dx / laenge;
+    } else {
+        nx =  dy / laenge;
+        ny = -dx / laenge;
+    }
+
+    // 4. Verschiebevektor mit dem Abstand multiplizieren
+    double vx = nx * abstand;
+    double vy = ny * abstand;
+
+    // 5. Neue Punkte berechnen (Z bleibt unverändert)
+    punkt3d sp(Stapu.x() + vx, Stapu.y() + vy, Stapu.z());
+    punkt3d ep(Endpu.x() + vx, Endpu.y() + vy, Endpu.z());
+
+    // 6. Neue Strecke zurückgeben
+    strecke s;
+    s.set_stapu(sp);
+    s.set_endpu(ep);
+    return s;
+}
 QString strecke::text()
 {
     QString msg = STRECKE;
