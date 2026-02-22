@@ -9,6 +9,7 @@
 #include "geofunktionen.h"
 #include "Klassen/text_zw.h"
 #include "defines_geometrie.h"
+#include "bogen.h"
 
 enum strecke_bezugspunkt{strecke_bezugspunkt_start, \
                          strecke_bezugspunkt_mitte, \
@@ -61,7 +62,9 @@ public:
     double abst(punkt3d p);
     bool auf_strecke(punkt3d p);
     double wink();
+    strecke parallele(bool links, double abstand);
     QString text();
+
 
     //-----------------------------------------manipulationen:
     void    richtung_unkehren();
@@ -77,5 +80,10 @@ private:
     punkt3d Stapu, Endpu;
 
 };
+
+//--------------------------------------------------------
+//Funktionen außerhalb der Klasse:
+bool trimmen(strecke *s1, strecke *s2);
+bogen verbindungsbogen(strecke s1, strecke s2);
 
 #endif // STRECKE_H

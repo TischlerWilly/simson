@@ -48,6 +48,7 @@ private:
     int         Aktuelle_zeilennummer;
     geo_text    Geotext;
     geo_text    GeoFkon;
+    geo_text    LeitlinieFkon;
     int         Maus_pos_alt_x;
     int         Maus_pos_alt_y;
     uint        Zeile_von_maus_pos;//Zum Zwischenspeichern damit Ergebnis nicht verfälscht wird wenn Maus sich bewegt
@@ -58,7 +59,7 @@ signals:
     void sende_zeilennummer(uint nr, bool bearbeiten);
 
 public slots:
-    void slot_aktualisieren(geo_text gt, geo_text fkon, int aktive_zeile);
+    void slot_aktualisieren(geo_text gt, geo_text fkon, geo_text leitlinieFkon, int aktive_zeile);
     void slot_aktualisieren();
     void slot_aktives_Element_einfaerben(int zeilennummer);
 

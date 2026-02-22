@@ -346,7 +346,11 @@ geo_text werkstueck::geo_aktfkon(wkz_magazin wkzm)
     geo_text fkon = geo_ermitteln_akt_fkon(Bearb, Versatz_x, Versatz_y, wkzm);
     return fkon;
 }
-
+geo_text werkstueck::geo_leitliniefkon(wkz_magazin wkzm)
+{
+    geo_text fkon = geo_ermitteln_leitlinie_fkon(Bearb, Versatz_x, Versatz_y, wkzm);
+    return fkon;
+}
 //--------------------------------------------------Manipulationen:
 void werkstueck::undo()
 {

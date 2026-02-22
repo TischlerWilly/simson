@@ -301,16 +301,20 @@ punkt3d bogen::mipu()
 {
     return Mipu;
 }
-punkt3d bogen::mipu_auf_bog()
+punkt3d bogen::mipu_auf_bog(bool oberseite)
 {
     punkt3d p;
 
     double diff = ewi() - swi();
 
+     bool effektiver_uzs = oberseite ? uzs() : !uzs();
+
     // Normalisierung der Winkeldifferenz basierend auf der Richtung
-    if (uzs()) {
+    if (effektiver_uzs)
+    {
         if (diff > 0) diff -= 2.0 * M_PI;
-    } else {
+    }else
+    {
         if (diff < 0) diff += 2.0 * M_PI;
     }
 
@@ -466,6 +470,50 @@ QString bogen::uzs_QString()
     {
         return "0";
     }
+}
+bogen bogen::parallele(bool links, double abstand)
+{
+    bogen b = *this; // Kopie des aktuellen Bogens
+
+    double neuer_rad = Rad;
+
+    if (links)
+    {
+        if (Uzs)
+        {
+            // Fahrtrichtung im Uhrzeigersinn, Versatz links -> Radius wird größer
+            neuer_rad = Rad + abstand;
+        } else
+        {
+            // Fahrtrichtung gegen Uhrzeigersinn, Versatz links -> Radius wird kleiner
+            neuer_rad = Rad - abstand;
+        }
+    } else
+    { // rechts
+        if (Uzs)
+        {
+            // Fahrtrichtung im Uhrzeigersinn, Versatz rechts -> Radius wird kleiner
+            neuer_rad = Rad - abstand;
+        } else
+        {
+            // Fahrtrichtung gegen Uhrzeigersinn, Versatz rechts -> Radius wird größer
+            neuer_rad = Rad + abstand;
+        }
+    }
+
+    // Sicherheitscheck: Falls der Radius negativ wird,
+    // ist der Versatz physikalisch auf dieser Seite nicht möglich.
+    // In CAM-Systemen würde dieses Element hier meist gelöscht.
+    if (neuer_rad < 0)
+    {
+        neuer_rad = 0;
+    }
+
+    b.set_rad(neuer_rad);
+
+    // Start- und Endwinkel bleiben identisch, da der Mittelpunkt
+    // gleich bleibt und die Geometrie nur radial versetzt wird.
+    return b;
 }
 //---------------------------------Manipulationen:
 void bogen::richtung_unkehren()
