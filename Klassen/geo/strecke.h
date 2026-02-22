@@ -9,6 +9,7 @@
 #include "geofunktionen.h"
 #include "Klassen/text_zw.h"
 #include "defines_geometrie.h"
+#include "bogen.h"
 
 enum strecke_bezugspunkt{strecke_bezugspunkt_start, \
                          strecke_bezugspunkt_mitte, \
@@ -79,5 +80,10 @@ private:
     punkt3d Stapu, Endpu;
 
 };
+
+//--------------------------------------------------------
+//Funktionen außerhalb der Klasse:
+bool trimmen(strecke *s1, strecke *s2);
+bogen verbindungsbogen(strecke s1, strecke s2);
 
 #endif // STRECKE_H

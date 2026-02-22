@@ -416,7 +416,139 @@ void strecke::set_laenge(double neue_laenge, strecke_bezugspunkt bezugspunkt)
 }
 //-----------------------------------------
 
+//--------------------------------------------------------
+//Funktionen außerhalb der Klasse:
+bool trimmen(strecke *s1, strecke *s2)
+{
+    //Diese Funktion ist für Innenecken gedacht
+    //Trimmt den Endpunkt von s1 und den Startpunkt von s2
+    //wenn die Operation erfolgreich ausgeführt werden kann gibt die Fuiintion true zurück
+    //wenn sich die Strechen nicht schneiden gibt die Funktion false zurück
 
+    // Richtungsvektoren
+    double dx1 = s1->endpu().x() - s1->stapu().x();
+    double dy1 = s1->endpu().y() - s1->stapu().y();
+    double dx2 = s2->endpu().x() - s2->stapu().x();
+    double dy2 = s2->endpu().y() - s2->stapu().y();
+
+    // Determinante
+    double nenner = dx1 * dy2 - dy1 * dx2;
+
+    // Parallelitätsprüfung mit etwas größerem Epsilon für numerische Stabilität
+    if (std::abs(nenner) < 1e-7)
+    {
+        return false;
+    }
+
+    // Vektor vom Start s1 zum Start s2
+    double ox = s2->stapu().x() - s1->stapu().x();
+    double oy = s2->stapu().y() - s1->stapu().y();
+
+    // t = Wie weit auf s1 (0.0 bis 1.0)
+    // u = Wie weit auf s2 (0.0 bis 1.0)
+    double t = (ox * dy2 - oy * dx2) / nenner;
+    double u = (ox * dy1 - oy * dx1) / nenner;
+
+    // TOLERANZ-CHECK:
+    // Wir erlauben ein winziges Überstehen (1e-6), um Rundungsfehler
+    // bei exakten 45°/90° Winkeln abzufangen.
+    const double eps = 1e-6;
+
+    // WICHTIG: Wenn du NUR KÜRZEN willst (Innenecke):
+    // Der Schnittpunkt muss VOR dem Ende von s1 liegen (t <= 1.0)
+    // UND NACH dem Anfang von s2 liegen (u >= 0.0)
+
+    // Falls deine Radienkorrektur die Strecken jedoch so weit verschiebt,
+    // dass sie sich erst NACH ihrem Ende treffen, ist es eine Außenecke.
+
+    if (t > -eps && t < 1.0 + eps && u > -eps && u < 1.0 + eps)
+    {
+        double px = s1->stapu().x() + t * dx1;
+        double py = s1->stapu().y() + t * dy1;
+
+        // Z-Wert: Wir nehmen den Durchschnitt oder den Wert von s1
+        punkt3d schnittp(px, py, s1->endpu().z());
+
+        s1->set_endpu(schnittp);
+        s2->set_stapu(schnittp);
+        return true;
+    }
+
+    // Wenn die Bedingung oben nicht zutrifft, liegt der Schnittpunkt
+    // außerhalb der Segmente. Das bedeutet: Lücke (Außenecke) oder
+    // die Strecken liegen komplett voneinander weg.
+    return false;
+
+    // Wenn der Schnittpunkt außerhalb liegt (Außenecke / Lücke),
+    // liefern wir false zurück, damit später ein Bogen eingefügt werden kann.
+}
+bogen verbindungsbogen(strecke s1, strecke s2)
+{
+    //Diese funkttion ist für Außenecken gedacht
+    //s1 und s2 schneiden sich nicht
+    //s1 und s2 würden sich schneiden wenn man sie verlängern würde
+    //die Lücke zwischen s1 und s2 wird mit dem Bogen geschlossen
+    //Die Funktion gibt einen Bogen mir Radius 0 zurück wenn sie nicht erfolgreich ist
+
+    bogen b;
+    b.set_rad(0);
+
+    // 1. Endpunkte der versetzten Bahnen
+    punkt3d p_start = s1.endpu();
+    punkt3d p_ende  = s2.stapu();
+
+    // 2. Richtungsvektoren der versetzten Bahnen
+    double dx1 = s1.endpu().x() - s1.stapu().x();
+    double dy1 = s1.endpu().y() - s1.stapu().y();
+    double dx2 = s2.endpu().x() - s2.stapu().x();
+    double dy2 = s2.endpu().y() - s2.stapu().y();
+
+    // 3. Drehrichtung bestimmen (Knick der Kontur)
+    double det = dx1 * dy2 - dy1 * dx2;
+    // Wenn det fast 0 ist, sind die Strecken parallel -> kein Bogen nötig
+    if (std::abs(det) < 1e-7) return b;
+
+    bool im_uhrzeigersinn = (det < 0);
+
+    // 4. Den Mittelpunkt (M) des Bogens finden
+    // Der Mittelpunkt ist der Schnittpunkt der Normalen, die an den
+    // Endpunkten (p_start, p_ende) senkrecht auf den Strecken stehen.
+
+    // Normale auf s1 an p_start
+    double nx1 = -dy1;
+    double ny1 = dx1;
+    // Normale auf s2 an p_ende
+    double nx2 = -dy2;
+    double ny2 = dx2;
+
+    // Wir berechnen den Schnittpunkt der beiden Geraden:
+    // G1: p_start + r * n1
+    // G2: p_ende + s * n2
+    double nenner_m = nx1 * (-ny2) - ny1 * (-nx2);
+
+    if (std::abs(nenner_m) < 1e-9) return b;
+
+    double t = ((p_ende.x() - p_start.x()) * (-ny2) - (p_ende.y() - p_start.y()) * (-nx2)) / nenner_m;
+
+    punkt3d m;
+    m.set_x(p_start.x() + t * nx1);
+    m.set_y(p_start.y() + t * ny1);
+    m.set_z(p_start.z());
+
+    // 5. Radius berechnen (Abstand vom Mittelpunkt zum Startpunkt)
+    double radius = std::sqrt(std::pow(m.x() - p_start.x(), 2) + std::pow(m.y() - p_start.y(), 2));
+
+    // 6. Bogen erzeugen
+    if (radius > 0.0001)
+    {
+        b.set_bogen(p_start, p_ende, radius, im_uhrzeigersinn);
+        // Da set_bogen intern manchmal den Mittelpunkt neu wählt,
+        // setzen wir zur Sicherheit den exakt berechneten Mittelpunkt:
+        b.set_mipu(m);
+    }
+
+    return b;
+}
 
 
 

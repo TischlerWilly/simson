@@ -49,6 +49,11 @@ void geo_text::add_leerzeile()
     geo.set_text("leerzeile", TRZ_PA_);
     add(geo, akt_index());
 }
+void geo_text::add_zeile(text_zw zeile)
+{
+    zeilenvorschub();
+    add(zeile, AktIndex);
+}
 void geo_text::add_punkt(punkt3d p)
 {
     add_punkt(p, AktIndex);
@@ -455,6 +460,11 @@ double geo_text::min_y()
         }
     }
     return min;
+}
+//---------------------------------------------Manipulationen:
+void geo_text::edit(uint index, text_zw neuer_text)
+{
+    Daten.at(index) = neuer_text;
 }
 //--------------------------------------
 //Funktionen außerhalb der Klasse:
@@ -1646,19 +1656,13 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                         b.set_farbe(FARBE_BLAU);
                         if(letzter_fa.radkor() == FRKOR_L)
                         {
-                            s.drenen_um_endpu_2d(radToDeg(90), false);
-                            s.drenen_um_stapu_2d(radToDeg(90), false);
-                            //b.set_startpunkt(fg.ep());
-                            //b.set_endpunkt(s.stapu());
-                            //b.set_radius(abweg, false);
+                            s.drenen_um_endpu_2d(degToRad(90), true);
+                            s.drenen_um_stapu_2d(degToRad(90), true);
                             b.set_bogen(fg.ep(), s.stapu(), abweg, false);
                         }else if(letzter_fa.radkor() == FRKOR_R)
                         {
-                            s.drenen_um_endpu_2d(radToDeg(90), true);
-                            s.drenen_um_stapu_2d(radToDeg(90), true);
-                            //b.set_startpunkt(fg.ep());
-                            //b.set_endpunkt(s.stapu());
-                            //b.set_radius(abweg, true);
+                            s.drenen_um_endpu_2d(degToRad(90), false);
+                            s.drenen_um_stapu_2d(degToRad(90), false);
                             b.set_bogen(fg.ep(), s.stapu(), abweg, true);
                         }
                     }else
@@ -1667,19 +1671,14 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                         b.set_stil(STIL_GESTRICHELT);
                         if(letzter_fa.radkor() == FRKOR_L)
                         {
-                            s.drenen_um_endpu_2d(radToDeg(90), true);
-                            s.drenen_um_stapu_2d(radToDeg(90), true);
-                            //b.set_startpunkt(fg.ep());
-                            //b.set_endpunkt(s.stapu());
-                            //b.set_radius(abweg, true);
+                            s.drenen_um_endpu_2d(degToRad(90), false);
+                            s.drenen_um_stapu_2d(degToRad(90), false);
                             b.set_bogen(fg.ep(), s.stapu(), abweg, true);
                         }else if(letzter_fa.radkor() == FRKOR_R)
                         {
-                            s.drenen_um_endpu_2d(radToDeg(90), false);
-                            s.drenen_um_stapu_2d(radToDeg(90), false);
-                            //b.set_startpunkt(fg.ep());
-                            //b.set_endpunkt(s.stapu());
-                            //b.set_radius(abweg, false);
+                            s.drenen_um_endpu_2d(degToRad(90), true);
+                            s.drenen_um_stapu_2d(degToRad(90), true);
+
                             b.set_bogen(fg.ep(), s.stapu(), abweg, false);
                         }
                     }
@@ -2110,13 +2109,13 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                         //---
                         if(letzter_fa.radkor() == FRKOR_L)
                         {
-                            s.drenen_um_endpu_2d(radToDeg(90), false);
-                            s.drenen_um_stapu_2d(radToDeg(90), false);
+                            s.drenen_um_endpu_2d(degToRad(90), true);
+                            s.drenen_um_stapu_2d(degToRad(90), true);
                             b.set_bogen(fg.ep(), s.stapu(), abweg, false);
                         }else if(letzter_fa.radkor() == FRKOR_R)
                         {
-                            s.drenen_um_endpu_2d(radToDeg(90), true);
-                            s.drenen_um_stapu_2d(radToDeg(90), true);
+                            s.drenen_um_endpu_2d(degToRad(90), false);
+                            s.drenen_um_stapu_2d(degToRad(90), false);
                             b.set_bogen(fg.ep(), s.stapu(), abweg, true);
                         }
                         b.verschieben_um(versatz_x, versatz_y);
@@ -2217,8 +2216,8 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
     }
     //Phase 2 (Parallele erstellen):
     geo_text parallele;
-    parallele.add_leerzeile();//Werkstück
-    parallele.zeilenvorschub();
+    //parallele.add_leerzeile();//Werkstück
+    //parallele.zeilenvorschub();
     for(uint i=0; i<bearb.count() ;i++)
     {
         text_zw zeile;
@@ -2269,7 +2268,7 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                 }
             }else
             {
-                gt.add_leerzeile();
+                parallele.add_leerzeile();
             }
         }else if(zeile.at(0) == BEARBART_FRAESERGERADE)
         {
@@ -2329,7 +2328,7 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                 }
             }else
             {
-                gt.add_leerzeile();
+                parallele.add_leerzeile();
             }
         }else if(zeile.at(0) == BEARBART_FRAESERBOGEN)
         {
@@ -2389,19 +2388,219 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                 }
             }else
             {
-                gt.add_leerzeile();
+                parallele.add_leerzeile();
             }
         }else
         {
-            gt.add_leerzeile();
+            parallele.add_leerzeile();
         }
         parallele.zeilenvorschub();
     }
 
     //Phase 3 (trimmen):
-    //....
+    geo_text getrimmtes;
+    getrimmtes.add_leerzeile();//Werkstück
+    getrimmtes.zeilenvorschub();
+    QString bezug;
+    for(uint i=0; i<bearb.count() ;i++)
+    {
+        text_zw zeile;
+        zeile.set_text(bearb.at(i),TRENNZ_BEARB_PARAM);
+        if(  zeile.at(0) == BEARBART_FRAESERAUFRUF  ||
+             zeile.at(0) == BEARBART_FRAESERGERADE  ||
+             zeile.at(0) == BEARBART_FRAESERBOGEN    )
+        {
+            if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+            {
+                fraeseraufruf fa(zeile.text());
+                bezug = fa.bezug();
+                letzter_fa = fa;
+                radkor = fa.radkor();
+                QString wkznr = fa.wkznum();
+                fraeserdm = wkzm.dm(wkznr).toDouble();
+            }
+            if(bezug == WST_BEZUG_OBSEI)
+            {
+                if(radkor == FRKOR_M)
+                {
+                    getrimmtes.add_zeile(parallele.at(i));
+                }else
+                {
+                    text_zw spalten = parallele.at(i);//geodaten von parallele aus aktueller Zeile holen
+                    QString element = spalten.at(0);
+                    if(element.contains(STRECKE))
+                    {
+                        strecke s1;//aktuelles Element
+                        s1.set_text(element);
+                        bool akt_zeile_ist_konturende = false;
+                        if(i == bearb.count())
+                        {
+                            akt_zeile_ist_konturende = true;
+                        }
+                        if(i < bearb.count())
+                        {
+                            text_zw folzei;//Folgezeile
+                            folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                            if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
+                            {
+                                akt_zeile_ist_konturende = true;
+                            }
+                        }
 
-    return parallele;
+                        //nächstes Element:
+                        if(spalten.count() > 1)
+                        {
+                            element = spalten.at(1);
+                            if(element.contains(STRECKE))
+                            {
+                                strecke s2;
+                                s2.set_text(element);
+                                if(s1.endpu() == s2.stapu())//Punkt passen bereits zusammen
+                                {
+                                    getrimmtes.add_strecke(s1);
+                                    if(akt_zeile_ist_konturende)
+                                    {
+                                        getrimmtes.add_strecke(s2);
+                                    }
+                                }else if(trimmen(&s1, &s2))//Innenecke
+                                {
+                                    if(akt_zeile_ist_konturende)
+                                    {
+                                        getrimmtes.add_strecke(s2);
+                                    }else
+                                    {
+                                        getrimmtes.add_strecke(s1);
+                                        spalten.edit(1, s2.text());
+                                        parallele.edit(i, spalten);
+                                    }
+                                }else//Außenecke
+                                {
+                                    getrimmtes.add_strecke(s1);
+                                    bogen b;
+                                    b = verbindungsbogen(s1, s2);
+                                    if(b.rad() > 0)
+                                    {
+                                        getrimmtes.add_bogen(b);
+                                    }else//die Strecken könnten parallel sein
+                                    {
+                                        //dann müssten s1.endpu() und s2.stapu() jedoch gleich sein
+                                        if(s1.endpu() != s2.stapu())
+                                        {
+                                            strecke s3;
+                                            s3.set_stapu(s1.endpu());
+                                            s3.set_endpu(s2.stapu());
+                                            getrimmtes.add_strecke(s3);
+                                        }
+                                    }
+                                }
+                            }else//if(element.text().contains(BOGEN))
+                            {
+                                getrimmtes.add_strecke(s1);
+                                if(akt_zeile_ist_konturende)
+                                {
+                                    bogen b2;
+                                    b2.set_text(element);
+                                    if(b2.rad() > 0)
+                                    {
+                                        getrimmtes.add_bogen(b2);
+                                    }
+                                }
+                            }
+                        }else //in der Folgezeile suchen
+                        {
+                            bool ist_konturende = false;
+                            if(i+1 == bearb.count())
+                            {
+                                ist_konturende = true;
+                            }
+                            if(i+1 < bearb.count())
+                            {
+                                text_zw folzei;//Folgezeile
+                                folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                                if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
+                                {
+                                    ist_konturende = true;
+                                }
+                            }
+                            if(ist_konturende == true)
+                            {
+                                getrimmtes.add_strecke(s1);
+                            }else
+                            {
+                                text_zw spalten_nach = parallele.at(i+1);//geodaten von parallele aus nächster Zeile holen
+                                QString element_nach = spalten_nach.at(0);
+                                if(element_nach.contains(STRECKE))
+                                {
+                                    strecke s2;
+                                    s2.set_text(element_nach);
+                                    if(s1.endpu() == s2.stapu())//Punkt passen bereits zusammen
+                                    {
+                                        getrimmtes.add_strecke(s1);
+                                    }else if(trimmen(&s1, &s2))//Innenecke
+                                    {
+                                        getrimmtes.add_strecke(s1);
+                                        spalten_nach.edit(0, s2.text());
+                                        parallele.edit(i+1, spalten_nach);
+                                    }else//Außenecke
+                                    {
+                                        getrimmtes.add_strecke(s1);
+                                        bogen b;
+                                        b = verbindungsbogen(s1, s2);
+                                        if(b.rad() > 0)
+                                        {
+                                            getrimmtes.add_bogen(b);
+                                        }else//die Strecken könnten parallel sein
+                                        {
+                                            //dann müssten s1.endpu() und s2.stapu() jedoch gleich sein
+                                            if(s1.endpu() != s2.stapu())
+                                            {
+                                                strecke s3;
+                                                s3.set_farbe(FARBE_GRUEN);
+                                                s3.set_stapu(s1.endpu());
+                                                s3.set_endpu(s2.stapu());
+                                                getrimmtes.add_strecke(s3);
+                                            }
+                                        }
+                                    }
+                                }else//if(element.text().contains(BOGEN))
+                                {
+                                    getrimmtes.add_strecke(s1);
+                                    //bogen b2;
+                                    //b2.set_text(element);
+                                    //if(b2.rad() > 0)
+                                    //{
+                                    //der Bogen ist gültig und kann in der nächsten iteration der for-schleife
+                                    //so wie er ist übernommen werden
+                                    //}
+                                }
+                            }
+                        }
+                        //Prüfen ob die aktuelle Zeile das Konturende ist:
+                    }else//if(element.text().contains(BOGEN))
+                    {
+                        bogen b1;//aktuelles Element
+                        b1.set_text(element);
+                        if(b1.rad() > 0)
+                        {
+                            getrimmtes.add_bogen(b1);
+                        }else
+                        {
+                            getrimmtes.add_leerzeile();
+                        }
+                    }
+                }
+            }else
+            {
+                getrimmtes.add_leerzeile();
+            }
+        }else
+        {
+            getrimmtes.add_leerzeile();
+        }
+        getrimmtes.zeilenvorschub();
+    }
+
+    return getrimmtes;
 }
 
 

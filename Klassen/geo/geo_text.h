@@ -33,6 +33,7 @@ public:
     void zeilenvorschub();
     //--------------------------------------set:
     void add_leerzeile();
+    void add_zeile(text_zw zeile);
     void add_punkt(punkt3d p);
     void add_punkt(punkt3d p, uint index);
     void add_strecke(strecke s);
@@ -52,6 +53,8 @@ public:
     double min_x();
     double max_y();
     double min_y();
+    //---------------------------------------------Manipulationen:
+    void edit(uint index, text_zw neuer_text);
 
 private:
     void add(text_zw geometrie, uint index);    
