@@ -422,7 +422,7 @@ bool trimmen(strecke *s1, strecke *s2)
 {
     //Diese Funktion ist für Innenecken gedacht
     //Trimmt den Endpunkt von s1 und den Startpunkt von s2
-    //wenn die Operation erfolgreich ausgeführt werden kann gibt die Fuiintion true zurück
+    //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
     //wenn sich die Strechen nicht schneiden gibt die Funktion false zurück
 
     // Richtungsvektoren
@@ -482,6 +482,155 @@ bool trimmen(strecke *s1, strecke *s2)
     // Wenn der Schnittpunkt außerhalb liegt (Außenecke / Lücke),
     // liefern wir false zurück, damit später ein Bogen eingefügt werden kann.
 }
+bool trimmen(strecke *s1, bogen *b2)
+{
+    //Trimmt den Endpunkt von s1 und den Startpunkt von b2
+    //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
+    //wenn sich die Geometrien nicht schneiden gibt die Funktion false zurück
+
+    // 1. Grunddaten (Winkel sind in Radiant)
+    punkt3d m = b2->mipu();
+    double r  = b2->rad();
+    double swi_alt = b2->swi(); // Startwinkel in Radiant
+
+    double x1 = s1->stapu().x();
+    double y1 = s1->stapu().y();
+    double dx = s1->endpu().x() - x1;
+    double dy = s1->endpu().y() - y1;
+    double d_len = std::sqrt(dx * dx + dy * dy);
+
+    if (d_len < 1e-7) return false;
+
+    // 2. Quadratische Gleichung (Abstand t vom Startpunkt s1)
+    double ux = dx / d_len;
+    double uy = dy / d_len;
+    double ox = x1 - m.x();
+    double oy = y1 - m.y();
+
+    double B = 2 * (ox * ux + oy * uy);
+    double C = ox * ox + oy * oy - r * r;
+    double diskriminante = B * B - 4 * C;
+
+    double t_final;
+    if (diskriminante < 0)
+    {
+        // Lotfußpunkt als bestmögliche Annäherung, falls kein Schnittpunkt existiert
+        t_final = -(ox * ux + oy * uy);
+    } else
+    {
+        double sqrtD = std::sqrt(diskriminante);
+        double t1 = (-B + sqrtD) / 2.0;
+        double t2 = (-B - sqrtD) / 2.0;
+
+        // Wir berechnen die Winkel für beide t-Lösungen in Radiant
+        auto get_w = [&](double t)
+        {
+            return std::atan2(y1 + t * uy - m.y(), x1 + t * ux - m.x());
+        };
+
+        double w1 = get_w(t1);
+        double w2 = get_w(t2);
+
+        // Wir wählen den t-Wert, dessen Winkel näher am ursprünglichen Startwinkel liegt.
+        // Die Normalisierung ist hier zwingend erforderlich!
+        if (std::abs(normalize_radiant(w2 - swi_alt)) < std::abs(normalize_radiant(w1 - swi_alt)))
+        {
+            t_final = t2;
+        } else
+        {
+            t_final = t1;
+        }
+    }
+
+    // 3. Geometrie aktualisieren
+    double w_final = std::atan2(y1 + t_final * uy - m.y(), x1 + t_final * ux - m.x());
+
+    // Nur den Startwinkel des Bogens anpassen
+    b2->set_swi(w_final);
+
+    // Strecke exakt auf den neuen Bogenstartpunkt setzen (Erzwingt Punktgleichheit)
+    s1->set_endpu(b2->spu());
+
+    return true;
+}
+bool trimmen(bogen *b1, strecke *s2)
+{
+    //Trimmt den Endpunkt von b1 und den Startpunkt von s1
+    //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
+    //wenn sich die Geometrien nicht schneiden gibt die Funktion false zurück
+
+    // 1. Daten des Bogens (Mittelpunkt und Radius bleiben fix)
+    punkt3d m = b1->mipu();
+    double r  = b1->rad();
+    double ewi_alt = b1->ewi(); // Der aktuelle Endwinkel in Radiant
+
+    // 2. Daten der Folgestrecke s2
+    double x3 = s2->stapu().x();
+    double y3 = s2->stapu().y();
+    double dx = s2->endpu().x() - x3;
+    double dy = s2->endpu().y() - y3;
+    double d_len = std::sqrt(dx * dx + dy * dy);
+
+    if (d_len < 1e-7) return false;
+
+    // 3. Quadratische Gleichung Gerade-Kreis
+    double ux = dx / d_len;
+    double uy = dy / d_len;
+    double ox = x3 - m.x();
+    double oy = y3 - m.y();
+
+    double B = 2 * (ox * ux + oy * uy);
+    double C = ox * ox + oy * oy - r * r;
+    double diskriminante = B * B - 4 * C;
+
+    double t_final;
+    if (diskriminante < 0)
+    {
+        // Lotfußpunkt als bestmögliche Annäherung
+        t_final = -(ox * ux + oy * uy);
+    } else
+    {
+        double sqrtD = std::sqrt(diskriminante);
+        double t1 = (-B + sqrtD) / 2.0;
+        double t2 = (-B - sqrtD) / 2.0;
+
+        // Wir wählen den t-Wert, dessen Winkel näher am ursprünglichen Endwinkel (ewi_alt) liegt
+        auto get_w = [&](double t)
+        {
+            return std::atan2(y3 + t * uy - m.y(), x3 + t * ux - m.x());
+        };
+
+        double w1 = get_w(t1);
+        double w2 = get_w(t2);
+
+        // Vergleich mit Normalisierung (Radiant)
+        if (std::abs(normalize_radiant(w2 - ewi_alt)) < std::abs(normalize_radiant(w1 - ewi_alt)))
+        {
+            t_final = t2;
+        } else
+        {
+            t_final = t1;
+        }
+    }
+
+    // 4. Geometrie aktualisieren
+    double w_final = std::atan2(y3 + t_final * uy - m.y(), x3 + t_final * ux - m.x());
+
+    // Nur den ENDWINKEL des ersten Bogens anpassen
+    b1->set_ewi(w_final);
+
+    // Den STARTPUNKT der Strecke exakt auf das neue Bogenende setzen (Punktgleichheit)
+    s2->set_stapu(b1->epu());
+
+    return true;
+}
+double normalize_radiant(double a)
+{
+    while (a > M_PI)  a -= 2.0 * M_PI;
+    while (a < -M_PI) a += 2.0 * M_PI;
+    return a;
+}
+
 bogen verbindungsbogen(strecke s1, strecke s2)
 {
     //Diese funkttion ist für Außenecken gedacht

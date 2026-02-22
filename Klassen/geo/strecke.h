@@ -84,6 +84,9 @@ private:
 //--------------------------------------------------------
 //Funktionen außerhalb der Klasse:
 bool trimmen(strecke *s1, strecke *s2);
+bool trimmen(strecke *s1, bogen *b2);
+bool trimmen(bogen *b1, strecke *s2);
+double normalize_radiant(double a);
 bogen verbindungsbogen(strecke s1, strecke s2);
 
 #endif // STRECKE_H

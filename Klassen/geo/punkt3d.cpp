@@ -135,6 +135,7 @@ punkt3d operator /(punkt3d p1, double divisor)
 
 bool operator ==(punkt3d p1, punkt3d p2)
 {
+    /*
     bool returnbool = true;
     if(p1.x() != p2.x())
     {
@@ -149,10 +150,20 @@ bool operator ==(punkt3d p1, punkt3d p2)
         returnbool = false;
     }
     return returnbool;
+    */
+    const double eps = 0.0001; // Toleranz für den Vergleich
+
+    // Prüfen, ob der Abstand in jeder Achse kleiner als das Epsilon ist
+    if(std::abs(p1.x() - p2.x()) > eps) return false;
+    if(std::abs(p1.y() - p2.y()) > eps) return false;
+    if(std::abs(p1.z() - p2.z()) > eps) return false;
+
+    return true;
 }
 
 bool operator !=(punkt3d p1, punkt3d p2)
 {
+    /*
     bool returnbool = true;
     if(p1.x() != p2.x())
     {
@@ -173,6 +184,8 @@ bool operator !=(punkt3d p1, punkt3d p2)
     {
         return true;
     }
+    */
+    return !(p1 == p2);
 }
 
 

@@ -2564,14 +2564,31 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                                     }
                                 }else//if(element.text().contains(BOGEN))
                                 {
-                                    getrimmtes.add_strecke(s1);
-                                    //bogen b2;
-                                    //b2.set_text(element);
-                                    //if(b2.rad() > 0)
-                                    //{
-                                    //der Bogen ist gültig und kann in der nächsten iteration der for-schleife
-                                    //so wie er ist übernommen werden
-                                    //}
+                                    bogen b2;
+                                    b2.set_text(element_nach);
+                                    if(b2.rad() > 0)
+                                    {
+                                        if(s1.endpu() == b2.spu())
+                                        {
+                                            getrimmtes.add_strecke(s1);
+                                        }else if(trimmen(&s1, &b2))
+                                        {
+                                            s1.set_farbe(FARBE_GELB);
+                                            b2.set_farbe(FARBE_GELB);
+                                            getrimmtes.add_strecke(s1);
+                                            spalten_nach.edit(0, b2.text());
+                                            parallele.edit(i+1, spalten_nach);
+                                        }else
+                                        {
+                                            strecke s3;
+                                            s3.set_farbe(FARBE_GELB);
+                                            getrimmtes.add_strecke(s1);
+                                            getrimmtes.add_strecke(s3);
+                                        }
+                                    }else
+                                    {
+                                        getrimmtes.add_strecke(s1);
+                                    }
                                 }
                             }
                         }
@@ -2583,6 +2600,22 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                         if(b1.rad() > 0)
                         {
                             getrimmtes.add_bogen(b1);
+
+
+                            //hier muss noch das nachfolgende Element geprüft werden und ggf getrimmt werden!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }else
                         {
                             getrimmtes.add_leerzeile();
