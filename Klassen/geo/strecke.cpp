@@ -488,11 +488,7 @@ bool trimmen(strecke *s1, bogen *b2)
     //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
     //wenn sich die Geometrien nicht schneiden gibt die Funktion false zurück
 
-    // 1. Grunddaten (Winkel sind in Radiant)
-    punkt3d m = b2->mipu();
-    double r  = b2->rad();
-    double swi_alt = b2->swi(); // Startwinkel in Radiant
-
+    // 1. Daten der Geometrien extrahieren
     double x1 = s1->stapu().x();
     double y1 = s1->stapu().y();
     double dx = s1->endpu().x() - x1;
@@ -501,20 +497,26 @@ bool trimmen(strecke *s1, bogen *b2)
 
     if (d_len < 1e-7) return false;
 
-    // 2. Quadratische Gleichung (Abstand t vom Startpunkt s1)
+    // Daten des Bogens (Mittelpunkt, Radius, Richtung und ENDPUNKT sichern)
+    punkt3d m_alt = b2->mipu();
+    double r_alt = b2->rad();
+    bool uzs_alt = b2->uzs();
+    punkt3d ep_alt = b2->epu(); // Das Ende des Bogens darf sich nicht ändern!
+
+    // 2. Schnittpunkt Gerade-Kreis (unendliche Geometrie)
     double ux = dx / d_len;
     double uy = dy / d_len;
-    double ox = x1 - m.x();
-    double oy = y1 - m.y();
+    double ox = x1 - m_alt.x();
+    double oy = y1 - m_alt.y();
 
     double B = 2 * (ox * ux + oy * uy);
-    double C = ox * ox + oy * oy - r * r;
+    double C = ox * ox + oy * oy - r_alt * r_alt;
     double diskriminante = B * B - 4 * C;
 
     double t_final;
     if (diskriminante < 0)
     {
-        // Lotfußpunkt als bestmögliche Annäherung, falls kein Schnittpunkt existiert
+        // Fallback: Lotfußpunkt (nächste Annäherung)
         t_final = -(ox * ux + oy * uy);
     } else
     {
@@ -522,34 +524,42 @@ bool trimmen(strecke *s1, bogen *b2)
         double t1 = (-B + sqrtD) / 2.0;
         double t2 = (-B - sqrtD) / 2.0;
 
-        // Wir berechnen die Winkel für beide t-Lösungen in Radiant
-        auto get_w = [&](double t)
+        // Wir wählen den Punkt, der dem ursprünglichen Bogenstart am nächsten liegt
+        auto dist_sq = [&](double t)
         {
-            return std::atan2(y1 + t * uy - m.y(), x1 + t * ux - m.x());
+            double px = x1 + t * ux;
+            double py = y1 + t * uy;
+            return std::pow(px - b2->spu().x(), 2) + std::pow(py - b2->spu().y(), 2);
         };
-
-        double w1 = get_w(t1);
-        double w2 = get_w(t2);
-
-        // Wir wählen den t-Wert, dessen Winkel näher am ursprünglichen Startwinkel liegt.
-        // Die Normalisierung ist hier zwingend erforderlich!
-        if (std::abs(normalize_radiant(w2 - swi_alt)) < std::abs(normalize_radiant(w1 - swi_alt)))
-        {
-            t_final = t2;
-        } else
-        {
-            t_final = t1;
-        }
+        t_final = (dist_sq(t1) < dist_sq(t2)) ? t1 : t2;
     }
 
-    // 3. Geometrie aktualisieren
-    double w_final = std::atan2(y1 + t_final * uy - m.y(), x1 + t_final * ux - m.x());
+    // 3. Schnittpunkt berechnen und auf die Kreisbahn projizieren
+    // Das ist entscheidend, damit set_bogen() den Radius/Mittelpunkt nicht verändert!
+    double px = x1 + t_final * ux;
+    double py = y1 + t_final * uy;
+    double dist_m = std::sqrt(std::pow(px - m_alt.x(), 2) + std::pow(py - m_alt.y(), 2));
 
-    // Nur den Startwinkel des Bogens anpassen
-    b2->set_swi(w_final);
+    if (dist_m > 1e-9)
+    {
+        px = m_alt.x() + (px - m_alt.x()) * (r_alt / dist_m);
+        py = m_alt.y() + (py - m_alt.y()) * (r_alt / dist_m);
+    }
+    punkt3d schnittp(px, py, s1->endpu().z());
 
-    // Strecke exakt auf den neuen Bogenstartpunkt setzen (Erzwingt Punktgleichheit)
-    s1->set_endpu(b2->spu());
+    // 4. Plausibilitäts-Check (Verhindert 180° Sprünge auf die Rückseite)
+    double d_alt_start = std::sqrt(std::pow(px - b2->spu().x(), 2) + std::pow(py - b2->spu().y(), 2));
+    double d_alt_ende = std::sqrt(std::pow(px - ep_alt.x(), 2) + std::pow(py - ep_alt.y(), 2));
+
+    // Wenn der neue Startpunkt näher am Ende als am alten Start liegt, ist das Trimmen unlogisch
+    if (d_alt_ende < d_alt_start && d_alt_ende < r_alt) return false;
+
+    // 5. Zuweisung über die interne Logik
+    // Wir setzen den Endpunkt der Strecke
+    s1->set_endpu(schnittp);
+
+    // Wir setzen den Bogen neu (Start = Schnittpunkt, Ende = bleibt gleich)
+    b2->set_bogen(schnittp, ep_alt, r_alt, uzs_alt);
 
     return true;
 }
@@ -559,12 +569,12 @@ bool trimmen(bogen *b1, strecke *s2)
     //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
     //wenn sich die Geometrien nicht schneiden gibt die Funktion false zurück
 
-    // 1. Daten des Bogens (Mittelpunkt und Radius bleiben fix)
-    punkt3d m = b1->mipu();
-    double r  = b1->rad();
-    double ewi_alt = b1->ewi(); // Der aktuelle Endwinkel in Radiant
+    punkt3d m_alt = b1->mipu();
+    double r_alt = b1->rad();
+    bool uzs_alt = b1->uzs();
+    punkt3d sp_alt = b1->spu(); // Der Startpunkt muss UNBEDINGT fix bleiben!
 
-    // 2. Daten der Folgestrecke s2
+    // 1. Daten der Folgestrecke s2
     double x3 = s2->stapu().x();
     double y3 = s2->stapu().y();
     double dx = s2->endpu().x() - x3;
@@ -573,54 +583,122 @@ bool trimmen(bogen *b1, strecke *s2)
 
     if (d_len < 1e-7) return false;
 
-    // 3. Quadratische Gleichung Gerade-Kreis
+    // 2. Schnittpunkt Gerade-Kreis berechnen
     double ux = dx / d_len;
     double uy = dy / d_len;
-    double ox = x3 - m.x();
-    double oy = y3 - m.y();
-
+    double ox = x3 - m_alt.x();
+    double oy = y3 - m_alt.y();
     double B = 2 * (ox * ux + oy * uy);
-    double C = ox * ox + oy * oy - r * r;
+    double C = ox * ox + oy * oy - r_alt * r_alt;
     double diskriminante = B * B - 4 * C;
 
     double t_final;
     if (diskriminante < 0)
     {
-        // Lotfußpunkt als bestmögliche Annäherung
-        t_final = -(ox * ux + oy * uy);
+        t_final = -(ox * ux + oy * uy); // Lotfußpunkt
     } else
     {
         double sqrtD = std::sqrt(diskriminante);
         double t1 = (-B + sqrtD) / 2.0;
         double t2 = (-B - sqrtD) / 2.0;
 
-        // Wir wählen den t-Wert, dessen Winkel näher am ursprünglichen Endwinkel (ewi_alt) liegt
-        auto get_w = [&](double t)
+        // Wir wählen den Punkt, der näher am ursprünglichen Endpunkt des Bogens liegt
+        auto dist_sq = [&](double t)
         {
-            return std::atan2(y3 + t * uy - m.y(), x3 + t * ux - m.x());
+            double px = x3 + t * ux;
+            double py = y3 + t * uy;
+            return std::pow(px - b1->epu().x(), 2) + std::pow(py - b1->epu().y(), 2);
         };
-
-        double w1 = get_w(t1);
-        double w2 = get_w(t2);
-
-        // Vergleich mit Normalisierung (Radiant)
-        if (std::abs(normalize_radiant(w2 - ewi_alt)) < std::abs(normalize_radiant(w1 - ewi_alt)))
-        {
-            t_final = t2;
-        } else
-        {
-            t_final = t1;
-        }
+        t_final = (dist_sq(t1) < dist_sq(t2)) ? t1 : t2;
     }
 
-    // 4. Geometrie aktualisieren
-    double w_final = std::atan2(y3 + t_final * uy - m.y(), x3 + t_final * ux - m.x());
+    // 3. Schnittpunkt finalisieren und auf Kreisbahn zwingen
+    double px = x3 + t_final * ux;
+    double py = y3 + t_final * uy;
+    double dist_m = std::sqrt(std::pow(px - m_alt.x(), 2) + std::pow(py - m_alt.y(), 2));
+    if (dist_m > 1e-9)
+    {
+        px = m_alt.x() + (px - m_alt.x()) * (r_alt / dist_m);
+        py = m_alt.y() + (py - m_alt.y()) * (r_alt / dist_m);
+    }
+    punkt3d schnittp(px, py, s2->stapu().z());
 
-    // Nur den ENDWINKEL des ersten Bogens anpassen
-    b1->set_ewi(w_final);
+    // 4. Konsistenz-Check: Hat der Bogen die Richtung gewechselt?
+    // Wenn der neue Endpunkt näher am Startpunkt als am alten Endpunkt liegt,
+    // ist der Bogen vermutlich "umgeklappt".
+    double d_alt_ende = std::sqrt(std::pow(px - b1->epu().x(), 2) + std::pow(py - b1->epu().y(), 2));
+    double d_alt_start = std::sqrt(std::pow(px - sp_alt.x(), 2) + std::pow(py - sp_alt.y(), 2));
+    if (d_alt_start < d_alt_ende && d_alt_start < r_alt) return false;
 
-    // Den STARTPUNKT der Strecke exakt auf das neue Bogenende setzen (Punktgleichheit)
+    // 5. GEOMETRIE AKTUALISIEREN
+    // Wir nutzen set_bogen, um alle internen Winkel und Member sauber zu setzen.
+    // Parameter: Startpunkt(bleibt), neuer Endpunkt(Schnittpunkt), Radius, Richtung
+    b1->set_bogen(sp_alt, schnittp, r_alt, uzs_alt);
+
+    // Jetzt die Strecke exakt an das neue Bogenende hängen
     s2->set_stapu(b1->epu());
+
+    return true;
+}
+bool trimmen(bogen *b1, bogen *b2)
+{
+    // 1. Daten der beiden Bögen sichern
+    punkt3d m1 = b1->mipu();
+    double r1  = b1->rad();
+    bool uzs1  = b1->uzs();
+    punkt3d sp1 = b1->spu(); // Start b1 bleibt fix
+
+    punkt3d m2 = b2->mipu();
+    double r2  = b2->rad();
+    bool uzs2  = b2->uzs();
+    punkt3d ep2 = b2->epu(); // Ende b2 bleibt fix
+
+    // 2. Abstand der Mittelpunkte berechnen
+    double dx = m2.x() - m1.x();
+    double dy = m2.y() - m1.y();
+    double d = std::sqrt(dx * dx + dy * dy);
+
+    // 3. Prüfen, ob Schnittpunkte existieren
+    if (d > r1 + r2 || d < std::abs(r1 - r2) || d < 1e-9) {
+        // Kreise liegen zu weit auseinander, ineinander oder sind konzentrisch
+        return false;
+    }
+
+    // 4. Schnittpunkt zweier Kreise berechnen (Standardformel)
+    double a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+    double h = std::sqrt(std::max(0.0, r1 * r1 - a * a));
+
+    // Punkt P2 ist der Fußpunkt auf der Verbindungslinie der Mittelpunkte
+    double x2 = m1.x() + a * dx / d;
+    double y2 = m1.y() + a * dy / d;
+
+    // Die zwei möglichen Schnittpunkte S1 und S2
+    double s1x = x2 + h * dy / d;
+    double s1y = y2 - h * dx / d;
+    double s2x = x2 - h * dy / d;
+    double s2y = y2 + h * dx / d;
+
+    // 5. Den logischen Schnittpunkt auswählen
+    // Wir nehmen den, der näher am ursprünglichen Kontaktpunkt (Ende b1 / Start b2) liegt
+    auto dist_sq = [&](double px, double py) {
+        return std::pow(px - b1->epu().x(), 2) + std::pow(py - b1->epu().y(), 2);
+    };
+
+    double final_x, final_y;
+    if (dist_sq(s1x, s1y) < dist_sq(s2x, s2y)) {
+        final_x = s1x; final_y = s1y;
+    } else {
+        final_x = s2x; final_y = s2y;
+    }
+
+    punkt3d schnittp(final_x, final_y, b1->epu().z());
+
+    // 6. Geometrien über set_bogen aktualisieren
+    // Bogen 1: Start bleibt, Ende wird Schnittpunkt
+    b1->set_bogen(sp1, schnittp, r1, uzs1);
+
+    // Bogen 2: Start wird Schnittpunkt, Ende bleibt
+    b2->set_bogen(schnittp, ep2, r2, uzs2);
 
     return true;
 }

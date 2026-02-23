@@ -32,9 +32,11 @@ public:
     double rad();
     QString rad_QString();
     double swi();
-    QString swi_QString();
+    QString swi_QString();    
     double ewi();
     QString ewi_QString();
+    double swi_mit_uzs();
+    double ewi_mit_uzs();
     punkt3d spu();
     punkt3d epu();
     double abst(punkt3d p);

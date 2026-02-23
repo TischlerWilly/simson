@@ -351,6 +351,30 @@ QString bogen::ewi_QString()
 {
     return double_to_qstring(ewi());
 }
+double bogen::swi_mit_uzs()
+{
+    if (uzs())
+    {
+        // Im Uhrzeigersinn: Start ist der größere Winkel
+        return (Swi > Ewi) ? Swi : Ewi;
+    } else
+    {
+        // Gegen Uhrzeigersinn: Start ist der kleinere Winkel
+        return (Swi < Ewi) ? Swi : Ewi;
+    }
+}
+double bogen::ewi_mit_uzs()
+{
+    if (uzs())
+    {
+        // Im Uhrzeigersinn: Ende ist der kleinere Winkel
+        return (Swi < Ewi) ? Swi : Ewi;
+    } else
+    {
+        // Gegen Uhrzeigersinn: Ende ist der größere Winkel
+        return (Swi > Ewi) ? Swi : Ewi;
+    }
+}
 punkt3d bogen::spu()
 {
     double startAngle;

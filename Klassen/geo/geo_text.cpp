@@ -2466,6 +2466,7 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                                 {
                                     if(akt_zeile_ist_konturende)
                                     {
+                                        getrimmtes.add_strecke(s1);
                                         getrimmtes.add_strecke(s2);
                                     }else
                                     {
@@ -2495,7 +2496,7 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                                 }
                             }else//if(element.text().contains(BOGEN))
                             {
-                                getrimmtes.add_strecke(s1);
+                                getrimmtes.add_strecke(s1);//Kann hier nur der Abfahrweg sein, desshalb kein trimmen
                                 if(akt_zeile_ist_konturende)
                                 {
                                     bogen b2;
@@ -2573,15 +2574,12 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                                             getrimmtes.add_strecke(s1);
                                         }else if(trimmen(&s1, &b2))
                                         {
-                                            s1.set_farbe(FARBE_GELB);
-                                            b2.set_farbe(FARBE_GELB);
                                             getrimmtes.add_strecke(s1);
                                             spalten_nach.edit(0, b2.text());
                                             parallele.edit(i+1, spalten_nach);
                                         }else
                                         {
                                             strecke s3;
-                                            s3.set_farbe(FARBE_GELB);
                                             getrimmtes.add_strecke(s1);
                                             getrimmtes.add_strecke(s3);
                                         }
@@ -2597,26 +2595,145 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                     {
                         bogen b1;//aktuelles Element
                         b1.set_text(element);
-                        if(b1.rad() > 0)
+                        bool akt_zeile_ist_konturende = false;
+                        if(i == bearb.count())
                         {
-                            getrimmtes.add_bogen(b1);
+                            akt_zeile_ist_konturende = true;
+                        }
+                        if(i < bearb.count())
+                        {
+                            text_zw folzei;//Folgezeile
+                            folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                            if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
+                            {
+                                akt_zeile_ist_konturende = true;
+                            }
+                        }
+                        //nächstes Element:
+                        if(spalten.count() > 1)
+                        {
+                            element = spalten.at(1);
+                            if(element.contains(STRECKE))
+                            {
+                                strecke s2;
+                                s2.set_text(element);
 
-
-                            //hier muss noch das nachfolgende Element geprüft werden und ggf getrimmt werden!!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        }else
+                                if(b1.epu() == s2.stapu())//Punkt passen bereits zusammen
+                                {
+                                    getrimmtes.add_bogen(b1);
+                                    if(akt_zeile_ist_konturende)
+                                    {
+                                        getrimmtes.add_strecke(s2);
+                                    }
+                                }else if(trimmen(&b1, &s2))
+                                {
+                                    if(b1.rad() > 0)
+                                    {
+                                        getrimmtes.add_bogen(b1);
+                                    }
+                                    if(akt_zeile_ist_konturende)
+                                    {
+                                        getrimmtes.add_strecke(s2);
+                                    }else
+                                    {
+                                        spalten.edit(1, s2.text());
+                                        parallele.edit(i, spalten);
+                                    }
+                                }
+                            }else//if(element.text().contains(BOGEN))
+                            {
+                                //Kann hier nur der Abfahrweg sein, desshalb kein trimmen
+                                if(b1.rad() > 0)
+                                {
+                                    getrimmtes.add_bogen(b1);
+                                }
+                                if(akt_zeile_ist_konturende)
+                                {
+                                    bogen b2;
+                                    b2.set_text(element);
+                                    if(b2.rad() > 0)
+                                    {
+                                        getrimmtes.add_bogen(b2);
+                                    }
+                                }
+                            }
+                        }else //in der Folgezeile suchen
+                        {
+                            bool ist_konturende = false;
+                            if(i+1 == bearb.count())
+                            {
+                                ist_konturende = true;
+                            }
+                            if(i+1 < bearb.count())
+                            {
+                                text_zw folzei;//Folgezeile
+                                folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
+                                if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
+                                {
+                                    ist_konturende = true;
+                                }
+                            }
+                            if(ist_konturende == true)
+                            {
+                                if(b1.rad() > 0)
+                                {
+                                    getrimmtes.add_bogen(b1);
+                                }else
+                                {
+                                    getrimmtes.add_leerzeile();
+                                }
+                            }else
+                            {
+                                text_zw spalten_nach = parallele.at(i+1);//geodaten von parallele aus nächster Zeile holen
+                                QString element_nach = spalten_nach.at(0);
+                                if(element_nach.contains(STRECKE))
+                                {
+                                    strecke s2;
+                                    s2.set_text(element_nach);
+                                    if(b1.epu() == s2.stapu())//Punkt passen bereits zusammen
+                                    {
+                                        getrimmtes.add_bogen(b1);
+                                    }else if(trimmen(&b1, &s2))//Innenecke
+                                    {
+                                        if(b1.rad() > 0)
+                                        {
+                                            getrimmtes.add_bogen(b1);
+                                        }
+                                        spalten_nach.edit(0, s2.text());
+                                        parallele.edit(i+1, spalten_nach);
+                                    }
+                                }else//if(element.text().contains(BOGEN))
+                                {
+                                    bogen b2;
+                                    b2.set_text(element_nach);
+                                    if(b2.rad() > 0)
+                                    {
+                                        if(b1.epu() == b2.spu())
+                                        {
+                                            getrimmtes.add_bogen(b1);
+                                        }//else if(trimmen(&b1, &b2))//sollte bei 2 Bögen nicht vorkommen
+                                        {
+                                            getrimmtes.add_bogen(b1);
+                                            spalten_nach.edit(0, b2.text());
+                                            parallele.edit(i+1, spalten_nach);
+                                        }//else//sollte bei 2 Bögen nicht vorkommen
+                                        {
+                                            //strecke s3;
+                                            //s3.set_farbe(FARBE_GELB);
+                                            //getrimmtes.add_strecke(s1);
+                                            //getrimmtes.add_strecke(s3);
+                                        }
+                                    }else
+                                    {
+                                        if(b1.rad() > 0)
+                                        {
+                                            getrimmtes.add_bogen(b1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(getrimmtes.at(getrimmtes.akt_index()).text().isEmpty())
                         {
                             getrimmtes.add_leerzeile();
                         }
