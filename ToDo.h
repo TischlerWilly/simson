@@ -1,13 +1,15 @@
 #ifndef TODO_H
 #define TODO_H
 
-#define PROGRAMMVERSION "Simson V1-2026.02.23"
+#define PROGRAMMVERSION "Simson V1-2026.02.24"
 
 /*
 
 --> G-Code export emc2
     > fkon
         >> geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm)
+            >>> bool ist_zu_kurz(QString geo_text) <-- fuktioniert noch nicht für strecken!!!!
+            >> wenn anfahrweg "nicht definiert" ist bekomen wir indexfehler
         >> Einstellung für Mainwindow hinzufügen um Leitlinien nur optional anzuzeigen
             >>> void vorschau::update_cad() >> optional: for(uint i=0;i<LeitlinieFkon.count();i++)
 

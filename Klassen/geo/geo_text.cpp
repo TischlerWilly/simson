@@ -2402,357 +2402,103 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
     getrimmtes.add_leerzeile();//Werkstück
     getrimmtes.zeilenvorschub();
     QString bezug;
-    for(uint i=0; i<bearb.count() ;i++)
+    for (uint i = 0; i < bearb.count(); i++)
     {
-        text_zw zeile;
-        zeile.set_text(bearb.at(i),TRENNZ_BEARB_PARAM);
-        if(  zeile.at(0) == BEARBART_FRAESERAUFRUF  ||
-             zeile.at(0) == BEARBART_FRAESERGERADE  ||
-             zeile.at(0) == BEARBART_FRAESERBOGEN    )
-        {
-            if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
-            {
-                fraeseraufruf fa(zeile.text());
-                bezug = fa.bezug();
-                letzter_fa = fa;
-                radkor = fa.radkor();
-                QString wkznr = fa.wkznum();
-                fraeserdm = wkzm.dm(wkznr).toDouble();
-            }
-            if(bezug == WST_BEZUG_OBSEI)
-            {
-                if(radkor == FRKOR_M)
-                {
-                    getrimmtes.add_zeile(parallele.at(i));
-                }else
-                {
-                    text_zw spalten = parallele.at(i);//geodaten von parallele aus aktueller Zeile holen
-                    QString element = spalten.at(0);
-                    if(element.contains(STRECKE))
-                    {
-                        strecke s1;//aktuelles Element
-                        s1.set_text(element);
-                        bool akt_zeile_ist_konturende = false;
-                        if(i == bearb.count())
-                        {
-                            akt_zeile_ist_konturende = true;
-                        }
-                        if(i < bearb.count())
-                        {
-                            text_zw folzei;//Folgezeile
-                            folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
-                            if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
-                            {
-                                akt_zeile_ist_konturende = true;
-                            }
-                        }
-
-                        //nächstes Element:
-                        if(spalten.count() > 1)
-                        {
-                            element = spalten.at(1);
-                            if(element.contains(STRECKE))
-                            {
-                                strecke s2;
-                                s2.set_text(element);
-                                if(s1.endpu() == s2.stapu())//Punkt passen bereits zusammen
-                                {
-                                    getrimmtes.add_strecke(s1);
-                                    if(akt_zeile_ist_konturende)
-                                    {
-                                        getrimmtes.add_strecke(s2);
-                                    }
-                                }else if(trimmen(&s1, &s2))//Innenecke
-                                {
-                                    if(akt_zeile_ist_konturende)
-                                    {
-                                        getrimmtes.add_strecke(s1);
-                                        getrimmtes.add_strecke(s2);
-                                    }else
-                                    {
-                                        getrimmtes.add_strecke(s1);
-                                        spalten.edit(1, s2.text());
-                                        parallele.edit(i, spalten);
-                                    }
-                                }else//Außenecke
-                                {
-                                    getrimmtes.add_strecke(s1);
-                                    bogen b;
-                                    b = verbindungsbogen(s1, s2);
-                                    if(b.rad() > 0)
-                                    {
-                                        getrimmtes.add_bogen(b);
-                                    }else//die Strecken könnten parallel sein
-                                    {
-                                        //dann müssten s1.endpu() und s2.stapu() jedoch gleich sein
-                                        if(s1.endpu() != s2.stapu())
-                                        {
-                                            strecke s3;
-                                            s3.set_stapu(s1.endpu());
-                                            s3.set_endpu(s2.stapu());
-                                            getrimmtes.add_strecke(s3);
-                                        }
-                                    }
-                                }
-                            }else//if(element.text().contains(BOGEN))
-                            {
-                                getrimmtes.add_strecke(s1);//Kann hier nur der Abfahrweg sein, desshalb kein trimmen
-                                if(akt_zeile_ist_konturende)
-                                {
-                                    bogen b2;
-                                    b2.set_text(element);
-                                    if(b2.rad() > 0)
-                                    {
-                                        getrimmtes.add_bogen(b2);
-                                    }
-                                }
-                            }
-                        }else //in der Folgezeile suchen
-                        {
-                            bool ist_konturende = false;
-                            if(i+1 == bearb.count())
-                            {
-                                ist_konturende = true;
-                            }
-                            if(i+1 < bearb.count())
-                            {
-                                text_zw folzei;//Folgezeile
-                                folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
-                                if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
-                                {
-                                    ist_konturende = true;
-                                }
-                            }
-                            if(ist_konturende == true)
-                            {
-                                getrimmtes.add_strecke(s1);
-                            }else
-                            {
-                                text_zw spalten_nach = parallele.at(i+1);//geodaten von parallele aus nächster Zeile holen
-                                QString element_nach = spalten_nach.at(0);
-                                if(element_nach.contains(STRECKE))
-                                {
-                                    strecke s2;
-                                    s2.set_text(element_nach);
-                                    if(s1.endpu() == s2.stapu())//Punkt passen bereits zusammen
-                                    {
-                                        getrimmtes.add_strecke(s1);
-                                    }else if(trimmen(&s1, &s2))//Innenecke
-                                    {
-                                        getrimmtes.add_strecke(s1);
-                                        spalten_nach.edit(0, s2.text());
-                                        parallele.edit(i+1, spalten_nach);
-                                    }else//Außenecke
-                                    {
-                                        getrimmtes.add_strecke(s1);
-                                        bogen b;
-                                        b = verbindungsbogen(s1, s2);
-                                        if(b.rad() > 0)
-                                        {
-                                            getrimmtes.add_bogen(b);
-                                        }else//die Strecken könnten parallel sein
-                                        {
-                                            //dann müssten s1.endpu() und s2.stapu() jedoch gleich sein
-                                            if(s1.endpu() != s2.stapu())
-                                            {
-                                                strecke s3;
-                                                s3.set_farbe(FARBE_GRUEN);
-                                                s3.set_stapu(s1.endpu());
-                                                s3.set_endpu(s2.stapu());
-                                                getrimmtes.add_strecke(s3);
-                                            }
-                                        }
-                                    }
-                                }else//if(element.text().contains(BOGEN))
-                                {
-                                    bogen b2;
-                                    b2.set_text(element_nach);
-                                    if(b2.rad() > 0)
-                                    {
-                                        if(s1.endpu() == b2.spu())
-                                        {
-                                            getrimmtes.add_strecke(s1);
-                                        }else if(trimmen(&s1, &b2))
-                                        {
-                                            getrimmtes.add_strecke(s1);
-                                            spalten_nach.edit(0, b2.text());
-                                            parallele.edit(i+1, spalten_nach);
-                                        }else
-                                        {
-                                            strecke s3;
-                                            getrimmtes.add_strecke(s1);
-                                            getrimmtes.add_strecke(s3);
-                                        }
-                                    }else
-                                    {
-                                        getrimmtes.add_strecke(s1);
-                                    }
-                                }
-                            }
-                        }
-                        //Prüfen ob die aktuelle Zeile das Konturende ist:
-                    }else//if(element.text().contains(BOGEN))
-                    {
-                        bogen b1;//aktuelles Element
-                        b1.set_text(element);
-                        bool akt_zeile_ist_konturende = false;
-                        if(i == bearb.count())
-                        {
-                            akt_zeile_ist_konturende = true;
-                        }
-                        if(i < bearb.count())
-                        {
-                            text_zw folzei;//Folgezeile
-                            folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
-                            if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
-                            {
-                                akt_zeile_ist_konturende = true;
-                            }
-                        }
-                        //nächstes Element:
-                        if(spalten.count() > 1)
-                        {
-                            element = spalten.at(1);
-                            if(element.contains(STRECKE))
-                            {
-                                strecke s2;
-                                s2.set_text(element);
-
-                                if(b1.epu() == s2.stapu())//Punkt passen bereits zusammen
-                                {
-                                    getrimmtes.add_bogen(b1);
-                                    if(akt_zeile_ist_konturende)
-                                    {
-                                        getrimmtes.add_strecke(s2);
-                                    }
-                                }else if(trimmen(&b1, &s2))
-                                {
-                                    if(b1.rad() > 0)
-                                    {
-                                        getrimmtes.add_bogen(b1);
-                                    }
-                                    if(akt_zeile_ist_konturende)
-                                    {
-                                        getrimmtes.add_strecke(s2);
-                                    }else
-                                    {
-                                        spalten.edit(1, s2.text());
-                                        parallele.edit(i, spalten);
-                                    }
-                                }
-                            }else//if(element.text().contains(BOGEN))
-                            {
-                                //Kann hier nur der Abfahrweg sein, desshalb kein trimmen
-                                if(b1.rad() > 0)
-                                {
-                                    getrimmtes.add_bogen(b1);
-                                }
-                                if(akt_zeile_ist_konturende)
-                                {
-                                    bogen b2;
-                                    b2.set_text(element);
-                                    if(b2.rad() > 0)
-                                    {
-                                        getrimmtes.add_bogen(b2);
-                                    }
-                                }
-                            }
-                        }else //in der Folgezeile suchen
-                        {
-                            bool ist_konturende = false;
-                            if(i+1 == bearb.count())
-                            {
-                                ist_konturende = true;
-                            }
-                            if(i+1 < bearb.count())
-                            {
-                                text_zw folzei;//Folgezeile
-                                folzei.set_text(bearb.at(i+1),TRENNZ_BEARB_PARAM);
-                                if(folzei.at(0) != BEARBART_FRAESERGERADE  &&  folzei.at(0) != BEARBART_FRAESERBOGEN)
-                                {
-                                    ist_konturende = true;
-                                }
-                            }
-                            if(ist_konturende == true)
-                            {
-                                if(b1.rad() > 0)
-                                {
-                                    getrimmtes.add_bogen(b1);
-                                }else
-                                {
-                                    getrimmtes.add_leerzeile();
-                                }
-                            }else
-                            {
-                                text_zw spalten_nach = parallele.at(i+1);//geodaten von parallele aus nächster Zeile holen
-                                QString element_nach = spalten_nach.at(0);
-                                if(element_nach.contains(STRECKE))
-                                {
-                                    strecke s2;
-                                    s2.set_text(element_nach);
-                                    if(b1.epu() == s2.stapu())//Punkt passen bereits zusammen
-                                    {
-                                        getrimmtes.add_bogen(b1);
-                                    }else if(trimmen(&b1, &s2))//Innenecke
-                                    {
-                                        if(b1.rad() > 0)
-                                        {
-                                            getrimmtes.add_bogen(b1);
-                                        }
-                                        spalten_nach.edit(0, s2.text());
-                                        parallele.edit(i+1, spalten_nach);
-                                    }
-                                }else//if(element.text().contains(BOGEN))
-                                {
-                                    bogen b2;
-                                    b2.set_text(element_nach);
-                                    if(b2.rad() > 0)
-                                    {
-                                        if(b1.epu() == b2.spu())
-                                        {
-                                            getrimmtes.add_bogen(b1);
-                                        }//else if(trimmen(&b1, &b2))//sollte bei 2 Bögen nicht vorkommen
-                                        {
-                                            getrimmtes.add_bogen(b1);
-                                            spalten_nach.edit(0, b2.text());
-                                            parallele.edit(i+1, spalten_nach);
-                                        }//else//sollte bei 2 Bögen nicht vorkommen
-                                        {
-                                            //strecke s3;
-                                            //s3.set_farbe(FARBE_GELB);
-                                            //getrimmtes.add_strecke(s1);
-                                            //getrimmtes.add_strecke(s3);
-                                        }
-                                    }else
-                                    {
-                                        if(b1.rad() > 0)
-                                        {
-                                            getrimmtes.add_bogen(b1);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if(getrimmtes.at(getrimmtes.akt_index()).text().isEmpty())
-                        {
-                            getrimmtes.add_leerzeile();
-                        }
-                    }
-                }
-            }else
-            {
-                getrimmtes.add_leerzeile();
-            }
-        }else
+        getrimmtes.zeilenvorschub();
+        text_zw spalten_A = parallele.at(i);
+        if (spalten_A.count() == 0 ||  spalten_A.text().contains("leerzeile"))
         {
             getrimmtes.add_leerzeile();
+            getrimmtes.zeilenvorschub();
+            continue;
         }
-        getrimmtes.zeilenvorschub();
-    }
 
+        // 1. Prüfen, ob das aktuelle Element selbst zu kurz ist (entfällt)
+        QString geoA = spalten_A.at(spalten_A.count() - 1);
+        if (ist_zu_kurz(geoA))// Überspringe dieses i komplett
+        {
+            getrimmtes.add_leerzeile();
+            getrimmtes.zeilenvorschub();
+            continue;
+        }
+
+        // 2. Suche das nächste gültige Element in der Fräsbahn
+        int j = i + 1;
+        QString geoB = "";
+        int index_j = -1;
+
+        while (j < bearb.count())
+        {
+            text_zw zeile_B;
+            zeile_B.set_text(bearb.at(j), TRENNZ_BEARB_PARAM);
+
+            // Kette unterbrochen (z.B. durch Bohrung)?
+            if (zeile_B.at(0) != BEARBART_FRAESERGERADE &&
+                zeile_B.at(0) != BEARBART_FRAESERBOGEN) break;
+
+            text_zw spalten_B = parallele.at(j);
+            if (spalten_B.count() > 0)
+            {
+                geoB = spalten_B.at(0);
+                if (!ist_zu_kurz(geoB))
+                {
+                    index_j = j; // Gültiges Folge-Element gefunden
+                    break;
+                }
+            }
+            j++; // Element j entfällt, suche weiter beim übernächsten
+        }
+
+        // 3. Trimmen oder Verbindungsbogen
+        if (index_j != -1)
+        {
+            text_zw spalten_B_final = parallele.at(index_j);
+
+            if (trimmenUniversal(&geoA, &geoB))
+            {
+                // Innenecke: Geometrien wurden gekürzt
+                spalten_A.edit(spalten_A.count() - 1, geoA);
+                spalten_B_final.edit(0, geoB);
+                parallele.edit(i, spalten_A);
+                parallele.edit(index_j, spalten_B_final);
+                getrimmtes.add_zeile(spalten_A);
+            } else
+            {
+                // Außenecke: Verbindungsbogen einfügen
+                getrimmtes.add_zeile(spalten_A);
+                bogen vb = verbindungsbogen(geoA, geoB);
+                if (vb.rad() > 0.001)
+                {
+                    // Den Bogen am Ende der aktuellen Zeile i anfügen
+                    spalten_A.add_hi(vb.text());
+                    parallele.edit(i, spalten_A);
+                    // Wichtig: getrimmtes muss hier den Bogen auch erhalten
+                    getrimmtes.add_bogen(vb);
+                }
+            }
+        } else
+        {
+            // Letztes Element der Kette
+            getrimmtes.add_zeile(spalten_A);
+        }
+    }
     return getrimmtes;
 }
-
+bool ist_zu_kurz(QString geo_text)
+{
+    const double min_len = 0.001;
+    if (geo_text.contains(STRECKE))
+    {
+        strecke s(geo_text);
+        return s.laenge2d() < min_len;
+    } else if (geo_text.contains(BOGEN))
+    {
+        bogen b(geo_text);
+        // Ein Bogen ist zu kurz, wenn sein Spannwinkel fast 0 ist
+        return std::abs(b.spannwinkel()) < 0.0001 || b.rad() < min_len;
+    }
+    return true;
+}
 
 
 

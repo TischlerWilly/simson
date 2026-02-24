@@ -702,6 +702,43 @@ bool trimmen(bogen *b1, bogen *b2)
 
     return true;
 }
+bool trimmenUniversal(QString *geo1_text, QString *geo2_text)
+{
+    bool erfolg = false;
+    if (geo1_text->contains(STRECKE) && geo2_text->contains(STRECKE))
+    {
+        strecke s1(*geo1_text), s2(*geo2_text);
+        if ((erfolg = trimmen(&s1, &s2)))
+        {
+            *geo1_text = s1.text();
+            *geo2_text = s2.text();
+        }
+    } else if (geo1_text->contains(STRECKE) && geo2_text->contains(BOGEN))
+    {
+        strecke s1(*geo1_text); bogen b2(*geo2_text);
+        if ((erfolg = trimmen(&s1, &b2)))
+        {
+            *geo1_text = s1.text();
+            *geo2_text = b2.text();
+        }
+    } else if (geo1_text->contains(BOGEN) && geo2_text->contains(STRECKE))
+    {
+        bogen b1(*geo1_text); strecke s2(*geo2_text);
+        if ((erfolg = trimmen(&b1, &s2)))
+        {
+            *geo1_text = b1.text();
+            *geo2_text = s2.text();
+        }
+    } else if (geo1_text->contains(BOGEN) && geo2_text->contains(BOGEN)) {
+        bogen b1(*geo1_text); bogen b2(*geo2_text);
+        if ((erfolg = trimmen(&b1, &b2)))
+        {
+            *geo1_text = b1.text();
+            *geo2_text = b2.text();
+        }
+    }
+    return erfolg;
+}
 double normalize_radiant(double a)
 {
     while (a > M_PI)  a -= 2.0 * M_PI;

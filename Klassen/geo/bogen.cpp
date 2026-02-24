@@ -4,6 +4,10 @@ bogen::bogen()
 {
     Uzs = false;
 }
+bogen::bogen(QString geotext)
+{
+    set_text(geotext);
+}
 
 //---------------------------------set:
 void bogen::set_text(QString geotext)

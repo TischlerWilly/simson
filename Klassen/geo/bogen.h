@@ -11,6 +11,7 @@ class bogen : public darstellungsatribute
 {
 public:
     bogen();
+    bogen(QString geotext);
 
     //set:
     void set_text(QString geotext);
