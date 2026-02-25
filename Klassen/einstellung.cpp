@@ -3,6 +3,7 @@
 einstellung::einstellung()
 {
     Entwicklermodus             = false;
+    ZeigeLeitlinieFkon          = false;
     Verzeichnis_quelle          = "./";
     Verzeichnis_ziel_server     = "./";
     Verzeichnis_ziel_lokal      = "./";
@@ -20,6 +21,9 @@ void einstellung::set_text(QString t)
         if(spalten.at(0) == "Entwicklermodus:")
         {
             set_entwicklermodus(spalten.at(1));
+        }else if(spalten.at(0) == "ZeigeLeitlinieFkon:")
+        {
+            set_zeigeLeitlinieFkon(spalten.at(1));
         }else if(spalten.at(0) == "verzeichnis_quelle:")
         {
             set_verzeichnis_quelle(spalten.at(1));
@@ -48,6 +52,20 @@ void einstellung::set_entwicklermodus(QString jn)
     }else
     {
         set_entwicklermodus(false);
+    }
+}
+void einstellung::set_zeigeLeitlinieFkon(bool ja)
+{
+    ZeigeLeitlinieFkon = ja;
+}
+void einstellung::set_zeigeLeitlinieFkon(QString jn)
+{
+    if(jn == "ja")
+    {
+        set_zeigeLeitlinieFkon(true);
+    }else
+    {
+        set_zeigeLeitlinieFkon(false);
     }
 }
 void einstellung::set_verzeichnis_quelle(QString v)
@@ -83,6 +101,17 @@ QString einstellung::text()
     }
     text += "\n";
 
+    text += "ZeigeLeitlinieFkon:";
+    text += "\t";
+    if(zeigeLeitlinieFkon() == true)
+    {
+        text += "ja";
+    }else
+    {
+        text += "nein";
+    }
+    text += "\n";
+
     text += "verzeichnis_quelle:";
     text += "\t";
     text += verzeichnis_quelle();
@@ -108,6 +137,10 @@ QString einstellung::text()
 bool einstellung::entwicklermodus()
 {
     return Entwicklermodus;
+}
+bool einstellung::zeigeLeitlinieFkon()
+{
+    return ZeigeLeitlinieFkon;
 }
 QString einstellung::verzeichnis_quelle()
 {

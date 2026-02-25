@@ -176,6 +176,7 @@ void MainWindow::setup()
 
     //Werkzeug einlesen:
     maschinen_einlesen();
+    vorschaufenster.set_prgEinstellungen(&Einstellung);
 }
 void MainWindow::schreibe_ini()
 {
@@ -2349,10 +2350,24 @@ void MainWindow::getEinstellung(einstellung e)
 {
     Einstellung = e;
     schreibe_ini();
+    if(Einstellung.entwicklermodus())
+    {
+        ui->actionListWidget_Leitlinien_Fkon->setVisible(true);
+    }else
+    {
+        ui->actionListWidget_Leitlinien_Fkon->setVisible(false);
+    }
 }
 void MainWindow::on_actionPfade_triggered()
 {
     emit sendEinstellungPfade(Einstellung);
+}
+void MainWindow::on_actionProgrammeinstellung_triggered()
+{
+    Dialog_einstellungen_allgem dlg;
+    connect(&dlg, SIGNAL(send_einstellungen(einstellung )), this, SLOT(getEinstellung(einstellung)));
+    dlg.set_einstellungen(Einstellung);
+    dlg.exec();
 }
 void MainWindow::on_actionCNC_Maschinen_triggered()
 {
@@ -2413,6 +2428,30 @@ void MainWindow::getEinstellungDxfKlassen(einstellung_dxf_klassen e)
     }
     file.close();
 }
+//Analyse:
+void MainWindow::on_actionListWidget_Leitlinien_Fkon_triggered()
+{
+    uint row = ui->listWidget_dateien->currentRow();
+    if(Wste.wst(row))
+    {
+        werkstueck *w = Wste.wst(row);
+        auto *dlg = new Dialog_listwidget(this);
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+        connect(dlg, SIGNAL(signal_index_changed(int)), this, SLOT(slot_listWidget_bearb_currentRowChanged(int)));
+        wkz_magazin wkz;
+        if(ui->comboBox_maschinen->currentIndex() >= 0)
+        {
+            QString masch_bez = ui->comboBox_maschinen->currentText();
+            int index = Maschinen.get_index(masch_bez);
+            wkz = Maschinen.masch(index)->wkzmag();
+        }
+        dlg->set_geotext(w->geo_leitliniefkon(wkz));
+        dlg->setWindowTitle("Leitlinien_Fkon");
+        dlg->setModal(false);
+        dlg->setFixedSize(1000,300);
+        dlg->show();
+    }
+}
 //ListWidget Datei:
 void MainWindow::on_listWidget_dateien_currentRowChanged(int currentRow)
 {
@@ -2439,6 +2478,10 @@ void MainWindow::aktualisiere_listwidget_dateien(int akt_index)
     ui->listWidget_dateien->setCurrentRow(akt_index);
 }
 //ListWidget Bearbeitung
+void MainWindow::slot_listWidget_bearb_currentRowChanged(int currentRow)
+{
+    ui->listWidget_bearb->setCurrentRow(currentRow);
+}
 void MainWindow::on_listWidget_bearb_currentRowChanged(int currentRow)
 {
     vorschaufenster.slot_aktives_Element_einfaerben(currentRow);
@@ -2577,6 +2620,12 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
     }
 }
 //------------------------------------------------------
+
+
+
+
+
+
 
 
 

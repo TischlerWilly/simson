@@ -115,6 +115,7 @@
     <property name="title">
      <string>Einstellungen</string>
     </property>
+    <addaction name="actionProgrammeinstellung"/>
     <addaction name="actionPfade"/>
     <addaction name="actionCNC_Maschinen"/>
     <addaction name="actionDXF_Grundeinstellung"/>
@@ -151,11 +152,18 @@
     <addaction name="actionVerschieben"/>
     <addaction name="actionSchnellaenderung"/>
    </widget>
+   <widget class="QMenu" name="menuAnalyse">
+    <property name="title">
+     <string>Analyse</string>
+    </property>
+    <addaction name="actionListWidget_Leitlinien_Fkon"/>
+   </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
    <addaction name="menuCAM"/>
    <addaction name="menuManipulation"/>
    <addaction name="menuEinstellungen"/>
+   <addaction name="menuAnalyse"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_oeffnen">
@@ -336,6 +344,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionProgrammeinstellung">
+   <property name="text">
+    <string>Programmeinstellung</string>
+   </property>
+  </action>
+  <action name="actionListWidget_Leitlinien_Fkon">
+   <property name="text">
+    <string>ListWidget Leitlinien Fkon</string>
    </property>
   </action>
  </widget>

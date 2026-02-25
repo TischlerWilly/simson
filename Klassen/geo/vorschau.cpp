@@ -43,14 +43,26 @@ void vorschau::update_cad()
         }
     }
     //Leitlinien fkon darstellen:
-    for(uint i=0;i<LeitlinieFkon.count();i++)
+    bool zeigeLeitlinien = false;
+    if(PrgEinstellungen)
     {
-        text_zw spalten = LeitlinieFkon.at(i);
-        for(uint ii=0;ii<spalten.count();ii++)
+        zeigeLeitlinien = PrgEinstellungen->zeigeLeitlinieFkon();
+    }
+    if(zeigeLeitlinien)
+    {
+        for(uint i=0;i<LeitlinieFkon.count();i++)
         {
-            zeichneGeotext(painter, spalten.at(ii), i);
+            text_zw spalten = LeitlinieFkon.at(i);
+            for(uint ii=0;ii<spalten.count();ii++)
+            {
+                zeichneGeotext(painter, spalten.at(ii), i);
+            }
         }
     }
+}
+void vorschau::set_prgEinstellungen(einstellung *e)
+{
+    PrgEinstellungen = e;
 }
 
 void vorschau::paintEvent(QPaintEvent *)

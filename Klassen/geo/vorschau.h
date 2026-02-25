@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <math.h>
 #include "geo_text.h"
+#include "Klassen/einstellung.h"
 
 
 
@@ -19,6 +20,7 @@ class vorschau : public QWidget
     Q_OBJECT
 public:
     explicit vorschau(QWidget *parent = 0);
+    void set_prgEinstellungen(einstellung *e);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -40,7 +42,7 @@ private:
     QColor set_farbe(QString farbe);
     Qt::PenStyle set_linienstil(QString stil);
 
-
+    einstellung *PrgEinstellungen;
     punkt3d     N;    //Nullpunkt
     punkt3d     Npv;  //Nullpunkt-Verschiebung(Verschiebung des sichtbaren Ausschnittes)
     float       Sf;   //Skalierungsfaktor

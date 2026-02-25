@@ -13,6 +13,7 @@
 #include "Klassen/wst/werkstuecke.h"
 #include "Funktionen/funktionen_prgtext.h"
 #include "Dialoge/dialog_einstellung_pfade.h"
+#include "Dialoge/dialog_einstellungen_allgem.h"
 #include "Dialoge/dialog_einstellung_dxf.h"
 #include "Dialoge/dialog_einstellung_dxf_klassen.h"
 #include "Dialoge/dialog_maschinen.h"
@@ -32,6 +33,7 @@
 #include "Dialoge/bearb/dialog_kommentar_nc.h"
 #include "Dialoge/bearb/dialog_bearb_halt.h"
 #include "Dialoge/bearb/dialog_bearb_gezupu.h"
+#include "Dialoge/dialog_listwidget.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -126,13 +128,16 @@ private slots:
     void zeile_bearb_afb_umkehren(int zeile_bearb);
     //Einstellungen:
     void on_actionPfade_triggered();
+    void on_actionProgrammeinstellung_triggered();
     void on_actionCNC_Maschinen_triggered();
     void on_actionDXF_Grundeinstellung_triggered();
     void on_actionDXF_Klasseneinstellung_triggered();
+    //Analyse:
+    void on_actionListWidget_Leitlinien_Fkon_triggered();
     //ListWidget Datei:
     void on_listWidget_dateien_currentRowChanged(int currentRow);
     void aktualisiere_listwidget_dateien(int akt_index);
-    //ListWidget Bearbeitung
+    //ListWidget Bearbeitung    
     void on_listWidget_bearb_currentRowChanged(int currentRow);
     void on_listWidget_bearb_itemDoubleClicked(QListWidgetItem *item);
     void update_listwidget_bearb(werkstueck *w);
@@ -172,6 +177,8 @@ public slots:
     void getEinstellungDxf(einstellung_dxf e);
     void getEinstellungDxfKlassen(einstellung_dxf_klassen e);
     void getMaschinen(maschinen m);
+    //ListWidget Bearbeitung
+    void slot_listWidget_bearb_currentRowChanged(int currentRow);
 
 signals:
     void sendEinstellungPfade(einstellung e);

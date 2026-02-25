@@ -14,6 +14,8 @@ public:
     void set_text(QString t);
     void set_entwicklermodus(bool ja);
     void set_entwicklermodus(QString jn);
+    void set_zeigeLeitlinieFkon(bool ja);
+    void set_zeigeLeitlinieFkon(QString jn);
     void set_verzeichnis_quelle(QString v);
     void set_verzeichnis_ziel_server(QString v);
     void set_verzeichnis_ziel_lokal(QString v);
@@ -22,6 +24,7 @@ public:
     //get:    
     QString text();
     bool entwicklermodus();
+    bool zeigeLeitlinieFkon();
     QString verzeichnis_quelle();
     QString verzeichnis_ziel_server();
     QString verzeichnis_ziel_lokal();
@@ -29,6 +32,7 @@ public:
 
 private:
     bool Entwicklermodus;
+    bool ZeigeLeitlinieFkon;
     QString Verzeichnis_quelle;
     QString Verzeichnis_ziel_server;
     QString Verzeichnis_ziel_lokal;
