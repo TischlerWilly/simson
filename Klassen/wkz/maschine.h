@@ -33,8 +33,7 @@ public:
     void set_ausgabeformat(QString f);
     void set_name(QString neuer_name);
     void set_wkzmag(wkz_magazin wkzmag);
-    void set_manWkzWechsel(bool jn);
-    void set_manWkzWechsel(QString jn);
+    void set_wkzWechselText(QString text);
     void set_drehzExportieren(bool jn);
     void set_drehzExportieren(QString jn);
 
@@ -109,9 +108,9 @@ public:
     {
         return Wkzmag;
     }
-    inline bool manWkzWechsel()
+    inline QString wkzWechselText()
     {
-        return ManWkzWechsel;
+        return WkzWechselText;
     }
     inline bool drehzExportieren()
     {
@@ -127,9 +126,9 @@ private:
     double Zugabe_DuBoTi; //Zugabe für Durchgangsbohrungen bei denen gilt BoTi == WST-Dicke
     double Zugabe_DuTaTi; //Zugabe für Durchgangs-Taschen bei denen gilt TaTi == WST-Dicke
     QString Ausgabeformat; //kein|emc2
-    bool ManWkzWechsel; //Wkz wird von Hand gewechselt | Hat Wechselteller
     bool DrehzExportieren; //Drehzahlen exportieren | Händisch an der Spindel einstellen
     wkz_magazin Wkzmag;
+    QString WkzWechselText;//GCode für den Werkzeugwechsel (noch mit Platzhaltern)
 
 };
 

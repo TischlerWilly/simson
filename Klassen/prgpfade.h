@@ -23,6 +23,7 @@ public:
     QString path_wkz_dir();
     QString path_wkz_dir(QString maschine);
     QString path_wkz_mag(QString maschine);
+    QString path_wkzWechselText(QString maschine);
     QString path_masch_dir(QString maschine);
     QString path_masch_ini(QString maschine);
 
@@ -37,6 +38,7 @@ private:
     //WKZ-Dateien:
     QString Wkz;
     QString Masch_ini;
+    QString WkzWechselText_ini;
 
 };
 

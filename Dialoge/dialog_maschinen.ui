@@ -146,8 +146,15 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_tischlaenge">
+    <item row="2" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Parkposition in X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
       <property name="decimals">
        <number>0</number>
       </property>
@@ -156,13 +163,47 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Parkposition in Y</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_tischbreite">
       <property name="decimals">
        <number>0</number>
       </property>
       <property name="maximum">
        <double>5000.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
+      <property name="decimals">
+       <number>0</number>
+      </property>
+      <property name="maximum">
+       <double>500.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Maßzugabe DuTa</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_zugabe_DuTaTi">
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maßzugabe für Durchgangs-Taschen&lt;/p&gt;&lt;p&gt;Wenn eine Tasche genau so tief ist wie&lt;/p&gt;&lt;p&gt;das Bauteil dick ist wir die Tiefe um dieses&lt;/p&gt;&lt;p&gt;Maß erhöht.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="maximum">
+       <double>5.000000000000000</double>
       </property>
      </widget>
     </item>
@@ -176,13 +217,6 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="0" colspan="2">
-     <widget class="QCheckBox" name="checkBox_manWkzWechsel">
-      <property name="text">
-       <string>Manueller Werkzeugwechsel</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QLabel" name="label_tischlaenge">
       <property name="text">
@@ -190,8 +224,8 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_tischbreite">
+    <item row="0" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_tischlaenge">
       <property name="decimals">
        <number>0</number>
       </property>
@@ -207,37 +241,10 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_z">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>500.000000000000000</double>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_tischbreite">
       <property name="text">
        <string>Tischbreite</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_y">
-      <property name="decimals">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <double>5000.000000000000000</double>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Parkposition in X</string>
       </property>
      </widget>
     </item>
@@ -248,20 +255,13 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Parkposition in Y</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="1">
-     <widget class="QDoubleSpinBox" name="doubleSpinBox_zugabe_DuTaTi">
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maßzugabe für Durchgangs-Taschen&lt;/p&gt;&lt;p&gt;Wenn eine Tasche genau so tief ist wie&lt;/p&gt;&lt;p&gt;das Bauteil dick ist wir die Tiefe um dieses&lt;/p&gt;&lt;p&gt;Maß erhöht.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <item row="2" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_prgendpos_x">
+      <property name="decimals">
+       <number>0</number>
       </property>
       <property name="maximum">
-       <double>5.000000000000000</double>
+       <double>5000.000000000000000</double>
       </property>
      </widget>
     </item>
@@ -272,10 +272,10 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="label_5">
+    <item row="7" column="0" colspan="2">
+     <widget class="QPushButton" name="pushButton_wkzWechselText">
       <property name="text">
-       <string>Maßzugabe DuTa</string>
+       <string>Werkzeugwechselbefehle</string>
       </property>
      </widget>
     </item>
@@ -291,7 +291,6 @@
   <tabstop>doubleSpinBox_prgendpos_z</tabstop>
   <tabstop>doubleSpinBox_zugabe_DuBoTi</tabstop>
   <tabstop>doubleSpinBox_zugabe_DuTaTi</tabstop>
-  <tabstop>checkBox_manWkzWechsel</tabstop>
   <tabstop>checkBox_drehzExportieren</tabstop>
   <tabstop>radioButton_ausgabe_kein</tabstop>
   <tabstop>radioButton_ausgabe_emc2</tabstop>

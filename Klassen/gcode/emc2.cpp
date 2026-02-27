@@ -69,6 +69,18 @@ QString emc2::gcode()
         }
 
         stream << prgende();
+
+        //Verwendete Fräser auflisten:
+        QString wkzliste = "( Verwendete Werkzeuge: )\n";
+        QStringList sortierteListe = Verwendete_wkz.values();
+        sortierteListe.sort();
+        for (const QString &nr : sortierteListe)
+        {
+            wkzliste += "( ";
+            wkzliste += nr;
+            wkzliste += " )\n";
+        }
+        code.replace("[PLATZHALTER-WKZLISTE]", wkzliste);//dieser Platzhalter wurde durch prgkopf() eingefügt
     }
 
     return code;
@@ -82,10 +94,6 @@ QString emc2::prgkopf()
         QTextStream stream(&prgkopf);
 
         stream << "( --- Ausgabeformat: emc2 --- )\n";
-        if(Maschine->manWkzWechsel() == true)
-        {
-            stream << "(   -> Manueller Werkzeugwechsel )\n";
-        }
         if(Maschine->drehzExportieren() == false)
         {
             stream << "(   -> Export ohne Spindeldrehzahlen )\n";
@@ -97,11 +105,20 @@ QString emc2::prgkopf()
         // G90: Absolut-Koordinaten
         // G64 P0.1: Flüssige Bewegungen (Path Blending)
         // G17: XY-Ebene
-        stream << "G21 G90 G64 P0.1 G17\n";
+        stream << "(L: " << Wst->laenge_qstring() << " x ";
+        stream << "B: " << Wst->breite_qstring() << " x ";
+        stream << "D: " << Wst->dicke_qstring() << ")\n";
+        stream << "G21 (Millimeter)\n";
+        stream << "G90 (Absolut-Koordinaten)\n";
+        stream << "G64 P0.1 (flüssige Bewegung / Path Blending)\n";
+        stream << "G17 (XY-Ebene)\n";
 
         // Sicherheitsabstand beim Start anfahren
         // Wir gehen davon aus, dass Z=0 die Werkstück-Unterseite (Tisch) ist
         stream << "G0 Z" << (Wst->dicke() + Sicherheitsabstand) << " (SICHERHEITSHOEHE)\n";
+
+        stream << "\n[PLATZHALTER-WKZLISTE]\n";
+        stream << "( --- Bearbeitungen --- )\n";
     }
 
     return prgkopf;
@@ -148,14 +165,6 @@ QString emc2::prgende()
         // 3. Programm-Ende
         // M2 oder M30 setzt die Steuerung zurück
         stream << "M30\n";
-
-        stream << "( Verwendete Werkzeuge: )\n";
-        QStringList sortierteListe = Verwendete_wkz.values();
-        sortierteListe.sort();
-        for (const QString &nr : sortierteListe)
-        {
-            stream << "( " << nr  << " )\n";
-        }
     }
 
     return prgende;
@@ -168,8 +177,13 @@ QString emc2::wkz_wechsel(QString tnummer)
     if(Akt_wkz != tnummer)
     {
         QTextStream stream(&gcode);
-        stream << "\n" << "M0 (Bitte Werkzeug: \"" << tnummer << "\" einwechseln)\n";
-        stream << "( BITTE SPINDEL MANUELL EINSCHALTEN )\n";
+        QString wechseltext = Maschine->wkzWechselText();
+        wechseltext.replace("[L]", Wst->laenge_qstring());
+        wechseltext.replace("[B]", Wst->breite_qstring());
+        wechseltext.replace("[D]", Wst->dicke_qstring());
+        wechseltext.replace("[WKZNR]", tnummer);
+
+        stream << wechseltext;
     }
 
     Akt_wkz = tnummer;

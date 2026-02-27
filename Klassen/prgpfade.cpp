@@ -7,6 +7,7 @@ prgpfade::prgpfade()
     ini_dxf_klassen     = "dxf_klassen.ini";
     Wkz                 = "wkz_magazin.csv";
     Masch_ini           = "maschine.ini";
+    WkzWechselText_ini  = "wkz_wechseltext.ini";
 
 }
 
@@ -142,6 +143,14 @@ QString prgpfade::path_wkz_mag(QString maschine)
     tmp = path_wkz_dir(maschine);
     tmp += QDir::separator();
     tmp += Wkz;
+    return tmp;
+}
+QString prgpfade::path_wkzWechselText(QString maschine)
+{
+    QString tmp;
+    tmp = path_wkz_dir(maschine);
+    tmp += QDir::separator();
+    tmp += WkzWechselText_ini;
     return tmp;
 }
 QString prgpfade::path_masch_dir(QString maschine)

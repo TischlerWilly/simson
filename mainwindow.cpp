@@ -215,8 +215,10 @@ void MainWindow::maschinen_einlesen()
         QFile file(PrgPfade.path_masch_ini(name));
         if(file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
+            //Maschinen-ini:
             m.set_text(file.readAll());
 
+            //WKZ-Magazin:
             QFile file_wkz(PrgPfade.path_wkz_mag(name));
             if(file_wkz.open(QIODevice::ReadOnly | QIODevice::Text))
             {
@@ -225,6 +227,18 @@ void MainWindow::maschinen_einlesen()
                 m.set_wkzmag(wkz);
             }
             file_wkz.close();
+
+            //WKZ-Wechseltext:
+            QFile file_wkzWechselText(PrgPfade.path_wkzWechselText(name));
+            if(file_wkzWechselText.open(QIODevice::ReadOnly | QIODevice::Text))
+            {
+                QString tmp = file_wkzWechselText.readAll();
+                if(!tmp.isEmpty())
+                {
+                    m.set_wkzWechselText(tmp);
+                }
+            }
+            file_wkzWechselText.close();
         }
         file.close();
         Maschinen.neu(m);
@@ -269,6 +283,23 @@ void MainWindow::schreibe_maschinen()
         }else
         {
             file.write(Maschinen.masch(i)->wkzmag().text().toLatin1());
+        }
+        file.close();
+    }
+    //Werkzeugwechsel_Text dieser Maschine speichern:
+    for(uint i=0; i<Maschinen.namen_tz().count();i++)
+    {
+        QFile file(PrgPfade.path_wkzWechselText(Maschinen.namen_tz().at(i)));
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QString tmp = "Fehler beim Dateizugriff!\n";
+            tmp += PrgPfade.path_wkzWechselText(Maschinen.namen_tz().at(i));
+            tmp += "\n";
+            tmp += "in der Funktion schreibe_maschinen";
+            QMessageBox::warning(this,"Fehler",tmp,QMessageBox::Ok);
+        }else
+        {
+            file.write(Maschinen.masch(i)->wkzWechselText().toLatin1());
         }
         file.close();
     }

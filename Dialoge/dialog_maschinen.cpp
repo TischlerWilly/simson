@@ -22,13 +22,19 @@ void Dialog_maschinen::slot_maschinen(maschinen m)
 {
     Maschinen = m;
     ui->listWidget_maschinen->clear();
-    ui->checkBox_manWkzWechsel->setChecked(false);
     ui->checkBox_drehzExportieren->setChecked(false);
     for(uint i=0; i<m.anzahl();i++)
     {
         ui->listWidget_maschinen->addItem(m.masch(i)->name());
     }
     this->show();
+}
+void Dialog_maschinen::slot_wkzWechselText(QString text)
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_wkzWechselText(text);
+    }
 }
 void Dialog_maschinen::getDialogDataWKZ(QString fenstertitel, wkz_magazin werkzeugmagazin)
 {
@@ -134,14 +140,6 @@ void Dialog_maschinen::on_radioButton_ausgabe_emc2_toggled(bool checked)
         }
     }
 }
-void Dialog_maschinen::on_checkBox_manWkzWechsel_stateChanged(int arg1)
-{
-    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
-    {
-        bool jn = ui->checkBox_manWkzWechsel->isChecked();
-        Maschinen.masch(ui->listWidget_maschinen->currentRow())->set_manWkzWechsel(jn);
-    }
-}
 void Dialog_maschinen::on_checkBox_drehzExportieren_stateChanged(int arg1)
 {
     if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
@@ -173,7 +171,6 @@ void Dialog_maschinen::on_listWidget_maschinen_currentRowChanged(int currentRow)
         {
             ui->radioButton_ausgabe_kein->setChecked(true);
         }
-        ui->checkBox_manWkzWechsel->setChecked(Maschinen.masch(currentRow)->manWkzWechsel());
         ui->checkBox_drehzExportieren->setChecked(Maschinen.masch(currentRow)->drehzExportieren());
         prgpfade pf;
         ui->label_speierort->setText(pf.path_masch_dir(Maschinen.masch(currentRow)->name()));
@@ -218,15 +215,15 @@ void Dialog_maschinen::on_pushButton_wkz_clicked()
         this->hide();
     }
 }
+void Dialog_maschinen::on_pushButton_wkzWechselText_clicked()
+{
+    if(Maschinen.masch(ui->listWidget_maschinen->currentRow()))
+    {
+        Dialog_wkzWechselText dlg;
+        dlg.set_wkzWechselText(Maschinen.masch(ui->listWidget_maschinen->currentRow())->wkzWechselText());
+        connect(&dlg, SIGNAL(wkzWechselText(QString)), this, SLOT(slot_wkzWechselText(QString)));
+        dlg.exec();
+    }
 
-
-
-
-
-
-
-
-
-
-
+}
 

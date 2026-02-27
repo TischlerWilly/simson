@@ -28,6 +28,7 @@ SOURCES += \
     Dialoge/dialog_gcode.cpp \
     Dialoge/dialog_listwidget.cpp \
     Dialoge/dialog_maschinen.cpp \
+    Dialoge/dialog_wkzwechseltext.cpp \
     Dialoge/wkz/dialog_bohrer.cpp \
     Dialoge/wkz/dialog_fraeser.cpp \
     Dialoge/wkz/dialog_fraeserauswahl.cpp \
@@ -104,6 +105,7 @@ HEADERS += \
     Dialoge/dialog_gcode.h \
     Dialoge/dialog_listwidget.h \
     Dialoge/dialog_maschinen.h \
+    Dialoge/dialog_wkzwechseltext.h \
     Dialoge/wkz/dialog_bohrer.h \
     Dialoge/wkz/dialog_fraeser.h \
     Dialoge/wkz/dialog_fraeserauswahl.h \
@@ -178,6 +180,7 @@ FORMS += \
     Dialoge/dialog_gcode.ui \
     Dialoge/dialog_listwidget.ui \
     Dialoge/dialog_maschinen.ui \
+    Dialoge/dialog_wkzwechseltext.ui \
     Dialoge/wkz/dialog_bohrer.ui \
     Dialoge/wkz/dialog_fraeser.ui \
     Dialoge/wkz/dialog_fraeserauswahl.ui \

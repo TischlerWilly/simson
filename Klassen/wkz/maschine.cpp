@@ -5,13 +5,13 @@ maschine::maschine()
     Laenge  = 700;
     Breite  = 700;
     Ausgabeformat = "kein";
-    ManWkzWechsel = true;
     DrehzExportieren = false;
     Prgendpos.set_x(100);
     Prgendpos.set_y(100);
     Prgendpos.set_z(100);
     Zugabe_DuBoTi = 0.3;
     Zugabe_DuTaTi = 0.3;
+    WkzWechselText = "\nM0 (Bitte Werkzeug: \"[WKZNR]\" einwechseln)\n";
 }
 maschine::maschine(QString neuer_name)
 {
@@ -19,13 +19,13 @@ maschine::maschine(QString neuer_name)
     Laenge  = 700;
     Breite  = 700;
     Ausgabeformat = "kein";
-    ManWkzWechsel = true;
     DrehzExportieren = false;
     Prgendpos.set_x(100);
     Prgendpos.set_y(100);
     Prgendpos.set_z(100);
     Zugabe_DuBoTi = 0.3;
     Zugabe_DuTaTi = 0.3;
+    WkzWechselText = "M0 (Bitte Werkzeug: \" [WKZNR] \" einwechseln)\n";
 }
 
 //--------------------------------------------------set_xy:
@@ -61,9 +61,6 @@ void maschine::set_text(QString t)
         }else if(spalten.at(0) == "Ausgabeformat:")
         {
             set_ausgabeformat(spalten.at(1));
-        }else if(spalten.at(0) == "ManWkzWechsl:")
-        {
-            set_manWkzWechsel(spalten.at(1));
         }else if(spalten.at(0) == "DrehzExportieren:")
         {
             set_drehzExportieren(spalten.at(1));
@@ -159,19 +156,9 @@ void maschine::set_wkzmag(wkz_magazin wkzmag)
 {
     Wkzmag = wkzmag;
 }
-void maschine::set_manWkzWechsel(bool jn)
+void maschine::set_wkzWechselText(QString text)
 {
-    ManWkzWechsel = jn;
-}
-void maschine::set_manWkzWechsel(QString jn)
-{
-    if(jn == "ja")
-    {
-        ManWkzWechsel = true;
-    }else
-    {
-        ManWkzWechsel = false;
-    }
+    WkzWechselText = text;
 }
 void maschine::set_drehzExportieren(bool jn)
 {
@@ -231,17 +218,6 @@ QString maschine::text()
     text += "Ausgabeformat:";
     text += "\t";
     text += ausgabeformat();
-    text += "\n";
-
-    text += "ManWkzWechsl:";
-    text += "\t";
-    if(manWkzWechsel() == true)
-    {
-        text += "ja";
-    }else
-    {
-        text += "nein";
-    }
     text += "\n";
 
     text += "DrehzExportieren:";
