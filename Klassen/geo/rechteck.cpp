@@ -366,6 +366,34 @@ double rechteck::abst(punkt3d p)
     }
     return min;
 }
+QString rechteck::text()
+{
+    QString msg = RECHTECK;
+    msg += TRZ_PA;
+    msg += MiPu.x_QString();
+    msg += TRZ_PA;
+    msg += MiPu.y_QString();
+    msg += TRZ_PA;
+    msg += MiPu.z_QString();
+    msg += TRZ_PA;
+    msg += l_qstring();
+    msg += TRZ_PA;
+    msg += b_qstring();
+    msg += TRZ_PA;
+    msg += rad_qstring();
+    msg += TRZ_PA;
+    msg += drewi_qstring();
+    msg += TRZ_PA;
+    msg += farbe();
+    msg += TRZ_PA;
+    msg += farbe_fuellung();
+    msg += TRZ_PA;
+    msg += linienbreite_qstring();
+    msg += TRZ_PA;
+    msg += stil();
+
+    return msg;
+}
 //--------------------------------------------------Manipulaionen:
 void rechteck::verschieben_um(double xversatz, double yversatz)
 {

@@ -9,7 +9,6 @@
     > fkon
         >> geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm)
             >>> bool ist_zu_kurz(QString geo_text) <-- fuktioniert noch nicht für strecken!!!!
-            >> wenn anfahrweg "nicht definiert" ist bekomen wir indexfehler
 
 -> Verschiebe n Kopien
 -> vieleck-Tasche

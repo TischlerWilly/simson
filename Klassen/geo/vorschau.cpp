@@ -134,6 +134,7 @@ void vorschau::zeichneGeotext(QPainter &painter, QString geometrieElement, int i
 
         QPen pen;
         pen.setCosmetic(true);
+        pen.setStyle(set_linienstil(b.stil()));
         if (i == Aktuelle_zeilennummer)
         {
             pen.setColor(Qt::red);

@@ -758,6 +758,64 @@ double normalize_radiant(double a)
     return a;
 }
 
+void set_farbeUniversal(QString *geo_text, QString farbe)
+{
+    if (geo_text->contains(PUNKT))
+    {
+        punkt3d geo(*geo_text);
+        geo.set_farbe(farbe);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(STRECKE))
+    {
+        strecke geo(*geo_text);
+        geo.set_farbe(farbe);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(BOGEN))
+    {
+        bogen geo(*geo_text);
+        geo.set_farbe(farbe);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(KREIS))
+    {
+        kreis geo(*geo_text);
+        geo.set_farbe(farbe);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(RECHTECK))
+    {
+        rechteck geo(*geo_text);
+        geo.set_farbe(farbe);
+        *geo_text = geo.text();
+    }
+}
+void set_linienstilUniversal(QString *geo_text, QString stil)
+{
+    if (geo_text->contains(PUNKT))
+    {
+        punkt3d geo(*geo_text);
+        geo.set_stil(stil);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(STRECKE))
+    {
+        strecke geo(*geo_text);
+        geo.set_stil(stil);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(BOGEN))
+    {
+        bogen geo(*geo_text);
+        geo.set_stil(stil);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(KREIS))
+    {
+        kreis geo(*geo_text);
+        geo.set_stil(stil);
+        *geo_text = geo.text();
+    }else if(geo_text->contains(RECHTECK))
+    {
+        rechteck geo(*geo_text);
+        geo.set_stil(stil);
+        *geo_text = geo.text();
+    }
+}
 bogen verbindungsbogen(strecke s1, strecke s2)
 {
     //Diese funkttion ist für Außenecken gedacht

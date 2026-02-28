@@ -10,6 +10,8 @@
 #include "Klassen/text_zw.h"
 #include "defines_geometrie.h"
 #include "bogen.h"
+#include "kreis.h"
+#include "rechteck.h"
 
 enum strecke_bezugspunkt{strecke_bezugspunkt_start, \
                          strecke_bezugspunkt_mitte, \
@@ -89,6 +91,8 @@ bool trimmen(bogen *b1, strecke *s2);
 bool trimmen(bogen *b1, bogen *b2);
 bool trimmenUniversal(QString *geo1_text, QString *geo2_text);
 double normalize_radiant(double a);
+void set_farbeUniversal(QString *geo_text, QString farbe);
+void set_linienstilUniversal(QString *geo_text, QString stil);
 bogen verbindungsbogen(strecke s1, strecke s2);
 
 #endif // STRECKE_H

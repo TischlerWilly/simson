@@ -18,10 +18,11 @@ void Dialog_listwidget::set_geotext(geo_text gt)
     for(uint i=0;i<gt.count();i++)
     {
         text_zw spalten = gt.at(i);
-        for(uint ii=0;ii<spalten.count();ii++)
-        {
-            ui->listWidget->addItem(spalten.text());
-        }
+        QString msg = "(";
+        msg += int_to_qstring(i);
+        msg += ") ";
+        msg += spalten.text();
+        ui->listWidget->addItem(msg);
     }
 }
 

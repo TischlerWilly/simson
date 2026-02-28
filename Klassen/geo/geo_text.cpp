@@ -29,19 +29,28 @@ void geo_text::add(text_zw geometrie, uint index)
         Zeivor = false;
     }else
     {
-        if(index + 1 > Daten.size())
-        {
-            //Zeile hinten anhängen:
-            geometrieen.add_hi(geometrie.text());
-            Daten.push_back(geometrieen);
-        }else
+        if(index < Daten.size())
         {
             //Zeile verlängern
             geometrieen = Daten.at(index);
             geometrieen.add_hi(geometrie.text());
             Daten.at(index) = geometrieen;
+        }else
+        {
+            //Zeile hinten anhängen:
+            geometrieen.add_hi(geometrie.text());
+            Daten.push_back(geometrieen);
         }
     }
+}
+void geo_text::add_vo(text_zw geometrie)
+{
+    Daten.insert(Daten.begin(), geometrie);
+}
+void geo_text::add_vo(QString geometrie)
+{
+    text_zw geo(geometrie, TRZ_PA_);
+    add_vo(geo);
 }
 void geo_text::add_leerzeile()
 {
@@ -465,6 +474,11 @@ double geo_text::min_y()
 void geo_text::edit(uint index, text_zw neuer_text)
 {
     Daten.at(index) = neuer_text;
+}
+void geo_text::edit(uint index, QString neuer_text)
+{
+    text_zw tmp(neuer_text, '\n');
+    Daten.at(index) = tmp;
 }
 //--------------------------------------
 //Funktionen außerhalb der Klasse:
@@ -2419,49 +2433,49 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
         parallele.zeilenvorschub();
     }
 
+    //geo_text kopie_paral = parallele;
+
     //Phase 3 (trimmen):
-    geo_text getrimmtes;
-    getrimmtes.add_leerzeile();//Werkstück
-    getrimmtes.zeilenvorschub();
-    QString bezug;
-    for (uint i = 0; i < bearb.count(); i++)
+    geo_text getrimmtes = parallele;
+    QString bezug;    
+    for (uint index_bearb = 0; index_bearb < bearb.count(); index_bearb++)
     {
-        getrimmtes.zeilenvorschub();
-        text_zw spalten_A = parallele.at(i);
-        if (spalten_A.count() == 0 ||  spalten_A.text().contains("leerzeile"))
+        text_zw zeile_A = parallele.at(index_bearb);
+        if (zeile_A.text().contains("leerzeile"))
         {
-            getrimmtes.add_leerzeile();
-            getrimmtes.zeilenvorschub();
             continue;
         }
 
         // 1. Prüfen, ob das aktuelle Element selbst zu kurz ist (entfällt)
-        QString geoA = spalten_A.at(spalten_A.count() - 1);
+        QString geoA = zeile_A.at(zeile_A.count() - 1);
         if (ist_zu_kurz(geoA))// Überspringe dieses i komplett
         {
-            getrimmtes.add_leerzeile();
-            getrimmtes.zeilenvorschub();
-            continue;
+            if(zeile_A.count() == 1)//wenn das element was wir überspringen das einzige in dieser Zeile ist
+            {//dann füge eine leere zeile hinzu
+                text_zw tmp("leerzeile", '\n');
+                getrimmtes.edit(index_bearb, tmp);
+            }
+            continue;//und mache dann weiter in der nächsten Zeile
         }
 
         // 2. Suche das nächste gültige Element in der Fräsbahn
-        int j = i + 1;
+        uint j = index_bearb + 1;
         QString geoB = "";
         int index_j = -1;
 
         while (j < bearb.count())
         {
-            text_zw zeile_B;
-            zeile_B.set_text(bearb.at(j), TRENNZ_BEARB_PARAM);
+            text_zw zeile_B_bearb;
+            zeile_B_bearb.set_text(bearb.at(j), TRENNZ_BEARB_PARAM);
 
             // Kette unterbrochen (z.B. durch Bohrung)?
-            if (zeile_B.at(0) != BEARBART_FRAESERGERADE &&
-                zeile_B.at(0) != BEARBART_FRAESERBOGEN) break;
+            if (zeile_B_bearb.at(0) != BEARBART_FRAESERGERADE &&
+                zeile_B_bearb.at(0) != BEARBART_FRAESERBOGEN) break;
 
-            text_zw spalten_B = parallele.at(j);
-            if (spalten_B.count() > 0)
+            text_zw zeile_B = parallele.at(j);
+            if (zeile_B.count() > 0)
             {
-                geoB = spalten_B.at(0);
+                geoB = zeile_B.at(0);
                 if (!ist_zu_kurz(geoB))
                 {
                     index_j = j; // Gültiges Folge-Element gefunden
@@ -2474,35 +2488,63 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
         // 3. Trimmen oder Verbindungsbogen
         if (index_j != -1)
         {
-            text_zw spalten_B_final = parallele.at(index_j);
+            text_zw zeile_B = parallele.at(index_j);
 
             if (trimmenUniversal(&geoA, &geoB))
             {
                 // Innenecke: Geometrien wurden gekürzt
-                spalten_A.edit(spalten_A.count() - 1, geoA);
-                spalten_B_final.edit(0, geoB);
-                parallele.edit(i, spalten_A);
-                parallele.edit(index_j, spalten_B_final);
-                getrimmtes.add_zeile(spalten_A);
+                zeile_A.edit(zeile_A.count() - 1, geoA);
+                zeile_B.edit(0, geoB);
+                parallele.edit(index_bearb, zeile_A);
+                parallele.edit(index_j, zeile_B);
+                getrimmtes.edit(index_bearb, zeile_A);
             } else
             {
                 // Außenecke: Verbindungsbogen einfügen
-                getrimmtes.add_zeile(spalten_A);
+                text_zw kombi_zeile = zeile_A; // Kopie der aktuellen Zeile
                 bogen vb = verbindungsbogen(geoA, geoB);
-                if (vb.rad() > 0.001)
+                if (!ist_zu_kurz(vb.text()))
                 {
                     // Den Bogen am Ende der aktuellen Zeile i anfügen
-                    spalten_A.add_hi(vb.text());
-                    parallele.edit(i, spalten_A);
+                    //spalten_A.add_hi(vb.text());
+                    //parallele.edit(i, spalten_A);
                     // Wichtig: getrimmtes muss hier den Bogen auch erhalten
-                    getrimmtes.add_bogen(vb);
+                    kombi_zeile.add_hi(vb.text());
                 }
+                getrimmtes.edit(index_bearb, kombi_zeile);
             }
-        } else
+        }else
         {
             // Letztes Element der Kette
-            getrimmtes.add_zeile(spalten_A);
+            getrimmtes.edit(index_bearb, zeile_A);
         }
+    }
+    getrimmtes.add_vo("leerzeile");//Programmkopf
+
+    //geo_text kopie_getrimmtes = getrimmtes;
+
+    //einfärben:
+    for(uint i=0; i<getrimmtes.count() ;i++)
+    {
+        text_zw zeile = getrimmtes.at(i);
+        if(zeile.text().contains("leerzeile"))
+        {
+            continue;
+        }
+        for(uint ii=0; ii<zeile.count() ;ii++)
+        {
+            QString geo = zeile.at(ii);
+            if(geo.contains(PUNKT))
+            {
+                punkt3d p(geo);
+                p.set_linienbreite(10);
+                geo = p.text();
+            }
+            set_farbeUniversal(&geo, FARBE_DUNKELGRAU);
+            set_linienstilUniversal(&geo, STIL_GESTRICHELT);
+            zeile.edit(ii, geo);
+        }
+        getrimmtes.edit(i, zeile);
     }
     return getrimmtes;
 }
@@ -2513,11 +2555,14 @@ bool ist_zu_kurz(QString geo_text)
     {
         strecke s(geo_text);
         return s.laenge2d() < min_len;
-    } else if (geo_text.contains(BOGEN))
+    }else if (geo_text.contains(BOGEN))
     {
         bogen b(geo_text);
         // Ein Bogen ist zu kurz, wenn sein Spannwinkel fast 0 ist
         return std::abs(b.spannwinkel()) < 0.0001 || b.rad() < min_len;
+    }else if (geo_text.contains(PUNKT))
+    {
+        return false;
     }
     return true;
 }

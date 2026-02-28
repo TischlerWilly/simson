@@ -32,6 +32,11 @@ public:
     void clear();
     void zeilenvorschub();
     //--------------------------------------set:
+    //void add(text_zw geometrie, uint index, bool zeivor);
+    //void add(QString geometrie, uint index);
+    //void add(QString geometrie, uint index, bool zeivor);
+    void add_vo(text_zw geometrie);
+    void add_vo(QString geometrie);
     void add_leerzeile();
     void add_zeile(text_zw zeile);
     void add_punkt(punkt3d p);
@@ -55,10 +60,10 @@ public:
     double min_y();
     //---------------------------------------------Manipulationen:
     void edit(uint index, text_zw neuer_text);
+    void edit(uint index, QString neuer_text);
 
 private:
-    void add(text_zw geometrie, uint index);    
-
+    void add(text_zw geometrie, uint index);
     std::vector<text_zw>    Daten;
     uint                    AktIndex;
     bool                    Zeivor;//Zeilenvorschub

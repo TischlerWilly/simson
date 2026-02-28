@@ -109,6 +109,7 @@ public:
     }
 
     double abst(punkt3d p);
+    QString text();
     //--------------------------------------------------Manipulaionen:
     void    verschieben_um(double xversatz, double yversatz);
 
