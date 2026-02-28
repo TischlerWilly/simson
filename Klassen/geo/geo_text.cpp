@@ -1418,6 +1418,9 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                         }
                         b.verschieben_um(versatz_x, versatz_y);
                         gt.add_bogen(b);
+                    }else
+                    {
+                        gt.add_leerzeile();
                     }
                 }else if(folzei.at(0) == BEARBART_FRAESERBOGEN)
                 {
@@ -1549,6 +1552,9 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
                         }
                         b.verschieben_um(versatz_x, versatz_y);
                         gt.add_bogen(b);
+                    }else
+                    {
+                        gt.add_leerzeile();
                     }
                 }
             }
@@ -1989,6 +1995,9 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                             }
                             b.verschieben_um(versatz_x, versatz_y);
                             gt.add_bogen(b);
+                        }else//nicht definiet
+                        {
+                            gt.add_punkt(fa.pos());
                         }
                     }else if(folzei.at(0) == BEARBART_FRAESERBOGEN)
                     {
@@ -2041,6 +2050,9 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                             }
                             b.verschieben_um(versatz_x, versatz_y);
                             gt.add_bogen(b);
+                        }else//nicht definiet
+                        {
+                            gt.add_punkt(fa.pos());
                         }
                     }
                 }
@@ -2249,7 +2261,7 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                     {
                         parallele.add_strecke(s.parallele(false, fraeserdm/2));
                     }
-                }else//if(element.text().contains(BOGEN))
+                }else if(element.text().contains(BOGEN))
                 {
                     bogen b;
                     b.set_text(element.text());
@@ -2265,6 +2277,12 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
                         b.set_rad(b.rad()-fraeserdm/2);
                         parallele.add_bogen(b);
                     }
+                }else //if(element.text().contains(PUNKT))
+                {
+                    parallele.add_punkt(fa.pos());
+                    //der Punkt wir eifach weiter gereicht ohne korrektur
+                    //der Punkt muss im zuge der Phase 3 auf den anfangspunkt der folgenden
+                    //Strecke oder des folgendes Bogens gesetzt werden!
                 }
             }else
             {

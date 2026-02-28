@@ -713,7 +713,7 @@ bool trimmenUniversal(QString *geo1_text, QString *geo2_text)
             *geo1_text = s1.text();
             *geo2_text = s2.text();
         }
-    } else if (geo1_text->contains(STRECKE) && geo2_text->contains(BOGEN))
+    }else if (geo1_text->contains(STRECKE) && geo2_text->contains(BOGEN))
     {
         strecke s1(*geo1_text); bogen b2(*geo2_text);
         if ((erfolg = trimmen(&s1, &b2)))
@@ -721,7 +721,7 @@ bool trimmenUniversal(QString *geo1_text, QString *geo2_text)
             *geo1_text = s1.text();
             *geo2_text = b2.text();
         }
-    } else if (geo1_text->contains(BOGEN) && geo2_text->contains(STRECKE))
+    }else if (geo1_text->contains(BOGEN) && geo2_text->contains(STRECKE))
     {
         bogen b1(*geo1_text); strecke s2(*geo2_text);
         if ((erfolg = trimmen(&b1, &s2)))
@@ -729,13 +729,25 @@ bool trimmenUniversal(QString *geo1_text, QString *geo2_text)
             *geo1_text = b1.text();
             *geo2_text = s2.text();
         }
-    } else if (geo1_text->contains(BOGEN) && geo2_text->contains(BOGEN)) {
+    }else if (geo1_text->contains(BOGEN) && geo2_text->contains(BOGEN))
+    {
         bogen b1(*geo1_text); bogen b2(*geo2_text);
         if ((erfolg = trimmen(&b1, &b2)))
         {
             *geo1_text = b1.text();
             *geo2_text = b2.text();
         }
+    }else if (geo1_text->contains(PUNKT) && geo2_text->contains(STRECKE))
+    {
+        strecke s2(*geo2_text);
+        *geo1_text = s2.stapu().text();
+        erfolg = true;
+    }
+    else if (geo1_text->contains(PUNKT) && geo2_text->contains(BOGEN))
+    {
+        bogen b2(*geo2_text);
+        *geo1_text = b2.spu().text();
+        erfolg = true;
     }
     return erfolg;
 }
