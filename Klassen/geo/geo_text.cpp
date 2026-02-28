@@ -1111,6 +1111,10 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
             {
                 eckenrad = rt.rad();
             }
+            if(rt.istZapfen())
+            {
+                eckenrad = rt.rad();
+            }
 
             if(  (rt.bezug() == WST_BEZUG_OBSEI) ||  (rt.bezug() == WST_BEZUG_UNSEI)  )
             {

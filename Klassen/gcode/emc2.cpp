@@ -1133,7 +1133,7 @@ QString emc2::rta(rechtecktasche rt)
                     }
                 }
             }
-        }else //bo.istZapfen()
+        }else //istZapfen()
         {
             if(rt.bezug() == WST_BEZUG_OBSEI)
             {
@@ -1217,9 +1217,9 @@ QString emc2::rta(rechtecktasche rt)
                             stream << "G1 X" << eintauchpu.x() << " Y" << eintauchpu.y() << "\n";
 
                             // --- SCHRITT 2: Radiales Räumen auf dieser Ebene ---
-                            double aktueller_radius = min/2 + fraeser_radius + schlichtzugabe;
-                            double akt_abst_kontur = halbes_min - aktueller_radius;
-                            double akt_eckenrad = rt.rad() - akt_abst_kontur;
+                            double aktueller_radius = halbes_min + fraeser_radius + schlichtzugabe;
+                            double akt_abst_kontur = aktueller_radius - halbes_min;
+                            double akt_eckenrad = rt.rad() + akt_abst_kontur;
                             if(akt_eckenrad < 0)
                             {
                                 akt_eckenrad = 0;
