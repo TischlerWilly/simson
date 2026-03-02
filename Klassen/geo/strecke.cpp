@@ -420,114 +420,38 @@ void strecke::set_laenge(double neue_laenge, strecke_bezugspunkt bezugspunkt)
 //Funktionen außerhalb der Klasse:
 bool trimmen(strecke *s1, strecke *s2)
 {
-    double min_laenge = 1.0; // Zentrale Mindestlänge für die Folgegeometrie
-
+    double min_laenge = 1.0; // Mindestlänge für s2 zum Schutz
     double dx1 = s1->endpu().x() - s1->stapu().x();
     double dy1 = s1->endpu().y() - s1->stapu().y();
     double dx2 = s2->endpu().x() - s2->stapu().x();
     double dy2 = s2->endpu().y() - s2->stapu().y();
+    double len2 = std::sqrt(dx2*dx2 + dy2*dy2);
 
-    double len2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
     double nenner = dx1 * dy2 - dy1 * dx2;
-
     if (std::abs(nenner) < 1e-7) return false;
 
     double ox = s2->stapu().x() - s1->stapu().x();
     double oy = s2->stapu().y() - s1->stapu().y();
-
     double t = (ox * dy2 - oy * dx2) / nenner;
     double u = (ox * dy1 - oy * dx1) / nenner;
 
     const double eps = 1e-6;
+    // Innenecke-Bedingung: s1 kürzen (t < 1), s2 kürzen (u > 0)
+    if (t < 1.0 + eps && u > -eps) {
+        // S1: Darf auf 0 schrumpfen
+        if (t < 0.0) s1->set_endpu(s1->stapu());
+        else s1->set_endpu(s1->stapu().x() + t * dx1, s1->stapu().y() + t * dy1, s1->stapu().z());
 
-    // Prüfung auf Innenecke (Trimmen möglich)
-    if (t < 1.0 + eps && u > -eps)
-    {
-        // --- S1: Darf auf 0 schrumpfen ---
-        if (t < 0.0) {
-            s1->set_endpu(s1->stapu()); // Länge wird exakt 0
-        } else {
-            s1->set_endpu(s1->stapu().x() + t * dx1, s1->stapu().y() + t * dy1, s1->stapu().z());
-        }
-
-        // --- S2: Schutzlogik (Startpunkt verschieben, Winkel erhalten) ---
-        // Wenn u so groß ist, dass S2 kürzer als min_laenge würde:
+        // S2: Schutzlogik (Winkelstabilität)
         if (u > 1.0 - (min_laenge / len2)) {
-            double ux2 = dx2 / len2;
-            double uy2 = dy2 / len2;
-            // Setze Startpunkt exakt min_laenge vor das Ende
-            s2->set_stapu(s2->endpu().x() - ux2 * min_laenge,
-                          s2->endpu().y() - uy2 * min_laenge,
-                          s2->stapu().z());
+            double ux2 = dx2 / len2; double uy2 = dy2 / len2;
+            s2->set_stapu(s2->endpu().x() - ux2 * min_laenge, s2->endpu().y() - uy2 * min_laenge, s2->stapu().z());
         } else {
             s2->set_stapu(s2->stapu().x() + u * dx2, s2->stapu().y() + u * dy2, s2->stapu().z());
         }
         return true;
     }
     return false;
-    /*
-    //Diese Funktion ist für Innenecken gedacht
-    //Trimmt den Endpunkt von s1 und den Startpunkt von s2
-    //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
-    //wenn sich die Strechen nicht schneiden gibt die Funktion false zurück
-
-    // Richtungsvektoren
-    double dx1 = s1->endpu().x() - s1->stapu().x();
-    double dy1 = s1->endpu().y() - s1->stapu().y();
-    double dx2 = s2->endpu().x() - s2->stapu().x();
-    double dy2 = s2->endpu().y() - s2->stapu().y();
-
-    // Determinante
-    double nenner = dx1 * dy2 - dy1 * dx2;
-
-    // Parallelitätsprüfung mit etwas größerem Epsilon für numerische Stabilität
-    if (std::abs(nenner) < 1e-7)
-    {
-        return false;
-    }
-
-    // Vektor vom Start s1 zum Start s2
-    double ox = s2->stapu().x() - s1->stapu().x();
-    double oy = s2->stapu().y() - s1->stapu().y();
-
-    // t = Wie weit auf s1 (0.0 bis 1.0)
-    // u = Wie weit auf s2 (0.0 bis 1.0)
-    double t = (ox * dy2 - oy * dx2) / nenner;
-    double u = (ox * dy1 - oy * dx1) / nenner;
-
-    // TOLERANZ-CHECK:
-    // Wir erlauben ein winziges Überstehen (1e-6), um Rundungsfehler
-    // bei exakten 45°/90° Winkeln abzufangen.
-    const double eps = 1e-6;
-
-    // WICHTIG: Wenn du NUR KÜRZEN willst (Innenecke):
-    // Der Schnittpunkt muss VOR dem Ende von s1 liegen (t <= 1.0)
-    // UND NACH dem Anfang von s2 liegen (u >= 0.0)
-
-    // Falls deine Radienkorrektur die Strecken jedoch so weit verschiebt,
-    // dass sie sich erst NACH ihrem Ende treffen, ist es eine Außenecke.
-
-    if (t > -eps && t < 1.0 + eps && u > -eps && u < 1.0 + eps)
-    {
-        double px = s1->stapu().x() + t * dx1;
-        double py = s1->stapu().y() + t * dy1;
-
-        // Z-Wert: Wir nehmen den Durchschnitt oder den Wert von s1
-        punkt3d schnittp(px, py, s1->endpu().z());
-
-        s1->set_endpu(schnittp);
-        s2->set_stapu(schnittp);
-        return true;
-    }
-
-    // Wenn die Bedingung oben nicht zutrifft, liegt der Schnittpunkt
-    // außerhalb der Segmente. Das bedeutet: Lücke (Außenecke) oder
-    // die Strecken liegen komplett voneinander weg.
-    return false;
-
-    // Wenn der Schnittpunkt außerhalb liegt (Außenecke / Lücke),
-    // liefern wir false zurück, damit später ein Bogen eingefügt werden kann.
-    */
 }
 bool trimmen(strecke *s1, bogen *b2)
 {

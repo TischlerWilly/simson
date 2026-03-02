@@ -2437,136 +2437,66 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
 
     //Phase 3 (trimmen):
     geo_text getrimmtes = parallele;
-    QString bezug;
-    int last_valid_index = -1;
-    int last_valid_spalte = -1;
+    int last_valid_idx = -1;
+    int last_valid_sp  = -1;
 
-    for (uint index_bearb = 0; index_bearb < bearb.count(); index_bearb++)
-    {
-        text_zw zeile_A = parallele.at(index_bearb);
-        if (zeile_A.text().contains("leerzeile"))
-        {
+    for (uint i = 0; i < bearb.count(); i++) {
+        // Jede Zeile im Ergebnis erst einmal als leer markieren
+        text_zw leerzeile_tmp("leerzeile", '\n');
+        getrimmtes.edit(i, leerzeile_tmp);
+
+        text_zw zeile_A = parallele.at(i);
+        if (zeile_A.text().contains("leerzeile") || zeile_A.count() == 0) {
+            last_valid_idx = -1; // Kette unterbrochen
             continue;
         }
 
-        // 1. Prüfen, ob das aktuelle Element selbst zu kurz ist (entfällt)
-        int akt_spalte = zeile_A.count() - 1;
-        QString geoA = zeile_A.at(akt_spalte);
+        int sp_A = zeile_A.count() - 1;
+        QString geoA = zeile_A.at(sp_A);
 
-        // 2. Suche das nächste gültige Element in der Fräsbahn
-        uint j = index_bearb + 1;
-        QString geoB = "";
-        int index_j = -1;
-
-        while (j < bearb.count())
-        {
-            text_zw zeile_B_bearb;
-            zeile_B_bearb.set_text(bearb.at(j), TRENNZ_BEARB_PARAM);
-
-            // Kette unterbrochen (z.B. durch Bohrung)?
-            if (zeile_B_bearb.at(0) != BEARBART_FRAESERGERADE &&
-                zeile_B_bearb.at(0) != BEARBART_FRAESERBOGEN) break;
-
-            text_zw zeile_B = parallele.at(j);
-            if (zeile_B.count() > 0)
-            {
-                geoB = zeile_B.at(0);
-                if (!ist_zu_kurz(geoB))
-                {
-                    index_j = j; // Gültiges Folge-Element gefunden
-                    break;
-                }
-            }
-            j++; // Element j entfällt, suche weiter beim übernächsten
+        // 1. Vor-Check: Ist das Element von vornherein zu kurz?
+        if (ist_zu_kurz(geoA)) {
+            handle_entfallendes_element(i, &parallele, &getrimmtes, last_valid_idx, last_valid_sp, bearb);
+            continue;
         }
 
-        // 3. Trimmen oder Verbindungsbogen
-        if (index_j != -1)
-        {
+        // 2. Suche Nachfolger für die Verbindung
+        int index_j = finde_naechstes_gueltiges(parallele, bearb, i + 1);
+
+        if (index_j != -1) {
             text_zw zeile_B = parallele.at(index_j);
+            QString geoB = zeile_B.at(0);
 
-            if (trimmenUniversal(&geoA, &geoB))
-            {
-                if (ist_zu_kurz(geoA))
-                {
-                    uint j = index_bearb + 1;
-                    int index_next = -1;
-
-                    // Suche das nächste gültige Element (Look-Ahead)
-                    while (j < bearb.count())
-                    {
-                        text_zw zeile_B_bearb;
-                        zeile_B_bearb.set_text(bearb.at(j), TRENNZ_BEARB_PARAM);
-                        if (zeile_B_bearb.at(0) != BEARBART_FRAESERGERADE &&
-                            zeile_B_bearb.at(0) != BEARBART_FRAESERBOGEN) break;
-
-                        text_zw zeile_B = parallele.at(j);
-                        if (zeile_B.count() > 0 && !ist_zu_kurz(zeile_B.at(0)))
-                        {
-                            index_next = j;
-                            break;
-                        }
-                        j++;
-                    }
-
-                    // Wenn wir ein Element davor (last_valid) UND ein Element danach (index_next) haben:
-                    if (last_valid_index != -1 && index_next != -1)
-                    {
-                        text_zw zeile_V = parallele.at(last_valid_index);
-                        text_zw zeile_N = parallele.at(index_next);
-                        QString geoV = zeile_V.at(last_valid_spalte);
-                        QString geoN = zeile_N.at(0);
-
-                        // Trimme das Element davor direkt mit dem Element danach
-                        if (trimmenUniversal(&geoV, &geoN))
-                        {
-                            zeile_V.edit(last_valid_spalte, geoV);
-                            zeile_N.edit(0, geoN);
-                            parallele.edit(last_valid_index, zeile_V);
-                            parallele.edit(index_next, zeile_N);
-                            getrimmtes.edit(last_valid_index, zeile_V);
-                        }
-                    }
-
-                    if(zeile_A.count() == 1)
-                    {
-                        text_zw tmp("leerzeile", '\n');
-                        getrimmtes.edit(index_bearb, tmp);
-                    }
-                    continue;
-                }else
-                {
-                    // Wenn Element A NICHT zu kurz ist, wird es zum neuen "last_valid"
-                    last_valid_index = index_bearb;
-                    last_valid_spalte = akt_spalte;
-
-                    // Innenecke: Geometrien wurden gekürzt
-                    zeile_A.edit(zeile_A.count() - 1, geoA);
+            // --- SCHRITT A: TRIMMEN (Innenecke) ---
+            if (trimmenUniversal(&geoA, &geoB)) {
+                // Prüfung: Ist geoA durch das Trimmen gestorben (z.B. die 1mm-Strecke)?
+                if (ist_zu_kurz(geoA)) {
+                    handle_entfallendes_element(i, &parallele, &getrimmtes, last_valid_idx, last_valid_sp, bearb);
+                    continue; // Zeile i wird NICHT zu getrimmtes hinzugefügt
+                } else {
+                    // Erfolg: Gekürzte Geometrien speichern
+                    zeile_A.edit(sp_A, geoA);
                     zeile_B.edit(0, geoB);
-                    parallele.edit(index_bearb, zeile_A);
+                    parallele.edit(i, zeile_A);
                     parallele.edit(index_j, zeile_B);
-                    getrimmtes.edit(index_bearb, zeile_A);
+                    getrimmtes.edit(i, zeile_A);
                 }
-            } else
-            {
-                // Außenecke: Verbindungsbogen einfügen
-                text_zw kombi_zeile = zeile_A; // Kopie der aktuellen Zeile
-                bogen vb = verbindungsbogen(geoA, geoB);
-                if (!ist_zu_kurz(vb.text()))
-                {
-                    // Den Bogen am Ende der aktuellen Zeile i anfügen
-                    //spalten_A.add_hi(vb.text());
-                    //parallele.edit(i, spalten_A);
-                    // Wichtig: getrimmtes muss hier den Bogen auch erhalten
-                    kombi_zeile.add_hi(vb.text());
-                }
-                getrimmtes.edit(index_bearb, kombi_zeile);
             }
-        }else
-        {
-            // Letztes Element der Kette
-            getrimmtes.edit(index_bearb, zeile_A);
+            // --- SCHRITT B: AUSSENECKE / PARALLEL ---
+            else {
+                text_zw kombi_zeile = zeile_A;
+                verbinde_manuell(&kombi_zeile, sp_A, &zeile_B, 0);
+                getrimmtes.edit(i, kombi_zeile);
+                parallele.edit(i, kombi_zeile);
+            }
+        } else {
+            // Letztes Element der Bahn
+            getrimmtes.edit(i, zeile_A);
         }
+
+        // Element war gültig -> Als Anker für den nächsten Brückenbau merken
+        last_valid_idx = i;
+        last_valid_sp = parallele.at(i).count() - 1;
     }
     getrimmtes.add_vo("leerzeile");//Programmkopf
 
@@ -2619,9 +2549,95 @@ bool ist_zu_kurz(QString geo_text)
     }
     return true;
 }
+void verbinde_manuell(text_zw *zeileV, int spalteV, text_zw *zeileN, int spalteN)
+{
+    QString gV = zeileV->at(spalteV);
+    QString gN = zeileN->at(spalteN);
 
+    // Endpunkt von V und Startpunkt von N
+    punkt3d p_start = gV.contains(STRECKE) ? strecke(gV).endpu() : bogen(gV).epu();
+    punkt3d p_ziel  = gN.contains(STRECKE) ? strecke(gN).stapu() : bogen(gN).spu();
 
+    if (p_start == p_ziel) return;
 
+    // Parallelitäts-Check via Richtungsvektoren
+    double dxV = 0, dyV = 0, dxN = 0, dyN = 0;
+    if (gV.contains(STRECKE)) {
+        dxV = strecke(gV).endpu().x() - strecke(gV).stapu().x();
+        dyV = strecke(gV).endpu().y() - strecke(gV).stapu().y();
+    }
+    if (gN.contains(STRECKE)) {
+        dxN = strecke(gN).endpu().x() - strecke(gN).stapu().x();
+        dyN = strecke(gN).endpu().y() - strecke(gN).stapu().y();
+    }
+    double det = std::abs(dxV * dyN - dyV * dxN);
+
+    // Wenn fast parallel (Determinante klein) -> Immer Gerade (Steg)
+    if (det < 0.01) {
+        strecke steg;
+        steg.set_stapu(p_start);
+        steg.set_endpu(p_ziel);
+        if (!ist_zu_kurz(steg.text())) zeileV->add_hi(steg.text());
+    } else {
+        // Außenecke: Bogen versuchen
+        bogen vb = verbindungsbogen(gV, gN);
+        if (vb.rad() > 0.1 && vb.rad() < 200.0 && !ist_zu_kurz(vb.text())) {
+            zeileV->add_hi(vb.text());
+            // Sicherheits-Schluss zum Zielpunkt
+            if (vb.epu() != p_ziel) {
+                strecke füll; füll.set_stapu(vb.epu()); füll.set_endpu(p_ziel);
+                if (!ist_zu_kurz(füll.text())) zeileV->add_hi(füll.text());
+            }
+        } else {
+            // Fallback auf Gerade
+            strecke steg; steg.set_stapu(p_start); steg.set_endpu(p_ziel);
+            zeileV->add_hi(steg.text());
+        }
+    }
+}
+void handle_entfallendes_element(uint index_akt, geo_text *parallele, geo_text *getrimmtes,
+                                 int last_valid_idx, int last_valid_sp, text_zw bearb)
+{
+    // Nachfolger für die Brücke suchen
+    int index_next = finde_naechstes_gueltiges(*parallele, bearb, index_akt + 1);
+
+    if (last_valid_idx != -1 && index_next != -1) {
+        text_zw zeile_V = parallele->at(last_valid_idx);
+        text_zw zeile_N = parallele->at(index_next);
+        QString geoV = zeile_V.at(last_valid_sp);
+        QString geoN = zeile_N.at(0);
+
+        // Versuche Brücke zu trimmen
+        if (trimmenUniversal(&geoV, &geoN)) {
+            zeile_V.edit(last_valid_sp, geoV);
+            zeile_N.edit(0, geoN);
+            parallele->edit(last_valid_idx, zeile_V);
+            parallele->edit(index_next, zeile_N);
+            getrimmtes->edit(last_valid_idx, zeile_V);
+        } else {
+            // Wenn Trimmen fehlschlägt (Parallel/Außen) -> Steg oder Bogen
+            verbinde_manuell(&zeile_V, last_valid_sp, &zeile_N, 0);
+            parallele->edit(last_valid_idx, zeile_V);
+            getrimmtes->edit(last_valid_idx, zeile_V);
+        }
+    }
+}
+int finde_naechstes_gueltiges(geo_text &parallele, text_zw &bearb, int start) {
+    for (int k = start; k < (int)bearb.count(); k++) {
+        text_zw b_zeile;
+        b_zeile.set_text(bearb.at(k), TRENNZ_BEARB_PARAM);
+
+        // Abbruch wenn keine Fräsgeometrie (Bohren/Ende)
+        if (b_zeile.at(0) != BEARBART_FRAESERGERADE &&
+            b_zeile.at(0) != BEARBART_FRAESERBOGEN) return -1;
+
+        if (parallele.at(k).count() > 0) {
+            // Wir nehmen das erste Element der Zeile k, sofern es nicht "tot" ist
+            if (!ist_zu_kurz(parallele.at(k).at(0))) return k;
+        }
+    }
+    return -1;
+}
 
 
 

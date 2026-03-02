@@ -77,5 +77,9 @@ geo_text geo_ermitteln(text_zw bearb, double wst_l, double wst_b, double wst_d, 
 geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm);
 geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm);
 bool ist_zu_kurz(QString geo_text);
+void verbinde_manuell(text_zw *zeileV, int spalteV, text_zw *zeileN, int spalteN);
+void handle_entfallendes_element(uint index_akt, geo_text *parallele, geo_text *getrimmtes,
+                                 int last_valid_idx, int last_valid_sp, text_zw bearb);
+int finde_naechstes_gueltiges(geo_text &parallele, text_zw &bearb, int start);
 
 #endif // GEO_TEXT_H
