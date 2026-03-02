@@ -2437,7 +2437,10 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
 
     //Phase 3 (trimmen):
     geo_text getrimmtes = parallele;
-    QString bezug;    
+    QString bezug;
+    int last_valid_index = -1;
+    int last_valid_spalte = -1;
+
     for (uint index_bearb = 0; index_bearb < bearb.count(); index_bearb++)
     {
         text_zw zeile_A = parallele.at(index_bearb);
@@ -2447,16 +2450,8 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
         }
 
         // 1. Prüfen, ob das aktuelle Element selbst zu kurz ist (entfällt)
-        QString geoA = zeile_A.at(zeile_A.count() - 1);
-        if (ist_zu_kurz(geoA))// Überspringe dieses i komplett
-        {
-            if(zeile_A.count() == 1)//wenn das element was wir überspringen das einzige in dieser Zeile ist
-            {//dann füge eine leere zeile hinzu
-                text_zw tmp("leerzeile", '\n');
-                getrimmtes.edit(index_bearb, tmp);
-            }
-            continue;//und mache dann weiter in der nächsten Zeile
-        }
+        int akt_spalte = zeile_A.count() - 1;
+        QString geoA = zeile_A.at(akt_spalte);
 
         // 2. Suche das nächste gültige Element in der Fräsbahn
         uint j = index_bearb + 1;
@@ -2492,12 +2487,66 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
 
             if (trimmenUniversal(&geoA, &geoB))
             {
-                // Innenecke: Geometrien wurden gekürzt
-                zeile_A.edit(zeile_A.count() - 1, geoA);
-                zeile_B.edit(0, geoB);
-                parallele.edit(index_bearb, zeile_A);
-                parallele.edit(index_j, zeile_B);
-                getrimmtes.edit(index_bearb, zeile_A);
+                if (ist_zu_kurz(geoA))
+                {
+                    uint j = index_bearb + 1;
+                    int index_next = -1;
+
+                    // Suche das nächste gültige Element (Look-Ahead)
+                    while (j < bearb.count())
+                    {
+                        text_zw zeile_B_bearb;
+                        zeile_B_bearb.set_text(bearb.at(j), TRENNZ_BEARB_PARAM);
+                        if (zeile_B_bearb.at(0) != BEARBART_FRAESERGERADE &&
+                            zeile_B_bearb.at(0) != BEARBART_FRAESERBOGEN) break;
+
+                        text_zw zeile_B = parallele.at(j);
+                        if (zeile_B.count() > 0 && !ist_zu_kurz(zeile_B.at(0)))
+                        {
+                            index_next = j;
+                            break;
+                        }
+                        j++;
+                    }
+
+                    // Wenn wir ein Element davor (last_valid) UND ein Element danach (index_next) haben:
+                    if (last_valid_index != -1 && index_next != -1)
+                    {
+                        text_zw zeile_V = parallele.at(last_valid_index);
+                        text_zw zeile_N = parallele.at(index_next);
+                        QString geoV = zeile_V.at(last_valid_spalte);
+                        QString geoN = zeile_N.at(0);
+
+                        // Trimme das Element davor direkt mit dem Element danach
+                        if (trimmenUniversal(&geoV, &geoN))
+                        {
+                            zeile_V.edit(last_valid_spalte, geoV);
+                            zeile_N.edit(0, geoN);
+                            parallele.edit(last_valid_index, zeile_V);
+                            parallele.edit(index_next, zeile_N);
+                            getrimmtes.edit(last_valid_index, zeile_V);
+                        }
+                    }
+
+                    if(zeile_A.count() == 1)
+                    {
+                        text_zw tmp("leerzeile", '\n');
+                        getrimmtes.edit(index_bearb, tmp);
+                    }
+                    continue;
+                }else
+                {
+                    // Wenn Element A NICHT zu kurz ist, wird es zum neuen "last_valid"
+                    last_valid_index = index_bearb;
+                    last_valid_spalte = akt_spalte;
+
+                    // Innenecke: Geometrien wurden gekürzt
+                    zeile_A.edit(zeile_A.count() - 1, geoA);
+                    zeile_B.edit(0, geoB);
+                    parallele.edit(index_bearb, zeile_A);
+                    parallele.edit(index_j, zeile_B);
+                    getrimmtes.edit(index_bearb, zeile_A);
+                }
             } else
             {
                 // Außenecke: Verbindungsbogen einfügen
@@ -2550,10 +2599,14 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
 }
 bool ist_zu_kurz(QString geo_text)
 {
-    const double min_len = 0.001;
+    const double min_len = 0.5;
     if (geo_text.contains(STRECKE))
     {
         strecke s(geo_text);
+        if(s.stapu() == s.endpu())
+        {
+            return true;
+        }
         return s.laenge2d() < min_len;
     }else if (geo_text.contains(BOGEN))
     {

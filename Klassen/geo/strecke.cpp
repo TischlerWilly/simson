@@ -420,6 +420,52 @@ void strecke::set_laenge(double neue_laenge, strecke_bezugspunkt bezugspunkt)
 //Funktionen außerhalb der Klasse:
 bool trimmen(strecke *s1, strecke *s2)
 {
+    double min_laenge = 1.0; // Zentrale Mindestlänge für die Folgegeometrie
+
+    double dx1 = s1->endpu().x() - s1->stapu().x();
+    double dy1 = s1->endpu().y() - s1->stapu().y();
+    double dx2 = s2->endpu().x() - s2->stapu().x();
+    double dy2 = s2->endpu().y() - s2->stapu().y();
+
+    double len2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
+    double nenner = dx1 * dy2 - dy1 * dx2;
+
+    if (std::abs(nenner) < 1e-7) return false;
+
+    double ox = s2->stapu().x() - s1->stapu().x();
+    double oy = s2->stapu().y() - s1->stapu().y();
+
+    double t = (ox * dy2 - oy * dx2) / nenner;
+    double u = (ox * dy1 - oy * dx1) / nenner;
+
+    const double eps = 1e-6;
+
+    // Prüfung auf Innenecke (Trimmen möglich)
+    if (t < 1.0 + eps && u > -eps)
+    {
+        // --- S1: Darf auf 0 schrumpfen ---
+        if (t < 0.0) {
+            s1->set_endpu(s1->stapu()); // Länge wird exakt 0
+        } else {
+            s1->set_endpu(s1->stapu().x() + t * dx1, s1->stapu().y() + t * dy1, s1->stapu().z());
+        }
+
+        // --- S2: Schutzlogik (Startpunkt verschieben, Winkel erhalten) ---
+        // Wenn u so groß ist, dass S2 kürzer als min_laenge würde:
+        if (u > 1.0 - (min_laenge / len2)) {
+            double ux2 = dx2 / len2;
+            double uy2 = dy2 / len2;
+            // Setze Startpunkt exakt min_laenge vor das Ende
+            s2->set_stapu(s2->endpu().x() - ux2 * min_laenge,
+                          s2->endpu().y() - uy2 * min_laenge,
+                          s2->stapu().z());
+        } else {
+            s2->set_stapu(s2->stapu().x() + u * dx2, s2->stapu().y() + u * dy2, s2->stapu().z());
+        }
+        return true;
+    }
+    return false;
+    /*
     //Diese Funktion ist für Innenecken gedacht
     //Trimmt den Endpunkt von s1 und den Startpunkt von s2
     //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
@@ -481,9 +527,110 @@ bool trimmen(strecke *s1, strecke *s2)
 
     // Wenn der Schnittpunkt außerhalb liegt (Außenecke / Lücke),
     // liefern wir false zurück, damit später ein Bogen eingefügt werden kann.
+    */
 }
 bool trimmen(strecke *s1, bogen *b2)
 {
+    double min_laenge = 1.0; // Mindestlänge, die für den Bogen b2 erhalten bleiben muss
+
+    // 1. Daten der Strecke s1
+    double x1 = s1->stapu().x();
+    double y1 = s1->stapu().y();
+    double dx = s1->endpu().x() - x1;
+    double dy = s1->endpu().y() - y1;
+    double d_len = std::sqrt(dx * dx + dy * dy);
+
+    if (d_len < 1e-7) return false;
+
+    // 2. Daten des Bogens b2 (Mittelpunkt und Radius bleiben fix)
+    punkt3d m = b2->mipu();
+    double r  = b2->rad();
+    bool uzs  = b2->uzs();
+    punkt3d ep_alt = b2->epu(); // Das Ende von b2 muss fix bleiben
+
+    // 3. Quadratische Gleichung Gerade-Kreis (Schnittpunkt finden)
+    double ux = dx / d_len;
+    double uy = dy / d_len;
+    double ox = x1 - m.x();
+    double oy = y1 - m.y();
+
+    double B = 2 * (ox * ux + oy * uy);
+    double C = ox * ox + oy * oy - r * r;
+    double diskriminante = B * B - 4 * C;
+
+    double t_final;
+    if (diskriminante < 0) {
+        // Fallback: Lotfußpunkt als bestmögliche Annäherung
+        t_final = -(ox * ux + oy * uy);
+    } else {
+        double sqrtD = std::sqrt(diskriminante);
+        double t1 = (-B + sqrtD) / 2.0;
+        double t2 = (-B - sqrtD) / 2.0;
+
+        // Wir wählen den t-Wert, dessen Punkt näher am ursprünglichen Bogenstart liegt
+        auto dist_sq = [&](double t) {
+            double px = x1 + t * ux;
+            double py = y1 + t * uy;
+            return std::pow(px - b2->spu().x(), 2) + std::pow(py - b2->spu().y(), 2);
+        };
+        t_final = (dist_sq(t1) < dist_sq(t2)) ? t1 : t2;
+    }
+
+    // 4. Schnittpunkt berechnen und auf die Kreisbahn zwingen (Radius-Stabilität)
+    double px = x1 + t_final * ux;
+    double py = y1 + t_final * uy;
+    double dist_m = std::sqrt(std::pow(px - m.x(), 2) + std::pow(py - m.y(), 2));
+
+    if (dist_m > 1e-9) {
+        px = m.x() + (px - m.x()) * (r / dist_m);
+        py = m.y() + (py - m.y()) * (r / dist_m);
+    }
+    punkt3d schnittp(px, py, s1->endpu().z());
+
+    // 5. Plausibilitäts-Check (Verhindert 180° Sprünge auf die Rückseite)
+    double d_alt_start = std::sqrt(std::pow(px - b2->spu().x(), 2) + std::pow(py - b2->spu().y(), 2));
+    double d_alt_ende  = std::sqrt(std::pow(px - ep_alt.x(), 2) + std::pow(py - ep_alt.y(), 2));
+
+    // Wenn der neue Startpunkt näher am Ende als am alten Start liegt, ist es eine Außenecke
+    if (d_alt_ende < d_alt_start && d_alt_ende < r) return false;
+
+    // 6. GEOMETRIE AKTUALISIEREN
+
+    // --- S1: Darf auf 0 schrumpfen ---
+    if (t_final < 0.0) {
+        s1->set_endpu(s1->stapu()); // Länge wird 0 für Phase 3
+    } else {
+        s1->set_endpu(schnittp);
+    }
+
+    // --- B2: Schutzlogik (Mindestlänge erhalten) ---
+    // Wir prüfen die Sehnenlänge des verbleibenden Bogens
+    double rest_sehne = std::sqrt(std::pow(schnittp.x() - ep_alt.x(), 2) +
+                                  std::pow(schnittp.y() - ep_alt.y(), 2));
+
+    if (rest_sehne < min_laenge) {
+        // Falls der Bogen b2 fast verschwindet, verschieben wir den Startpunkt so,
+        // dass min_laenge als Sehne zum Endpunkt stehen bleibt.
+        double dx_se = schnittp.x() - ep_alt.x();
+        double dy_se = schnittp.y() - ep_alt.y();
+        double d_se  = std::sqrt(dx_se * dx_se + dy_se * dy_se);
+
+        if (d_se > 1e-7) {
+            double korr_x = ep_alt.x() + (dx_se / d_se) * min_laenge;
+            double korr_y = ep_alt.y() + (dy_se / d_se) * min_laenge;
+            // Erneute Projektion auf den Radius für absolute Präzision
+            double d_m_korr = std::sqrt(std::pow(korr_x - m.x(), 2) + std::pow(korr_y - m.y(), 2));
+            korr_x = m.x() + (korr_x - m.x()) * (r / d_m_korr);
+            korr_y = m.y() + (korr_y - m.y()) * (r / d_m_korr);
+
+            b2->set_bogen(punkt3d(korr_x, korr_y, schnittp.z()), ep_alt, r, uzs);
+        }
+    } else {
+        b2->set_bogen(schnittp, ep_alt, r, uzs);
+    }
+
+    return true;
+    /*
     //Trimmt den Endpunkt von s1 und den Startpunkt von b2
     //wenn die Operation erfolgreich ausgeführt werden kann gibt die Funkintion true zurück
     //wenn sich die Geometrien nicht schneiden gibt die Funktion false zurück
@@ -561,7 +708,7 @@ bool trimmen(strecke *s1, bogen *b2)
     // Wir setzen den Bogen neu (Start = Schnittpunkt, Ende = bleibt gleich)
     b2->set_bogen(schnittp, ep_alt, r_alt, uzs_alt);
 
-    return true;
+    return true;*/
 }
 bool trimmen(bogen *b1, strecke *s2)
 {

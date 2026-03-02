@@ -56,9 +56,9 @@ void dxf_importklasse::addPoint(const DRW_Point& data)  {}
 /** Called for every line */
 void dxf_importklasse::addLine(const DRW_Line& data)
 {
-    QMessageBox mb;
-    mb.setText("Linie gefunden");
-    mb.exec();
+    //QMessageBox mb;
+    //mb.setText("Linie gefunden");
+    //mb.exec();
 }
 
 /** Called for every ray */
@@ -70,9 +70,9 @@ void dxf_importklasse::addXline(const DRW_Xline& data)  {}
 /** Called for every arc */
 void dxf_importklasse::addArc(const DRW_Arc& data)
 {
-    QMessageBox mb;
-    mb.setText("Bogen gefunden");
-    mb.exec();
+    //QMessageBox mb;
+    //mb.setText("Bogen gefunden");
+    //mb.exec();
 }
 
 /** Called for every circle */
@@ -143,14 +143,14 @@ void dxf_importklasse::addCircle(const DRW_Circle& data)
             Wst->bearb_ptr()->add_hi(bo.text());
         }else
         {
-            QString msg;
-            msg += "Kreis mit Layernamen \"";
-            msg += klasse;
-            msg += "\" wurde beim Import übersprungen.";
-            QMessageBox mb;
-            mb.setText(msg);
-            mb.setWindowTitle("DXF importieren");
-            mb.exec();
+            //QString msg;
+            //msg += "Kreis mit Layernamen \"";
+            //msg += klasse;
+            //msg += "\" wurde beim Import übersprungen.";
+            //QMessageBox mb;
+            //mb.setText(msg);
+            //mb.setWindowTitle("DXF importieren");
+            //mb.exec();
         }
     }
 }
@@ -663,9 +663,9 @@ void dxf_importklasse::addLWPolyline(const DRW_LWPolyline& data)
 /** Called for every polyline start */
 void dxf_importklasse::addPolyline(const DRW_Polyline& data)
 {
-    QMessageBox mb;
-    mb.setText("Polylinie gefunden");
-    mb.exec();
+    //QMessageBox mb;
+    //mb.setText("Polylinie gefunden");
+    //mb.exec();
 }
 
 /** Called for every spline */
