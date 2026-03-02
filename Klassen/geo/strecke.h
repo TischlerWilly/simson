@@ -90,6 +90,13 @@ bool trimmen(strecke *s1, bogen *b2);
 bool trimmen(bogen *b1, strecke *s2);
 bool trimmen(bogen *b1, bogen *b2);
 bool trimmenUniversal(QString *geo1_text, QString *geo2_text);
+
+int trimmen_mit_status(strecke *s1, strecke *s2);
+int trimmen_status(strecke *s1, bogen *b2);
+int trimmen_status(bogen *b1, strecke *s2);
+int trimmen_status(bogen *b1, bogen *b2);
+int trimmenUniversalStatus(QString *geoA, QString *geoB);
+
 double normalize_radiant(double a);
 void set_farbeUniversal(QString *geo_text, QString farbe);
 void set_linienstilUniversal(QString *geo_text, QString stil);

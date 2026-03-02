@@ -822,6 +822,215 @@ bool trimmenUniversal(QString *geo1_text, QString *geo2_text)
     }
     return erfolg;
 }
+
+int trimmen_status(strecke *s1, strecke *s2)
+{
+    double dx1 = s1->endpu().x() - s1->stapu().x();
+    double dy1 = s1->endpu().y() - s1->stapu().y();
+    double dx2 = s2->endpu().x() - s2->stapu().x();
+    double dy2 = s2->endpu().y() - s2->stapu().y();
+    double nenner = dx1 * dy2 - dy1 * dx2;
+
+    if (std::abs(nenner) < 1e-7) return 0; // Parallel
+
+    double ox = s2->stapu().x() - s1->stapu().x();
+    double oy = s2->stapu().y() - s1->stapu().y();
+    double t = (ox * dy2 - oy * dx2) / nenner;
+    double u = (ox * dy1 - oy * dx1) / nenner;
+
+    if (t < 1.000001 && u > -0.000001)
+    {
+        punkt3d p(s1->stapu().x() + t * dx1, s1->stapu().y() + t * dy1, s1->stapu().z());
+        s1->set_endpu(p); s2->set_stapu(p);
+        if (t < 0.0) return 2; // S1 entfällt
+        if (u > 1.0) return 3; // S2 entfällt
+        return 1;
+    }
+    return 0;
+}
+int trimmen_status(strecke *s1, bogen *b2)
+{
+    punkt3d m = b2->mipu();
+    double r = b2->rad();
+    double dx = s1->endpu().x() - s1->stapu().x();
+    double dy = s1->endpu().y() - s1->stapu().y();
+    double d_len = std::sqrt(dx*dx + dy*dy);
+    if (d_len < 1e-7) return 0;
+
+    double ux = dx/d_len;
+    double uy = dy/d_len;
+    double ox = s1->stapu().x() - m.x();
+    double oy = s1->stapu().y() - m.y();
+
+    double B = 2 * (ox * ux + oy * uy);
+    double C = ox * ox + oy * oy - r * r;
+    double disk = B * B - 4 * C;
+
+    double t;
+    if (disk < 0) {
+        // Lotfußpunkt als Fallback, falls sie sich knapp verfehlen
+        t = -(ox * ux + oy * uy);
+    } else {
+        double sqrtD = std::sqrt(disk);
+        double t1 = (-B + sqrtD) / 2.0;
+        double t2 = (-B - sqrtD) / 2.0;
+
+        // WICHTIG: Wir suchen den Punkt, der am nächsten am URSPRÜNGLICHEN
+        // Übergang (Ende s1 / Start b2) liegt.
+        auto dist_zu_b2_start = [&](double t_val) {
+            double px = s1->stapu().x() + t_val * ux;
+            double py = s1->stapu().y() + t_val * uy;
+            return std::sqrt(std::pow(px - b2->spu().x(), 2) + std::pow(py - b2->spu().y(), 2));
+        };
+
+        t = (dist_zu_b2_start(t1) < dist_zu_b2_start(t2)) ? t1 : t2;
+    }
+
+    // Punkt auf Gerade berechnen
+    double gx = s1->stapu().x() + t * ux;
+    double gy = s1->stapu().y() + t * uy;
+
+    // Punkt auf den exakten Kreisradius projezieren (wichtig für set_bogen)
+    double dist_m = std::sqrt(std::pow(gx - m.x(), 2) + std::pow(gy - m.y(), 2));
+    punkt3d p_schnitt(m.x() + (gx - m.x()) * (r / dist_m),
+                      m.y() + (gy - m.y()) * (r / dist_m),
+                      s1->endpu().z());
+
+    // --- ENTSCHEIDUNG LOGIK ---
+    // Wir prüfen, ob der Schnittpunkt "vor" dem Bogenende liegt.
+    // Wenn er hinter dem Ende liegt, wäre der Bogen negativ -> Außenecke (Status 0)
+    double d_schnitt_ende = std::sqrt(std::pow(p_schnitt.x() - b2->epu().x(), 2) +
+                                      std::pow(p_schnitt.y() - b2->epu().y(), 2));
+    double d_start_ende = std::sqrt(std::pow(b2->spu().x() - b2->epu().x(), 2) +
+                                    std::pow(b2->spu().y() - b2->epu().y(), 2));
+
+    if (d_schnitt_ende > d_start_ende + r) return 0; // Punkt ist auf der Rückseite
+
+    // Geometrien anpassen
+    s1->set_endpu(p_schnitt);
+    b2->set_bogen(p_schnitt, b2->epu(), r, b2->uzs());
+
+    if (t < 0.0) return 2; // S1 entfällt
+    return 1; // Erfolg (auch wenn verlängert wurde!)
+}
+int trimmen_status(bogen *b1, strecke *s2) {
+    punkt3d m = b1->mipu();
+    double r = b1->rad();
+
+    // Daten der Folgestrecke s2
+    double x_s2 = s2->stapu().x();
+    double y_s2 = s2->stapu().y();
+    double dx = s2->endpu().x() - x_s2;
+    double dy = s2->endpu().y() - y_s2;
+    double d_len = std::sqrt(dx*dx + dy*dy);
+    if (d_len < 1e-7) return 0;
+
+    double ux = dx/d_len;
+    double uy = dy/d_len;
+    double ox = x_s2 - m.x();
+    double oy = y_s2 - m.y();
+
+    double B = 2 * (ox * ux + oy * uy);
+    double C = ox * ox + oy * oy - r * r;
+    double disk = B * B - 4 * C;
+
+    double u;
+    if (disk < 0) {
+        // Fallback: Lotfußpunkt, falls sie sich knapp verfehlen
+        u = -(ox * ux + oy * uy);
+    } else {
+        double sqrtD = std::sqrt(disk);
+        double u1 = (-B + sqrtD) / 2.0;
+        double u2 = (-B - sqrtD) / 2.0;
+        // Wähle das u, das näher am ursprünglichen Bogenende (u=0) liegt
+        u = (std::abs(u1) < std::abs(u2)) ? u1 : u2;
+    }
+
+    // Punkt auf der Geraden berechnen
+    double gx = x_s2 + u * ux;
+    double gy = y_s2 + u * uy;
+
+    // Auf Kreisbahn projizieren
+    double dist_m = std::sqrt(std::pow(gx - m.x(), 2) + std::pow(gy - m.y(), 2));
+    punkt3d p_schnitt(m.x() + (gx - m.x()) * (r / dist_m),
+                      m.y() + (gy - m.y()) * (r / dist_m),
+                      s2->stapu().z());
+
+    // --- Validierung: Ist es eine Innenecke? ---
+    // Wir prüfen, ob der Schnittpunkt nicht "hinter" dem Start des Bogens liegt
+    double d_sp_ep_alt = std::sqrt(std::pow(b1->spu().x() - b1->epu().x(), 2) +
+                                   std::pow(b1->spu().y() - b1->epu().y(), 2));
+    double d_sp_schnitt = std::sqrt(std::pow(b1->spu().x() - p_schnitt.x(), 2) +
+                                    std::pow(b1->spu().y() - p_schnitt.y(), 2));
+
+    if (d_sp_schnitt > d_sp_ep_alt + r) return 0; // Rückseite des Kreises
+
+    // Geometrie anpassen
+    b1->set_bogen(b1->spu(), p_schnitt, r, b1->uzs());
+    s2->set_stapu(p_schnitt);
+
+    // STATUS-Check
+    // 1. Ist b1 (Bogen) durch das Trimmen gestorben? (Sehne < 0.1mm)
+    if (d_sp_schnitt < 0.1) return 2;
+
+    // 2. Ist s2 (Strecke) durch das Trimmen gestorben? (Schnittpunkt nach Ende)
+    if (u > d_len) return 3;
+
+    return 1; // Erfolg
+}
+int trimmen_status(bogen *b1, bogen *b2) {
+    punkt3d m1 = b1->mipu(), m2 = b2->mipu();
+    double r1 = b1->rad(), r2 = b2->rad();
+    double dx = m2.x() - m1.x(), dy = m2.y() - m1.y();
+    double d = std::sqrt(dx*dx + dy*dy);
+    if (d > r1+r2 || d < std::abs(r1-r2) || d < 1e-7) return 0;
+
+    double a = (r1*r1 - r2*r2 + d*d) / (2*d);
+    double h = std::sqrt(std::max(0.0, r1*r1 - a*a));
+    double x2 = m1.x() + a*dx/d, y2 = m1.y() + a*dy/d;
+
+    // Zwei mögliche Schnittpunkte
+    punkt3d s1(x2 + h*dy/d, y2 - h*dx/d, b1->mipu().z());
+    punkt3d s2(x2 - h*dy/d, y2 + h*dx/d, b1->mipu().z());
+
+    // Wähle den, der näher am Übergang liegt
+    punkt3d p = (std::sqrt(std::pow(s1.x()-b1->epu().x(),2)) < std::sqrt(std::pow(s2.x()-b1->epu().x(),2))) ? s1 : s2;
+
+    b1->set_bogen(b1->spu(), p, r1, b1->uzs());
+    b2->set_bogen(p, b2->epu(), r2, b2->uzs());
+
+    if (std::sqrt(std::pow(p.x()-b1->spu().x(),2)) < 0.1) return 2;
+    if (std::sqrt(std::pow(p.x()-b2->epu().x(),2)) < 0.1) return 3;
+    return 1;
+}
+int trimmenUniversalStatus(QString *geoA, QString *geoB) {
+    if (geoA->contains(STRECKE) && geoB->contains(STRECKE)) {
+        strecke s1(*geoA), s2(*geoB);
+        int res = trimmen_status(&s1, &s2);
+        if (res > 0) { *geoA = s1.text(); *geoB = s2.text(); }
+        return res;
+    }
+    else if (geoA->contains(STRECKE) && geoB->contains(BOGEN)) {
+        strecke s1(*geoA); bogen b2(*geoB);
+        int res = trimmen_status(&s1, &b2);
+        if (res > 0) { *geoA = s1.text(); *geoB = b2.text(); }
+        return res;
+    }
+    else if (geoA->contains(BOGEN) && geoB->contains(STRECKE)) {
+        bogen b1(*geoA); strecke s2(*geoB);
+        int res = trimmen_status(&b1, &s2);
+        if (res > 0) { *geoA = b1.text(); *geoB = s2.text(); }
+        return res;
+    }
+    else if (geoA->contains(BOGEN) && geoB->contains(BOGEN)) {
+        bogen b1(*geoA); bogen b2(*geoB);
+        int res = trimmen_status(&b1, &b2);
+        if (res > 0) { *geoA = b1.text(); *geoB = b2.text(); }
+        return res;
+    }
+    return 0;
+}
+
 double normalize_radiant(double a)
 {
     while (a > M_PI)  a -= 2.0 * M_PI;

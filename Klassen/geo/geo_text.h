@@ -78,8 +78,14 @@ geo_text geo_ermitteln_akt_fkon(text_zw bearb, double versatz_x, double versatz_
 geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double versatz_y, wkz_magazin wkzm);
 bool ist_zu_kurz(QString geo_text);
 void verbinde_manuell(text_zw *zeileV, int spalteV, text_zw *zeileN, int spalteN);
+punkt3d get_startpunkt(QString geo);
+punkt3d get_endpunkt(QString geo);
 void handle_entfallendes_element(uint index_akt, geo_text *parallele, geo_text *getrimmtes,
                                  int last_valid_idx, int last_valid_sp, text_zw bearb);
+bool trimmenBruecke(QString *geoA, QString *geoB);
+bool trimmen_unendlich(strecke *s1, strecke *s2);
+bool trimmen_unendlich_strecke(strecke *s1, strecke *s2);
+bool trimmen_unendlich_universal(QString *geoA, QString *geoB);
 int finde_naechstes_gueltiges(geo_text &parallele, text_zw &bearb, int start);
 
 #endif // GEO_TEXT_H

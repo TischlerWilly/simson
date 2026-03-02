@@ -2440,64 +2440,70 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
     int last_valid_idx = -1;
     int last_valid_sp  = -1;
 
-    for (uint i = 0; i < bearb.count(); i++) {
-        // Jede Zeile im Ergebnis erst einmal als leer markieren
+    for (int i = 0; i < (int)bearb.count(); i++) {
         text_zw leerzeile_tmp("leerzeile", '\n');
         getrimmtes.edit(i, leerzeile_tmp);
 
         text_zw zeile_A = parallele.at(i);
         if (zeile_A.text().contains("leerzeile") || zeile_A.count() == 0) {
-            last_valid_idx = -1; // Kette unterbrochen
+            last_valid_idx = -1;
             continue;
         }
 
         int sp_A = zeile_A.count() - 1;
         QString geoA = zeile_A.at(sp_A);
 
-        // 1. Vor-Check: Ist das Element von vornherein zu kurz?
         if (ist_zu_kurz(geoA)) {
             handle_entfallendes_element(i, &parallele, &getrimmtes, last_valid_idx, last_valid_sp, bearb);
             continue;
         }
 
-        // 2. Suche Nachfolger für die Verbindung
         int index_j = finde_naechstes_gueltiges(parallele, bearb, i + 1);
 
         if (index_j != -1) {
             text_zw zeile_B = parallele.at(index_j);
             QString geoB = zeile_B.at(0);
 
-            // --- SCHRITT A: TRIMMEN (Innenecke) ---
-            if (trimmenUniversal(&geoA, &geoB)) {
-                // Prüfung: Ist geoA durch das Trimmen gestorben (z.B. die 1mm-Strecke)?
-                if (ist_zu_kurz(geoA)) {
-                    handle_entfallendes_element(i, &parallele, &getrimmtes, last_valid_idx, last_valid_sp, bearb);
-                    continue; // Zeile i wird NICHT zu getrimmtes hinzugefügt
-                } else {
-                    // Erfolg: Gekürzte Geometrien speichern
-                    zeile_A.edit(sp_A, geoA);
-                    zeile_B.edit(0, geoB);
-                    parallele.edit(i, zeile_A);
-                    parallele.edit(index_j, zeile_B);
-                    getrimmtes.edit(i, zeile_A);
-                }
+            // Sonderfall: Fräseraufruf-Punkt auf versetzten Start setzen
+            if (geoA.contains(PUNKT)) {
+                punkt3d p_start_B = get_startpunkt(geoB);
+                punkt3d p_neu(p_start_B.x(), p_start_B.y(), p_start_B.z());
+                zeile_A.edit(sp_A, p_neu.text());
+                parallele.edit(i, zeile_A);
+                getrimmtes.edit(i, zeile_A);
+                last_valid_idx = i; last_valid_sp = sp_A;
+                continue;
             }
-            // --- SCHRITT B: AUSSENECKE / PARALLEL ---
-            else {
+
+            int status = trimmenUniversalStatus(&geoA, &geoB);
+
+            if (status == 1) { // Erfolg
+                zeile_A.edit(sp_A, geoA);
+                zeile_B.edit(0, geoB);
+                parallele.edit(i, zeile_A);
+                parallele.edit(index_j, zeile_B);
+                getrimmtes.edit(i, zeile_A);
+            } else if (status == 2) { // S1 entfällt
+                handle_entfallendes_element(i, &parallele, &getrimmtes, last_valid_idx, last_valid_sp, bearb);
+                continue;
+            } else if (status == 3) { // S2 entfällt
+                text_zw leer("leerzeile", '\n');
+                parallele.edit(index_j, leer);
+                getrimmtes.edit(index_j, leer);
+                i--; continue;
+            } else { // Außenecke oder Parallel
                 text_zw kombi_zeile = zeile_A;
                 verbinde_manuell(&kombi_zeile, sp_A, &zeile_B, 0);
                 getrimmtes.edit(i, kombi_zeile);
                 parallele.edit(i, kombi_zeile);
             }
         } else {
-            // Letztes Element der Bahn
             getrimmtes.edit(i, zeile_A);
         }
-
-        // Element war gültig -> Als Anker für den nächsten Brückenbau merken
         last_valid_idx = i;
         last_valid_sp = parallele.at(i).count() - 1;
     }
+
     getrimmtes.add_vo("leerzeile");//Programmkopf
 
     //geo_text kopie_getrimmtes = getrimmtes;
@@ -2527,25 +2533,13 @@ geo_text geo_ermitteln_leitlinie_fkon(text_zw bearb, double versatz_x, double ve
     }
     return getrimmtes;
 }
-bool ist_zu_kurz(QString geo_text)
-{
-    const double min_len = 0.5;
-    if (geo_text.contains(STRECKE))
-    {
-        strecke s(geo_text);
-        if(s.stapu() == s.endpu())
-        {
-            return true;
-        }
-        return s.laenge2d() < min_len;
-    }else if (geo_text.contains(BOGEN))
-    {
-        bogen b(geo_text);
-        // Ein Bogen ist zu kurz, wenn sein Spannwinkel fast 0 ist
-        return std::abs(b.spannwinkel()) < 0.0001 || b.rad() < min_len;
-    }else if (geo_text.contains(PUNKT))
-    {
-        return false;
+bool ist_zu_kurz(QString geo_text) {
+    if (geo_text.contains(PUNKT)) return false; // Punkte sind nie zu kurz
+    if (geo_text.contains(STRECKE)) {
+        strecke s(geo_text); return s.laenge2d() < 0.1;
+    }
+    if (geo_text.contains(BOGEN)) {
+        bogen b(geo_text); return std::abs(b.spannwinkel()) < 0.001 || b.rad() < 0.1;
     }
     return true;
 }
@@ -2553,52 +2547,46 @@ void verbinde_manuell(text_zw *zeileV, int spalteV, text_zw *zeileN, int spalteN
 {
     QString gV = zeileV->at(spalteV);
     QString gN = zeileN->at(spalteN);
-
-    // Endpunkt von V und Startpunkt von N
-    punkt3d p_start = gV.contains(STRECKE) ? strecke(gV).endpu() : bogen(gV).epu();
-    punkt3d p_ziel  = gN.contains(STRECKE) ? strecke(gN).stapu() : bogen(gN).spu();
+    punkt3d p_start = get_endpunkt(gV);
+    punkt3d p_ziel  = get_startpunkt(gN);
 
     if (p_start == p_ziel) return;
 
-    // Parallelitäts-Check via Richtungsvektoren
     double dxV = 0, dyV = 0, dxN = 0, dyN = 0;
-    if (gV.contains(STRECKE)) {
-        dxV = strecke(gV).endpu().x() - strecke(gV).stapu().x();
-        dyV = strecke(gV).endpu().y() - strecke(gV).stapu().y();
-    }
-    if (gN.contains(STRECKE)) {
-        dxN = strecke(gN).endpu().x() - strecke(gN).stapu().x();
-        dyN = strecke(gN).endpu().y() - strecke(gN).stapu().y();
-    }
+    if (gV.contains(STRECKE)) { strecke s(gV); dxV = s.endpu().x()-s.stapu().x(); dyV = s.endpu().y()-s.stapu().y(); }
+    if (gN.contains(STRECKE)) { strecke s(gN); dxN = s.endpu().x()-s.stapu().x(); dyN = s.endpu().y()-s.stapu().y(); }
+
+    double lenV = std::sqrt(dxV*dxV + dyV*dyV);
+    double lenN = std::sqrt(dxN*dxN + dyN*dyN);
     double det = std::abs(dxV * dyN - dyV * dxN);
 
-    // Wenn fast parallel (Determinante klein) -> Immer Gerade (Steg)
-    if (det < 0.01) {
-        strecke steg;
-        steg.set_stapu(p_start);
-        steg.set_endpu(p_ziel);
+    // Parallel-Check: Wenn Winkel < 1° -> Steg (Gerade)
+    if (lenV < 1e-4 || lenN < 1e-4 || (det / (lenV * lenN)) < 0.017) {
+        strecke steg; steg.set_stapu(p_start); steg.set_endpu(p_ziel);
         if (!ist_zu_kurz(steg.text())) zeileV->add_hi(steg.text());
     } else {
-        // Außenecke: Bogen versuchen
         bogen vb = verbindungsbogen(gV, gN);
-        if (vb.rad() > 0.1 && vb.rad() < 200.0 && !ist_zu_kurz(vb.text())) {
-            zeileV->add_hi(vb.text());
-            // Sicherheits-Schluss zum Zielpunkt
-            if (vb.epu() != p_ziel) {
-                strecke füll; füll.set_stapu(vb.epu()); füll.set_endpu(p_ziel);
-                if (!ist_zu_kurz(füll.text())) zeileV->add_hi(füll.text());
-            }
-        } else {
-            // Fallback auf Gerade
+        if (vb.rad() > 0.1 && vb.rad() < 200.0) zeileV->add_hi(vb.text());
+        else {
             strecke steg; steg.set_stapu(p_start); steg.set_endpu(p_ziel);
             zeileV->add_hi(steg.text());
         }
     }
 }
+punkt3d get_startpunkt(QString geo) {
+    if (geo.contains(STRECKE)) return strecke(geo).stapu();
+    if (geo.contains(BOGEN)) return bogen(geo).spu();
+    return punkt3d(0,0,0);
+}
+
+punkt3d get_endpunkt(QString geo) {
+    if (geo.contains(STRECKE)) return strecke(geo).endpu();
+    if (geo.contains(BOGEN)) return bogen(geo).epu();
+    return punkt3d(0,0,0);
+}
 void handle_entfallendes_element(uint index_akt, geo_text *parallele, geo_text *getrimmtes,
                                  int last_valid_idx, int last_valid_sp, text_zw bearb)
 {
-    // Nachfolger für die Brücke suchen
     int index_next = finde_naechstes_gueltiges(*parallele, bearb, index_akt + 1);
 
     if (last_valid_idx != -1 && index_next != -1) {
@@ -2607,33 +2595,98 @@ void handle_entfallendes_element(uint index_akt, geo_text *parallele, geo_text *
         QString geoV = zeile_V.at(last_valid_sp);
         QString geoN = zeile_N.at(0);
 
-        // Versuche Brücke zu trimmen
-        if (trimmenUniversal(&geoV, &geoN)) {
+        // Brücke "zuziehen" durch unendliches Trimmen (Verlängern erlaubt)
+        if (trimmen_unendlich_universal(&geoV, &geoN)) {
             zeile_V.edit(last_valid_sp, geoV);
             zeile_N.edit(0, geoN);
             parallele->edit(last_valid_idx, zeile_V);
             parallele->edit(index_next, zeile_N);
             getrimmtes->edit(last_valid_idx, zeile_V);
         } else {
-            // Wenn Trimmen fehlschlägt (Parallel/Außen) -> Steg oder Bogen
+            // Wenn absolut parallel oder extrem: Steg/Bogen
             verbinde_manuell(&zeile_V, last_valid_sp, &zeile_N, 0);
             parallele->edit(last_valid_idx, zeile_V);
             getrimmtes->edit(last_valid_idx, zeile_V);
         }
     }
 }
+bool trimmenBruecke(QString *geoA, QString *geoB) {
+    if (geoA->contains(STRECKE) && geoB->contains(STRECKE)) {
+        strecke s1(*geoA), s2(*geoB);
+        // Nutze hier eine Schnittpunktberechnung, die t und u ignoriert
+        // (Schnittpunkt unendlicher Geraden)
+        if (trimmen_unendlich(&s1, &s2)) {
+            *geoA = s1.text(); *geoB = s2.text();
+            return true;
+        }
+    }
+    // Analog für Strecke-Bogen: Hier wird die Lotfußpunkt-Logik genutzt
+    return false;
+}
+bool trimmen_unendlich(strecke *s1, strecke *s2) {
+    double dx1 = s1->endpu().x() - s1->stapu().x();
+    double dy1 = s1->endpu().y() - s1->stapu().y();
+    double dx2 = s2->endpu().x() - s2->stapu().x();
+    double dy2 = s2->endpu().y() - s2->stapu().y();
+
+    double nenner = dx1 * dy2 - dy1 * dx2;
+    if (std::abs(nenner) < 1e-7) return false; // Absolut parallel -> keine Chance
+
+    double ox = s2->stapu().x() - s1->stapu().x();
+    double oy = s2->stapu().y() - s1->stapu().y();
+
+    // Wir berechnen t (Position auf s1) ohne 0..1 Schranke
+    double t = (ox * dy2 - oy * dx2) / nenner;
+
+    punkt3d p_schnitt(s1->stapu().x() + t * dx1,
+                      s1->stapu().y() + t * dy1,
+                      s1->stapu().z());
+
+    s1->set_endpu(p_schnitt);
+    s2->set_stapu(p_schnitt);
+    return true;
+}
+bool trimmen_unendlich_strecke(strecke *s1, strecke *s2) {
+    double dx1 = s1->endpu().x() - s1->stapu().x();
+    double dy1 = s1->endpu().y() - s1->stapu().y();
+    double dx2 = s2->endpu().x() - s2->stapu().x();
+    double dy2 = s2->endpu().y() - s2->stapu().y();
+    double nenner = dx1 * dy2 - dy1 * dx2;
+    if (std::abs(nenner) < 1e-7) return false;
+
+    double ox = s2->stapu().x() - s1->stapu().x();
+    double oy = s2->stapu().y() - s1->stapu().y();
+    double t = (ox * dy2 - oy * dx2) / nenner;
+
+    punkt3d p(s1->stapu().x() + t * dx1, s1->stapu().y() + t * dy1, s1->stapu().z());
+    s1->set_endpu(p);
+    s2->set_stapu(p);
+    return true;
+}
+bool trimmen_unendlich_universal(QString *geoA, QString *geoB) {
+    if (geoA->contains(STRECKE) && geoB->contains(STRECKE)) {
+        strecke s1(*geoA), s2(*geoB);
+        if (trimmen_unendlich_strecke(&s1, &s2)) {
+            *geoA = s1.text(); *geoB = s2.text();
+            return true;
+        }
+    }
+    // Falls Strecke-Bogen: Hier die Lotfußpunkt-Logik nutzen (bereits implementiert)
+    return false;
+}
 int finde_naechstes_gueltiges(geo_text &parallele, text_zw &bearb, int start) {
     for (int k = start; k < (int)bearb.count(); k++) {
         text_zw b_zeile;
         b_zeile.set_text(bearb.at(k), TRENNZ_BEARB_PARAM);
 
-        // Abbruch wenn keine Fräsgeometrie (Bohren/Ende)
+        // Stopp, wenn die Fräskette reißt (Bohren, etc.)
         if (b_zeile.at(0) != BEARBART_FRAESERGERADE &&
             b_zeile.at(0) != BEARBART_FRAESERBOGEN) return -1;
 
         if (parallele.at(k).count() > 0) {
-            // Wir nehmen das erste Element der Zeile k, sofern es nicht "tot" ist
-            if (!ist_zu_kurz(parallele.at(k).at(0))) return k;
+            QString geo = (parallele.at(k)).at(0);
+            // Ein Punkt ist kein Trimmpartner, aber ein gültiges Kettenlied
+            if (!ist_zu_kurz(geo) || geo.contains(PUNKT)) return k;
         }
     }
     return -1;
