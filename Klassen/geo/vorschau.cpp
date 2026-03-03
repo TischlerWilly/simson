@@ -69,6 +69,11 @@ void vorschau::paintEvent(QPaintEvent *)
 {
     update_cad();
 }
+void vorschau::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event); // Basisklasse aufrufen
+    emit groesseGeaendert();        // Signal senden
+}
 
 void vorschau::zeichneGeotext(QPainter &painter, QString geometrieElement, int i)
 {

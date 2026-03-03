@@ -23,18 +23,19 @@ public:
     void set_prgEinstellungen(einstellung *e);
 
 protected:
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     void zeichneGeotext(QPainter &painter, QString geometrieElement, int i);
     void update_cad();
     float sf();
     void set_sf(float neuer_faktor);
-    void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
     double get_ideal_zf();
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void zoom(bool dichter);
     punkt3d mauspos_vom_np();
     uint zeile_von_Mauspos();
@@ -59,6 +60,7 @@ private:
 signals:
     void sende_maus_pos(punkt3d p);
     void sende_zeilennummer(uint nr, bool bearbeiten);
+    void groesseGeaendert();
 
 public slots:
     void slot_aktualisieren(geo_text gt, geo_text fkon, geo_text leitlinieFkon, int aktive_zeile);

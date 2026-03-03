@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Installiere den Shortcut-Filter NUR für das spezifische ListWidget
     ui->listWidget_bearb->installEventFilter(this);
 
+    //setupLayout();
+    setupGui();
     this->setWindowState(Qt::WindowMaximized);
 }
 
@@ -308,36 +310,68 @@ void MainWindow::schreibe_maschinen()
 //Grafik und UI allgemein:
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
-    //---Vorschaufenster:
-    vorschaufenster.setParent(this);
-    vorschaufenster.move(5,25);
-    vorschaufenster.setFixedWidth(this->width()-270);
-    vorschaufenster.setFixedHeight(this->height()-10);
-    vorschaufenster.slot_aktualisieren();
+    QMainWindow::resizeEvent(event);
+    //vorschaufenster.slot_aktualisieren();
+}
+void MainWindow::setupGui()
+{
+    // 1. Das Vorschaufenster als festes Zentrum setzen
+    // Es füllt automatisch den Platz aus, den das DockWidget freilässt.
+    setCentralWidget(&vorschaufenster);
 
-    //rechter Bereich
-    int x = vorschaufenster.pos().rx()+vorschaufenster.width()+5;
-    ui->btn_quick_import->move(x, 5);
+    // 2. Das DockWidget für den rechten Bereich erstellen
+    QDockWidget *dock = new QDockWidget(tr("Steuerung & Listen"), this);
+    dock->setObjectName("RightControlDock"); // Wichtig für das Speichern des Layouts später
+    dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
 
-    int h = (this->height()-ui->listWidget_dateien->pos().y()-60)/2 - 25;
-    int b = this->width() - x - 5;
-    ui->listWidget_dateien->move(x, ui->btn_quick_import->pos().y()+ui->btn_quick_import->height()+5);
-    ui->listWidget_dateien->setFixedHeight(h);
-    ui->listWidget_dateien->setFixedWidth(b);
+    // 3. Container-Widget für den Inhalt des Docks
+    QWidget *dockContent = new QWidget();
+    QVBoxLayout *mainLayoutRechts = new QVBoxLayout(dockContent);
+    mainLayoutRechts->setContentsMargins(5, 5, 5, 5);
+    mainLayoutRechts->setSpacing(5);
 
-    ui->listWidget_bearb->move(x, ui->listWidget_dateien->pos().y()+ h + 5);
-    ui->listWidget_bearb->setFixedHeight(h);
-    ui->listWidget_bearb->setFixedWidth(b);
+    // --- A: Der Import-Button oben (fixe Höhe) ---
+    mainLayoutRechts->addWidget(ui->btn_quick_import);
 
-    int y = ui->listWidget_bearb->pos().y() + h + 2;
-    ui->label_mauspos->move(x, y);
-    b = b/2-5;
-    ui->label_mauspos->setFixedWidth(b);
-    ui->label_mauspos->setFixedHeight(20);
+    // --- B: Der vertikale Splitter für die beiden Listen ---
+    QSplitter *vertikalerSplitter = new QSplitter(Qt::Vertical);
+    vertikalerSplitter->addWidget(ui->listWidget_dateien);
+    vertikalerSplitter->addWidget(ui->listWidget_bearb);
 
-    ui->comboBox_maschinen->move(x+b+10, y);
-    ui->comboBox_maschinen->setFixedWidth(b);
-    ui->comboBox_maschinen->setFixedHeight(20);
+    // Start-Verhältnis 50/50 setzen
+    vertikalerSplitter->setStretchFactor(0, 1);
+    vertikalerSplitter->setStretchFactor(1, 1);
+
+    // Den Splitter in das Hauptlayout des Docks packen
+    mainLayoutRechts->addWidget(vertikalerSplitter);
+
+    // --- C: Die untere Zeile (Mauspos & Maschinen) ---
+    QHBoxLayout *hLayoutUnten = new QHBoxLayout();
+    hLayoutUnten->addWidget(ui->label_mauspos);
+    hLayoutUnten->addWidget(ui->comboBox_maschinen);
+    mainLayoutRechts->addLayout(hLayoutUnten);
+
+    // 4. Das fertige Layout dem Dock zuweisen
+    dock->setWidget(dockContent);
+    addDockWidget(Qt::RightDockWidgetArea, dock);
+
+    // 5. Signale für die Aktualisierung verbinden
+
+    // Fall A: Der Nutzer verändert die Größe des angedockten Bereichs (Resizing)
+    connect(&vorschaufenster, &vorschau::groesseGeaendert, this, [this]()
+            {
+                vorschaufenster.slot_aktualisieren();
+            });
+
+    // Fall B: Dock wird gelöst (Float) oder angedockt
+    connect(dock, &QDockWidget::topLevelChanged, this, [this](bool floating)
+            {
+                vorschaufenster.slot_aktualisieren();
+            });
+
+    // Die gewünschte Startbreite erzwingen
+    // resizeDocks erwartet eine Liste von Docks und eine Liste von Pixel-Werten
+    resizeDocks({dock}, {350}, Qt::Horizontal);
 }
 void MainWindow::closeEvent(QCloseEvent *event)
 {
@@ -2630,7 +2664,12 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
             afb = ausdruck_auswerten(gzp.afb()).toDouble();
         }
 
-        ui->listWidget_bearb->addItem(bearb);
+        QString zeilentext;
+        zeilentext += "(";
+        zeilentext += int_to_qstring(i+1);
+        zeilentext += ") ";
+        zeilentext += bearb;
+        ui->listWidget_bearb->addItem(zeilentext);
         ui->listWidget_bearb->item(i+1)->setBackground(farbe);
 
         if(afb <= 0)

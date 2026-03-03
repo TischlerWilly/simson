@@ -6,6 +6,9 @@
 #include <QInputDialog>
 #include <QDirIterator>
 #include <QKeyEvent>
+#include <QSplitter>
+#include <QVBoxLayout>
+#include <QDockWidget>
 
 #include "Klassen/einstellung.h"
 #include "Klassen/prgpfade.h"
@@ -65,6 +68,7 @@ private:
     einstellung Einstellung;
     einstellung_dxf Einstellung_dxf;
     einstellung_dxf_klassen Einstellung_dxf_klassen;
+    int Breite_listwidget = 270;
     prgpfade PrgPfade;
     QString KopierterEintrag;
     QString Pfad_letzte_geoeffnete_datei;
@@ -77,8 +81,9 @@ private:
 
 private slots:
     //Grafik und UI allgemein:
-    void resizeEvent(QResizeEvent *event);
-    void closeEvent(QCloseEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
+    void setupGui();
+    void closeEvent(QCloseEvent *event) override;
     void set_vorschaufenster_default();
     void getMausPosXY(punkt3d p);
     void aktualisiere_fendtertitel();
