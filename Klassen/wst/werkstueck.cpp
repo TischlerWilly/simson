@@ -71,6 +71,12 @@ void werkstueck::set_text(QString text)
         }else if(zeile.contains("Sicherheitsabstand:"))
         {
             set_sichabst(text_rechts(zeile, "Sicherheitsabstand:"));
+        }else if(zeile.contains("Material:"))
+        {
+            set_sichabst(text_rechts(zeile, "Material:"));
+        }else if(zeile.contains("Kommentar:"))
+        {
+            set_sichabst(text_rechts(zeile, "Kommentar:"));
         }
     }
 
@@ -146,6 +152,14 @@ void werkstueck::set_dateipfad(QString pfad)
         QFileInfo info(pfad);
         set_name(info.baseName());
     }
+}
+void werkstueck::set_material(QString mat)
+{
+    Material = mat;
+}
+void werkstueck::set_kommentar(QString kom)
+{
+    Kommentar = kom;
 }
 void werkstueck::set_versatz_x(double versatz)
 {
@@ -237,6 +251,14 @@ QString werkstueck::text()
 
     msg += "Sicherheitsabstand:";
     msg += sichabst_qstring();
+    msg += "\n";
+
+    msg += "Material:";
+    msg += material();
+    msg += "\n";
+
+    msg += "Kommentar:";
+    msg += kommentar();
     msg += "\n";
 
     msg += "[ENDE_Programmkopf]";
@@ -365,6 +387,8 @@ void werkstueck::undo()
     Prgend_y = UnReDo_prgend_y.undo();
     Prgend_z = UnReDo_prgend_z.undo();
     SichAbst = UnReDo_sichabst.undo();
+    Material = UnReDo_mat.undo();
+    Kommentar = UnReDo_kom.undo();
 }
 void werkstueck::redo()
 {
@@ -379,6 +403,8 @@ void werkstueck::redo()
     Prgend_y = UnReDo_prgend_y.redo();
     Prgend_z = UnReDo_prgend_z.redo();
     SichAbst = UnReDo_sichabst.redo();
+    Material = UnReDo_mat.redo();
+    Kommentar = UnReDo_kom.redo();
 }
 void werkstueck::unredo_neu()
 {
@@ -427,6 +453,14 @@ void werkstueck::unredo_neu()
     {
         anders = true;
     }
+    if(UnReDo_mat.akt_elem() != Material)
+    {
+        anders = true;
+    }
+    if(UnReDo_kom.akt_elem() != Kommentar)
+    {
+        anders = true;
+    }
 
     if(anders == true)
     {
@@ -441,6 +475,8 @@ void werkstueck::unredo_neu()
         UnReDo_prgend_y.neu(Prgend_y);
         UnReDo_prgend_z.neu(Prgend_z);
         UnReDo_sichabst.neu(SichAbst);
+        UnReDo_mat.neu(Material);
+        UnReDo_kom.neu(Kommentar);
     }
 }
 void werkstueck::unredo_clear()
@@ -456,6 +492,8 @@ void werkstueck::unredo_clear()
     UnReDo_prgend_y.clear();
     UnReDo_prgend_z.clear();
     UnReDo_sichabst.clear();
+    UnReDo_mat.clear();
+    UnReDo_kom.clear();
 }
 
 //#######################################################################

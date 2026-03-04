@@ -41,6 +41,8 @@ public:
     void set_bearb(text_zw b);
     void set_name(QString neuer_name);
     void set_dateipfad(QString pfad);
+    void set_material(QString mat);
+    void set_kommentar(QString kom);
     void set_versatz_x(double versatz);
     void set_versatz_y(double versatz);
     void set_versatz_z(double versatz);
@@ -133,6 +135,14 @@ public:
     {
         return Dateipfad;
     }
+    inline QString material()
+    {
+        return Material;
+    }
+    inline QString kommentar()
+    {
+        return Kommentar;
+    }
     inline text_zw bearb()
     {
         return Bearb;
@@ -174,6 +184,8 @@ private:
     text_zw Bearb;
     QString Name;
     QString Dateipfad;
+    QString Material;
+    QString Kommentar;
 
     undo_redo<text_zw> UnReDo;
     undo_redo<double> UnReDo_L;
@@ -186,6 +198,8 @@ private:
     undo_redo<QString> UnReDo_prgend_y;
     undo_redo<QString> UnReDo_prgend_z;
     undo_redo<double> UnReDo_sichabst;
+    undo_redo<QString> UnReDo_mat;
+    undo_redo<QString> UnReDo_kom;
 
 };
 

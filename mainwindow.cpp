@@ -2577,6 +2577,12 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
     param  = "D=";
     param += w->dicke_qstring();
     pkopf.add_hi(param);
+    param  = "";//Material
+    param += w->material();
+    pkopf.add_hi(param);
+    param  = "";//Kommentar
+    param += w->kommentar();
+    pkopf.add_hi(param);
     ui->listWidget_bearb->addItem(pkopf.text());
     //Bearbeitungen ab 2. Zeile einfügen:
     text_zw *tmp_bearb = w->bearb_ptr();

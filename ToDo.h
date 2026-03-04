@@ -7,8 +7,6 @@
 
 --> G-Code export emc2
     > fkon
---> Programmkopf erweitern um Kommentarspalte
---> Kommentare aus ewx-dateien einlesen
 
 
 -> Verschiebe n Kopien

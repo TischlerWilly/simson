@@ -108,6 +108,14 @@ QString emc2::prgkopf()
         stream << "(L: " << Wst->laenge_qstring() << " x ";
         stream << "B: " << Wst->breite_qstring() << " x ";
         stream << "D: " << Wst->dicke_qstring() << ")\n";
+        if(!Wst->material().isEmpty())
+        {
+             stream << "( " << Wst->material() << " )\n";
+        }
+        if(!Wst->kommentar().isEmpty())
+        {
+            stream << "( " << Wst->kommentar() << " )\n";
+        }
         stream << "G21 (Millimeter)\n";
         stream << "G90 (Absolut-Koordinaten)\n";
         stream << "G64 P0.1 (flüssige Bewegung / Path Blending)\n";

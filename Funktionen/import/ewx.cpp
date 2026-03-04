@@ -42,6 +42,30 @@ werkstueck import_ewx(QString dateiinhalt)
             break; //for
         }
     }
+    //Material:
+    for(uint i=0; i<tz.count() ;i++)
+    {
+        QString parname = "'material':";
+        if(tz.at(i).contains(parname))
+        {
+            QString parwert = text_rechts(tz.at(i),parname);
+            parwert = text_mitte(parwert, " '", "',");
+            w.set_material(parwert);
+            break; //for
+        }
+    }
+    //Kommentar:
+    for(uint i=0; i<tz.count() ;i++)
+    {
+        QString parname = "'part_attribute4':";
+        if(tz.at(i).contains(parname))
+        {
+            QString parwert = text_rechts(tz.at(i),parname);
+            parwert = text_mitte(parwert, " '", "',");
+            w.set_kommentar(parwert);
+            break; //for
+        }
+    }
 
     //Bearbeitungen erfassen:
     ewx_reference ref;

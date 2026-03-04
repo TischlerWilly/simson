@@ -29,6 +29,8 @@ void Dialog_bearb_pkopf::set_data(werkstueck *w)
     ui->lineEdit_prgend_y->setText(Wst->prgend_y());
     ui->lineEdit_prgend_z->setText(Wst->prgend_z());
     ui->doubleSpinBox_sichabst->setValue(Wst->sichabst());
+    ui->lineEdit_mat->setText(Wst->material());
+    ui->lineEdit_kom->setText(Wst->kommentar());
 }
 
 void Dialog_bearb_pkopf::on_pushButton_ok_clicked()
@@ -43,6 +45,8 @@ void Dialog_bearb_pkopf::on_pushButton_ok_clicked()
     Wst->set_prgend_y(ui->lineEdit_prgend_y->text());
     Wst->set_prgend_z(ui->lineEdit_prgend_z->text());
     Wst->set_sichabst(ui->doubleSpinBox_sichabst->value());
+    Wst->set_material(ui->lineEdit_mat->text());
+    Wst->set_kommentar(ui->lineEdit_kom->text());
     this->close();
 }
 

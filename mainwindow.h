@@ -140,7 +140,6 @@ private slots:
     void on_actionDXF_Klasseneinstellung_triggered();
     //Fenster:
     void on_actionListWidget_Leitlinien_Fkon_triggered();
-    void on_actionDateien_und_Bearbeitungen_toggled(bool arg1);
     //ListWidget Datei:
     void on_listWidget_dateien_currentRowChanged(int currentRow);
     void aktualisiere_listwidget_dateien(int akt_index);
