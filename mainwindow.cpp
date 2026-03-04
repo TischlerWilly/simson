@@ -320,9 +320,9 @@ void MainWindow::setupGui()
     setCentralWidget(&vorschaufenster);
 
     // 2. Das DockWidget für den rechten Bereich erstellen
-    QDockWidget *dock = new QDockWidget(tr("Steuerung & Listen"), this);
-    dock->setObjectName("RightControlDock"); // Wichtig für das Speichern des Layouts später
-    dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    Dock_dat_bearb.setWindowTitle(tr("Dateien und Bearbeitungen"));
+    Dock_dat_bearb.setObjectName("RightControlDock"); // Wichtig für das Speichern des Layouts später
+    Dock_dat_bearb.setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
 
     // 3. Container-Widget für den Inhalt des Docks
     QWidget *dockContent = new QWidget();
@@ -352,8 +352,8 @@ void MainWindow::setupGui()
     mainLayoutRechts->addLayout(hLayoutUnten);
 
     // 4. Das fertige Layout dem Dock zuweisen
-    dock->setWidget(dockContent);
-    addDockWidget(Qt::RightDockWidgetArea, dock);
+    Dock_dat_bearb.setWidget(dockContent);
+    addDockWidget(Qt::RightDockWidgetArea, &Dock_dat_bearb);
 
     // 5. Signale für die Aktualisierung verbinden
 
@@ -364,14 +364,18 @@ void MainWindow::setupGui()
             });
 
     // Fall B: Dock wird gelöst (Float) oder angedockt
-    connect(dock, &QDockWidget::topLevelChanged, this, [this](bool floating)
+    connect(&Dock_dat_bearb, &QDockWidget::topLevelChanged, this, [this](bool floating)
             {
                 vorschaufenster.slot_aktualisieren();
             });
 
     // Die gewünschte Startbreite erzwingen
     // resizeDocks erwartet eine Liste von Docks und eine Liste von Pixel-Werten
-    resizeDocks({dock}, {350}, Qt::Horizontal);
+    resizeDocks({&Dock_dat_bearb}, {350}, Qt::Horizontal);
+    ui->actionDateien_und_Bearbeitungen->setCheckable(true);
+    connect(ui->actionDateien_und_Bearbeitungen, &QAction::triggered, &Dock_dat_bearb, &QDockWidget::setVisible);
+    connect(&Dock_dat_bearb, &QDockWidget::visibilityChanged, ui->actionDateien_und_Bearbeitungen, &QAction::setChecked);
+    ui->actionDateien_und_Bearbeitungen->setChecked(Dock_dat_bearb.isVisible());
 }
 void MainWindow::closeEvent(QCloseEvent *event)
 {
@@ -2493,7 +2497,7 @@ void MainWindow::getEinstellungDxfKlassen(einstellung_dxf_klassen e)
     }
     file.close();
 }
-//Analyse:
+//Fenster:
 void MainWindow::on_actionListWidget_Leitlinien_Fkon_triggered()
 {
     uint row = ui->listWidget_dateien->currentRow();
@@ -2690,6 +2694,12 @@ void MainWindow::update_listwidget_bearb(werkstueck *w)
     }
 }
 //------------------------------------------------------
+
+
+
+
+
+
 
 
 

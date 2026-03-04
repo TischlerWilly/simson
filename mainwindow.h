@@ -78,6 +78,7 @@ private:
     Dialog_maschinen dlg_Einstellung_maschinen;
     Dialog_einstellung_dxf dlg_einstellung_dxf;
     Dialog_einstellung_dxf_klassen dlg_einstellung_dxf_klassen;
+    QDockWidget Dock_dat_bearb;
 
 private slots:
     //Grafik und UI allgemein:
@@ -137,8 +138,9 @@ private slots:
     void on_actionCNC_Maschinen_triggered();
     void on_actionDXF_Grundeinstellung_triggered();
     void on_actionDXF_Klasseneinstellung_triggered();
-    //Analyse:
+    //Fenster:
     void on_actionListWidget_Leitlinien_Fkon_triggered();
+    void on_actionDateien_und_Bearbeitungen_toggled(bool arg1);
     //ListWidget Datei:
     void on_listWidget_dateien_currentRowChanged(int currentRow);
     void aktualisiere_listwidget_dateien(int akt_index);

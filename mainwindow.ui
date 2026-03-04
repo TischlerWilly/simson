@@ -152,18 +152,19 @@
     <addaction name="actionVerschieben"/>
     <addaction name="actionSchnellaenderung"/>
    </widget>
-   <widget class="QMenu" name="menuAnalyse">
+   <widget class="QMenu" name="menuFenster">
     <property name="title">
-     <string>Analyse</string>
+     <string>Fenster</string>
     </property>
     <addaction name="actionListWidget_Leitlinien_Fkon"/>
+    <addaction name="actionDateien_und_Bearbeitungen"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeitungen"/>
    <addaction name="menuCAM"/>
    <addaction name="menuManipulation"/>
    <addaction name="menuEinstellungen"/>
-   <addaction name="menuAnalyse"/>
+   <addaction name="menuFenster"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_oeffnen">
@@ -354,6 +355,17 @@
   <action name="actionListWidget_Leitlinien_Fkon">
    <property name="text">
     <string>ListWidget Leitlinien Fkon</string>
+   </property>
+  </action>
+  <action name="actionDateien_und_Bearbeitungen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dateien und Bearbeitungen</string>
    </property>
   </action>
  </widget>
