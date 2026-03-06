@@ -1,7 +1,7 @@
 #ifndef TODO_H
 #define TODO_H
 
-#define PROGRAMMVERSION "Simson V1-2026.03.03"
+#define PROGRAMMVERSION "Simson V1-2026.03.06"
 
 /*
 

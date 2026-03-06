@@ -722,11 +722,12 @@ void MainWindow::on_action_quick_import_triggered()
             }
         }
     }
-    Wste.sortieren();
+
     //-----------------------------
     //-----------------------------UI aktualisieren:
     if(Wste.wst(0))
     {
+        Wste.sortieren();
         ui->listWidget_dateien->clear();
         for(uint i=0; i<Wste.anzahl();i++)
         {
@@ -734,6 +735,9 @@ void MainWindow::on_action_quick_import_triggered()
 
         }
         ui->listWidget_dateien->setCurrentRow(0);
+    }else
+    {
+        aktualisiere_listwidget_dateien(-1);
     }
     //-----------------------------
 }
