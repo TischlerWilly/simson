@@ -61,6 +61,7 @@ public:
     //---------------------------------------------Manipulationen:
     void edit(uint index, text_zw neuer_text);
     void edit(uint index, QString neuer_text);
+    void entf(uint index);
 
 private:
     void add(text_zw geometrie, uint index);

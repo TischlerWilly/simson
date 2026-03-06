@@ -473,12 +473,25 @@ double geo_text::min_y()
 //---------------------------------------------Manipulationen:
 void geo_text::edit(uint index, text_zw neuer_text)
 {
-    Daten.at(index) = neuer_text;
+    if(index < count())
+    {
+        Daten.at(index) = neuer_text;
+    }
 }
 void geo_text::edit(uint index, QString neuer_text)
 {
-    text_zw tmp(neuer_text, '\n');
-    Daten.at(index) = tmp;
+    if(index < count())
+    {
+        text_zw tmp(neuer_text, '\n');
+        Daten.at(index) = tmp;
+    }
+}
+void geo_text::entf(uint index)
+{
+    if(index < count())
+    {
+        Daten.erase(Daten.begin() + index);
+    }
 }
 //--------------------------------------
 //Funktionen außerhalb der Klasse:

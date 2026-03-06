@@ -4,10 +4,7 @@
 #define PROGRAMMVERSION "Simson V1-2026.03.06"
 
 /*
-
---> G-Code export emc2
-    > fkon
-
+-> verhindern das man kommentare in zwischen fräseraufruf und fg bzw fb einfügen kann!!
 
 -> Verschiebe n Kopien
 -> vieleck-Tasche

@@ -42,6 +42,8 @@ QString emc2::gcode()
         stream << prgkopf();
 
         text_zw zeile;
+        geo_text leitlinien_fkon = Wst->geo_leitliniefkon(Maschine->wkzmag());
+        leitlinien_fkon.entf(0);//erste Zeile (Programmkopf) löschen um IndexGleichheit mit bearb zu erreichen
         for(uint i=0; i<Wst->bearb().count() ;i++)
         {
             zeile.set_text(Wst->bearb().at(i),TRENNZ_BEARB_PARAM);
@@ -65,6 +67,160 @@ QString emc2::gcode()
             {
                 rechtecktasche rt(zeile.text());
                 stream << rta(rt);
+            }else if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+            {
+                fraeseraufruf fa(zeile.text());
+                if(fa.bezug() != WST_BEZUG_OBSEI)
+                {
+                    continue;//for
+                }
+
+                QString tnummer;
+                tnummer = Maschine->wkzmag().wkznummer_von_alias(fa.wkznum(), WKZ_VERT);
+                stream << wkz_wechsel(tnummer);
+
+                double zust = 0;
+                if(fa.zust_qstring() == "AUTO")
+                {
+                    zust = Maschine->wkzmag().zustmasvert(tnummer).toDouble();
+                }else
+                {
+                    zust = ausdruck_auswerten(fa.zust_qstring()).toDouble();
+                }
+                double tiefe_fa = fa.tiefe();
+                if(tiefe_fa < 0)//wir wollen Durchfräsen
+                {
+                    tiefe_fa = Wst->dicke() - tiefe_fa;//--tiefe == +tiefe
+                }
+                double akt_ti = zust;
+                if(akt_ti > tiefe_fa)
+                {
+                    akt_ti = tiefe_fa;
+                }
+                double sicherheits_z = Wst->dicke() + Sicherheitsabstand;
+                double vorschub = Maschine->wkzmag().vorschub(tnummer).toDouble();
+
+                while (true)
+                {
+                    uint index_letzter = i;
+                    for(uint ii=i; i<Wst->bearb().count() ;ii++)
+                    {
+                        text_zw zeile;
+                        zeile.set_text(Wst->bearb().at(ii),TRENNZ_BEARB_PARAM);
+                        text_zw goeZeile = leitlinien_fkon.at(ii);
+                        if(zeile.at(0) == BEARBART_FRAESERAUFRUF)
+                        {
+                            if(ii != i)//das ist bereits der nächste Fräser-Aufruf
+                            {
+                                break;//for ii
+                            }
+                            //goeZeile enthällt nur 1 Element (Strecke|Bogen|Punkt)
+                            QString akt_geo = goeZeile.at(0);
+
+                            stream << "( <" << ii+1 << "> " << fauf_zu_prgzei(fa.text()) << " )\n";
+
+                            double akt_z = Wst->dicke() - akt_ti;
+                            double eintauchvorschub = vorschub * 0.75;
+
+                            if(akt_geo.contains(PUNKT))//bohrend eintauchen
+                            {
+                                //Fräser über eintauchpunkt bringen
+                                punkt3d p(akt_geo);//Eintauchpunkt
+                                stream << "G0 Z" << sicherheits_z << "\n";
+                                stream << "G0 X" << p.x() << " Y" << p.y() << "\n";
+                                //Eintauchen:
+                                stream << "G1 Z" << akt_z << " F"<< eintauchvorschub << "\n";
+                            }else if(akt_geo.contains(STRECKE))
+                            {
+                                strecke s(akt_geo);
+                                //Fräser über eintauchpunkt bringen
+                                stream << "G0 Z" << sicherheits_z << "\n";
+                                stream << "G0 X" << s.stapu().x() << " Y" << s.stapu().y() << "\n";
+                                //Eintauchen:
+                                stream << "G1 X" << s.endpu().x() << " Y" << s.endpu().y()
+                                       << " Z" << akt_z << " F"<< eintauchvorschub << "\n";
+                            }else if(akt_geo.contains(BOGEN))
+                            {
+                                bogen b(akt_geo);
+                                //Fräser über eintauchpunkt bringen
+                                stream << "G0 Z" << sicherheits_z << "\n";
+                                stream << "G0 X" << b.spu().x() << " Y" << b.spu().y() << "\n";
+                                //Eintauchen:
+                                if(b.uzs())
+                                {
+                                    stream << "G2 X" << b.epu().x() << " Y" << b.epu().y()
+                                           << " R" << b.rad()
+                                           << " Z" << akt_z << " F"<< eintauchvorschub << "\n";
+                                }else
+                                {
+                                    stream << "G3 X" << b.epu().x() << " Y" << b.epu().y()
+                                           << " R" << b.rad()
+                                           << " Z" << akt_z << " F"<< eintauchvorschub << "\n";
+                                }
+                            }
+                        }else if(zeile.at(0) == BEARBART_FRAESERGERADE || zeile.at(0) == BEARBART_FRAESERBOGEN)
+                        {
+                            double tiefe_fg_fb;
+                            if(zeile.at(0) == BEARBART_FRAESERGERADE)
+                            {
+                                fraesergerade fg(zeile.text());
+                                tiefe_fg_fb = fg.tiEnd();
+                                stream << "( <" << ii+1 << "> " << fgerade_zu_prgzei(fg.text()) << " )\n";
+                            }else//BEARBART_FRAESERBOGEN
+                            {
+                                fraeserbogen fb(zeile.text());
+                                tiefe_fg_fb = fb.tiEnd();
+                                stream << "( <" << ii+1 << "> " << fbogen_zu_prgzei(fb.text()) << " )\n";
+                            }
+                            double tidif_fa_fgfb = tiefe_fg_fb - tiefe_fa;
+                            double akt_z = Wst->dicke() - akt_ti - tidif_fa_fgfb;
+
+                            for(uint j=0; j < goeZeile.count() ;j++)
+                            {
+                                QString akt_geo = goeZeile.at(j);
+                                if(akt_geo.contains(STRECKE))
+                                {
+                                    strecke s(akt_geo);
+                                    stream << "G1 X" << s.endpu().x() << " Y" << s.endpu().y()
+                                           << " Z" << akt_z << " F"<< vorschub << "\n";
+                                }else if(akt_geo.contains(BOGEN))
+                                {
+                                    bogen b(akt_geo);
+                                    if(b.uzs())
+                                    {
+                                        stream << "G2 X" << b.epu().x() << " Y" << b.epu().y()
+                                        << " R" << b.rad()
+                                        << " Z" << akt_z << " F"<< vorschub << "\n";
+                                    }else
+                                    {
+                                        stream << "G3 X" << b.epu().x() << " Y" << b.epu().y()
+                                        << " R" << b.rad()
+                                        << " Z" << akt_z << " F"<< vorschub << "\n";
+                                    }
+                                }
+                            }
+                        }else
+                        {
+                            break;//for ii
+                        }
+                        index_letzter = ii;
+                    }
+                    if(akt_ti == tiefe_fa)//war die eben erzeugt Fräsbahn die letzte?
+                    {//dann sind wir fertig
+                        i = index_letzter;
+                        break;//while
+                    }else//die gesamttiefe ist noch nicht erreicht gewesen
+                    {//erhöhe die aktuelle Frästiefe
+                        akt_ti = akt_ti + zust;
+                        if(akt_ti > tiefe_fa)
+                        {
+                            akt_ti = tiefe_fa;
+                        }
+                    }
+                }
+                //Fräser aus der Fräsung heben
+                stream << "( Abfahren )\n";
+                stream << "G0 Z" << sicherheits_z << "\n";
             }
         }
 
@@ -192,10 +348,10 @@ QString emc2::wkz_wechsel(QString tnummer)
         wechseltext.replace("[WKZNR]", tnummer);
 
         stream << wechseltext;
-    }
 
-    Akt_wkz = tnummer;
-    Verwendete_wkz.insert(tnummer);//wird nur eingefügt wenn der Wert nicht bereits vorhanden ist in der Liste
+        Akt_wkz = tnummer;
+        Verwendete_wkz.insert(tnummer);//wird nur eingefügt wenn der Wert nicht bereits vorhanden ist in der Liste
+    }
 
     return gcode;
 }
